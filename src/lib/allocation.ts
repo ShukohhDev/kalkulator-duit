@@ -69,36 +69,29 @@ export function periodRange(mode: PeriodMode, ref: Date = new Date()): PeriodRan
   }
 }
 
-export function allowanceInRange(
+export function dailyAllowanceEntries(
   allowance: number,
   mode: PeriodMode,
   fromISO: string,
   toISODate: string,
 ): { iso: string; amount: number }[] {
   const entries: { iso: string; amount: number }[] = []
-  if (allowance <= 0) return entries
+  if (allowance <= 0 || fromISO > toISODate) return entries
 
-  const from = new Date(fromISO + 'T00:00:00')
+  let cursor = new Date(fromISO + 'T00:00:00')
   const to = new Date(toISODate + 'T00:00:00')
-  let cursor = startOfWeekOrMonth(mode, from)
   let guard = 0
 
-  while (cursor <= to && guard < 400) {
-    const end = mode === 'week' ? addDays(cursor, 6) : new Date(cursor.getFullYear(), cursor.getMonth() + 1, 0)
-    if (toISO(end) >= fromISO) entries.push({ iso: toISO(cursor), amount: allowance })
-    cursor = nextPeriodStart(mode, cursor)
+  while (cursor <= to && guard < 800) {
+    const amount = mode === 'week' ? allowance / 7 : allowance / daysInMonth(cursor)
+    entries.push({ iso: toISO(cursor), amount })
+    cursor = addDays(cursor, 1)
     guard++
   }
 
   return entries
 }
 
-function startOfWeekOrMonth(mode: PeriodMode, date: Date): Date {
-  if (mode === 'week') return startOfWeek(date)
-  return new Date(date.getFullYear(), date.getMonth(), 1)
-}
-
-function nextPeriodStart(mode: PeriodMode, date: Date): Date {
-  if (mode === 'week') return addDays(date, 7)
-  return new Date(date.getFullYear(), date.getMonth() + 1, 1)
+function daysInMonth(date: Date): number {
+  return new Date(date.getFullYear(), date.getMonth() + 1, 0).getDate()
 }

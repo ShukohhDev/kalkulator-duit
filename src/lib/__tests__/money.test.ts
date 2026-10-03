@@ -10,7 +10,7 @@ import {
   perWeek,
   toYearly,
 } from '../money'
-import { computeAllocation, periodRange, allowanceInRange } from '../allocation'
+import { computeAllocation, dailyAllowanceEntries, periodRange } from '../allocation'
 
 describe('konversi periode', () => {
   it('uang jajan mingguan → tahunan memakai 365/7', () => {
@@ -80,11 +80,16 @@ describe('rentang periode', () => {
     expect(range.totalDays).toBe(31)
   })
 
-  it('uang jajan tergenerasi tiap awal periode', () => {
-    const weekly = allowanceInRange(100_000, 'week', '2026-10-01', '2026-10-14')
-    expect(weekly.map((e) => e.iso)).toEqual(['2026-09-28', '2026-10-05', '2026-10-12'])
+  it('uang jajan dibagi rata per hari', () => {
+    const weekly = dailyAllowanceEntries(70_000, 'week', '2026-10-01', '2026-10-03')
+    expect(weekly.map((e) => e.iso)).toEqual(['2026-10-01', '2026-10-02', '2026-10-03'])
+    expect(weekly.every((e) => Math.abs(e.amount - 10_000) < 1e-9)).toBe(true)
 
-    const monthly = allowanceInRange(500_000, 'month', '2026-09-15', '2026-11-02')
-    expect(monthly.map((e) => e.iso)).toEqual(['2026-09-01', '2026-10-01', '2026-11-01'])
+    const monthly = dailyAllowanceEntries(620_000, 'month', '2026-10-01', '2026-10-31')
+    expect(monthly).toHaveLength(31)
+    expect(monthly.reduce((sum, e) => sum + e.amount, 0)).toBeCloseTo(620_000, 6)
+
+    expect(dailyAllowanceEntries(70_000, 'week', '2026-10-05', '2026-10-01')).toEqual([])
+    expect(dailyAllowanceEntries(0, 'week', '2026-10-01', '2026-10-03')).toEqual([])
   })
 })

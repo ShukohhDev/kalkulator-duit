@@ -1,6 +1,7 @@
 import type { AppState, Goal } from '../types'
 import type { Derived } from './derive'
 import { formatIDR } from './money'
+import { effectiveSaved } from './state'
 import { ageAfter, monthsToTarget, requiredDeposit } from './savings'
 
 export interface Insight {
@@ -68,8 +69,9 @@ export function buildInsights(state: AppState, derived: Derived, goal: Goal | un
         text: `Umurmu sekarang (${state.currentAge}) sudah tidak lebih muda dari umur target (${goal.targetAge}). Naikkan umur target atau kejar target lebih cepat.`,
       })
     } else {
-      const need = requiredDeposit({ target: goal.target, saved: goal.saved, months })
-      const projectedMonths = monthsToTarget({ target: goal.target, saved: goal.saved, deposit: goal.deposit })
+      const saved = effectiveSaved(goal, derived.savingsByGoal)
+      const need = requiredDeposit({ target: goal.target, saved, months })
+      const projectedMonths = monthsToTarget({ target: goal.target, saved, deposit: goal.deposit })
       const finish = projectedMonths !== null ? ageAfter(state.currentAge, projectedMonths) : null
 
       if (need === null) {
@@ -78,7 +80,7 @@ export function buildInsights(state: AppState, derived: Derived, goal: Goal | un
         out.push({
           id: 'goal-ok',
           tone: 'good',
-          text: `Tabunganmu ${formatIDR(goal.saved)} yang tumbuh 8%/tahun sudah cukup untuk mencapai ${goal.name} di umur ${goal.targetAge}.`,
+          text: `Tabunganmu ${formatIDR(saved)} yang tumbuh 8%/tahun sudah cukup untuk mencapai ${goal.name} di umur ${goal.targetAge}.`,
         })
       } else if (goal.deposit >= need) {
         out.push({

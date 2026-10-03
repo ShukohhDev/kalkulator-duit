@@ -74,7 +74,7 @@ export default function App() {
 
         <aside className="col col-side">
           <Calculator onUseNumber={(value) => update((s) => ({ ...s, allowance: value }))} />
-          <StreakBar state={state} />
+          <StreakBar state={state} savingsByGoal={derived.savingsByGoal} />
           <DataControls
             state={state}
             saved={saved}

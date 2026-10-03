@@ -1,7 +1,7 @@
 import { useMemo, useState, type FormEvent } from 'react'
 import type { AppState, Category, Expense } from '../types'
 import type { Updater } from '../hooks/useAppState'
-import { CATEGORY_COLORS } from '../lib/state'
+import { CATEGORY_COLORS, SAVINGS_CATEGORY } from '../lib/state'
 import { formatIDR, formatShortDate, monthKey, monthLabel, todayISO } from '../lib/money'
 import { uid } from '../lib/id'
 import { MoneyInput } from './MoneyInput'
@@ -18,6 +18,7 @@ export function ExpensesPanel({ state, update }: Props) {
   const [categoryId, setCategoryId] = useState(() => state.categories[0]?.id ?? 'makan')
   const [note, setNote] = useState('')
   const [amount, setAmount] = useState(0)
+  const [goalTarget, setGoalTarget] = useState('auto')
   const [editingId, setEditingId] = useState<string | null>(null)
 
   const [query, setQuery] = useState('')
@@ -61,22 +62,30 @@ export function ExpensesPanel({ state, update }: Props) {
   const resetForm = () => {
     setNote('')
     setAmount(0)
+    setGoalTarget('auto')
     setEditingId(null)
+  }
+
+  const resolveGoalId = (): string | undefined => {
+    if (categoryId !== SAVINGS_CATEGORY || goalTarget === 'none') return undefined
+    if (goalTarget === 'auto') return state.goals.find((goal) => goal.primary)?.id ?? state.goals[0]?.id
+    return goalTarget
   }
 
   const submit = (event: FormEvent) => {
     event.preventDefault()
     if (amount <= 0) return
+    const goalId = resolveGoalId()
 
     if (editingId) {
       update((s) => ({
         ...s,
         expenses: s.expenses.map((item) =>
-          item.id === editingId ? { ...item, date, categoryId, note, amount } : item,
+          item.id === editingId ? { ...item, date, categoryId, note, amount, goalId } : item,
         ),
       }))
     } else {
-      const expense: Expense = { id: uid('exp'), date, categoryId, note: note.trim(), amount }
+      const expense: Expense = { id: uid('exp'), date, categoryId, note: note.trim(), amount, goalId }
       update((s) => ({ ...s, expenses: [expense, ...s.expenses] }))
     }
     resetForm()
@@ -88,6 +97,7 @@ export function ExpensesPanel({ state, update }: Props) {
     setCategoryId(expense.categoryId)
     setNote(expense.note)
     setAmount(expense.amount)
+    setGoalTarget(expense.goalId ?? 'auto')
     window.scrollTo({ top: 0, behavior: 'smooth' })
   }
 
@@ -152,6 +162,22 @@ export function ExpensesPanel({ state, update }: Props) {
             </div>
           )}
         </div>
+
+        {categoryId === SAVINGS_CATEGORY && state.goals.length > 0 && (
+          <div className="field">
+            <label htmlFor="exp-goal">Masukkan ke target</label>
+            <select id="exp-goal" className="input" value={goalTarget} onChange={(e) => setGoalTarget(e.target.value)}>
+              <option value="auto">Target utama (otomatis)</option>
+              <option value="none">Tidak masuk target</option>
+              {state.goals.map((goal) => (
+                <option key={goal.id} value={goal.id}>
+                  {goal.name}
+                </option>
+              ))}
+            </select>
+            <span className="muted small">Saldo tabungan pada target itu ikut bertambah.</span>
+          </div>
+        )}
 
         <div className="field">
           <label htmlFor="exp-note">Untuk apa</label>

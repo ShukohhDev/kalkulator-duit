@@ -3,6 +3,7 @@ import type { AppState, Goal } from '../types'
 import type { Derived } from '../lib/derive'
 import type { Updater } from '../hooks/useAppState'
 import { formatIDR } from '../lib/money'
+import { effectiveSaved } from '../lib/state'
 import { uid } from '../lib/id'
 import { ageAfter, formatDuration, futureValue, monthsToTarget, requiredDeposit } from '../lib/savings'
 import { MoneyInput } from './MoneyInput'
@@ -19,20 +20,19 @@ const defaultDeposit = (derived: Derived) => Math.round(derived.monthly * 0.2)
 const monthsLeft = (goal: Goal, currentAge: number) => (goal.targetAge - currentAge) * 12
 
 export function SavingsPanel({ state, derived, update }: Props) {
-
-  
   const primary = state.goals.find((goal) => goal.primary) ?? state.goals[0]
 
   const recommendation = useMemo(() => {
     if (!primary || primary.target <= 0) return null
     const months = monthsLeft(primary, state.currentAge)
     if (months <= 0) return null
-    const need = requiredDeposit({ target: primary.target, saved: primary.saved, months })
-    const projected = monthsToTarget({ target: primary.target, saved: primary.saved, deposit: primary.deposit })
-    const value = futureValue({ target: primary.target, saved: primary.saved, deposit: primary.deposit, months })
+    const saved = effectiveSaved(primary, derived.savingsByGoal)
+    const need = requiredDeposit({ target: primary.target, saved, months })
+    const projected = monthsToTarget({ target: primary.target, saved, deposit: primary.deposit })
+    const value = futureValue({ target: primary.target, saved, deposit: primary.deposit, months })
     const deposits = primary.deposit * months
-    return { need, projected, value, months, deposits, interest: Math.max(0, value - primary.saved - deposits) }
-  }, [primary, state.currentAge])
+    return { need, projected, value, months, saved, deposits, interest: Math.max(0, value - saved - deposits) }
+  }, [primary, state.currentAge, derived.savingsByGoal])
 
   const addGoal = () => {
     const goal: Goal = {
@@ -86,7 +86,9 @@ export function SavingsPanel({ state, derived, update }: Props) {
       <div className="goal-list">
         {state.goals.map((goal) => {
           const months = monthsLeft(goal, state.currentAge)
-          const percent = goal.target > 0 ? Math.round((goal.saved / goal.target) * 100) : 0
+          const logged = derived.savingsByGoal[goal.id] ?? 0
+          const savedNow = effectiveSaved(goal, derived.savingsByGoal)
+          const percent = goal.target > 0 ? Math.round((savedNow / goal.target) * 100) : 0
 
           return (
             <article key={goal.id} className={`goal${goal.primary ? ' goal-primary' : ''}`}>
@@ -119,7 +121,7 @@ export function SavingsPanel({ state, derived, update }: Props) {
                   <MoneyInput value={goal.target} onValueChange={(value) => patchGoal(goal.id, { target: value })} />
                 </div>
                 <div className="field">
-                  <label>Sudah terkumpul (Rp)</label>
+                  <label>Saldo lain (opsional)</label>
                   <MoneyInput value={goal.saved} onValueChange={(value) => patchGoal(goal.id, { saved: value })} />
                 </div>
                 <div className="field">
@@ -139,11 +141,16 @@ export function SavingsPanel({ state, derived, update }: Props) {
               </div>
 
               <div className="goal-progress">
-                <ProgressBar value={goal.saved} max={goal.target} />
+                <ProgressBar value={savedNow} max={goal.target} />
                 <span className="muted small">
-                  {formatIDR(goal.saved)} / {formatIDR(goal.target)} ({percent}%)
+                  {formatIDR(savedNow)} / {formatIDR(goal.target)} ({percent}%)
                   {months > 0 ? ` · ${formatDuration(months)} lagi` : ' · umur target sudah terlampaui'}
                 </span>
+                {logged > 0 && (
+                  <span className="muted small">
+                    = saldo manual {formatIDR(goal.saved)} + dari catatan kategori tabungan {formatIDR(logged)}
+                  </span>
+                )}
               </div>
             </article>
           )

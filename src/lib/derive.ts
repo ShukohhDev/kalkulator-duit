@@ -1,11 +1,12 @@
 import type { AppState, CashflowView, Income, PeriodMode } from '../types'
 import {
   allocationFor,
-  allowanceInRange,
+  dailyAllowanceEntries,
   periodRange,
   type PeriodRange,
 } from './allocation'
 import { daysBetween, monthKey, parseISO, perDay, perWeek, perMonth, toISO, toYearly } from './money'
+import { SAVINGS_CATEGORY } from './state'
 
 export interface Derived {
   mode: PeriodMode | null
@@ -21,6 +22,7 @@ export interface Derived {
   totalExpense: number
   spentInPeriod: number
   spentByCategory: Record<string, number>
+  savingsByGoal: Record<string, number>
   allocationByCategory: Record<string, number>
   allocationInPeriod: number
   remainingInPeriod: number
@@ -47,10 +49,10 @@ export function derive(state: AppState, now: Date = new Date()): Derived {
   let generatedIncomes: Income[] = []
   if (mode && state.allowance > 0) {
     const from = earliestDate(state, period ? period.startISO : todayISO)
-    generatedIncomes = allowanceInRange(state.allowance, mode, from, todayISO).map((entry) => ({
-      id: `allowance-${mode}-${entry.iso}`,
+    generatedIncomes = dailyAllowanceEntries(state.allowance, mode, from, todayISO).map((entry) => ({
+      id: `allowance-day-${entry.iso}`,
       date: entry.iso,
-      source: mode === 'week' ? 'Uang jajan mingguan' : 'Uang jajan bulanan',
+      source: 'Uang jajan harian',
       amount: entry.amount,
       generated: true,
     }))
@@ -61,10 +63,14 @@ export function derive(state: AppState, now: Date = new Date()): Derived {
   const totalExpense = state.expenses.reduce((sum, item) => sum + item.amount, 0)
 
   const spentByCategory: Record<string, number> = {}
+  const savingsByGoal: Record<string, number> = {}
   let spentInPeriod = 0
 
   for (const expense of state.expenses) {
     spentByCategory[expense.categoryId] = (spentByCategory[expense.categoryId] ?? 0) + expense.amount
+    if (expense.categoryId === SAVINGS_CATEGORY && expense.goalId) {
+      savingsByGoal[expense.goalId] = (savingsByGoal[expense.goalId] ?? 0) + expense.amount
+    }
     if (period && expense.date >= period.startISO && expense.date <= period.endISO) {
       spentInPeriod += expense.amount
     }
@@ -97,6 +103,7 @@ export function derive(state: AppState, now: Date = new Date()): Derived {
     totalExpense,
     spentInPeriod,
     spentByCategory,
+    savingsByGoal,
     allocationByCategory,
     allocationInPeriod,
     remainingInPeriod,

@@ -15,6 +15,7 @@ export function IncomePanel({ state, update }: Props) {
   const [date, setDate] = useState(todayISO())
   const [source, setSource] = useState('')
   const [amount, setAmount] = useState(0)
+  const [editingId, setEditingId] = useState<string | null>(null)
 
   const manualTotal = state.incomes.reduce((sum, item) => sum + item.amount, 0)
 
@@ -23,13 +24,41 @@ export function IncomePanel({ state, update }: Props) {
     return [...keys].sort().reverse()
   }, [state.incomes])
 
+  const resetForm = () => {
+    setDate(todayISO())
+    setSource('')
+    setAmount(0)
+    setEditingId(null)
+  }
+
   const submit = (event: FormEvent) => {
     event.preventDefault()
     if (amount <= 0) return
-    const income: Income = { id: uid('inc'), date, source: source.trim() || 'Pemasukan lain', amount }
-    update((s) => ({ ...s, incomes: [income, ...s.incomes] }))
-    setSource('')
-    setAmount(0)
+    const label = source.trim() || 'Pemasukan lain'
+
+    if (editingId) {
+      update((s) => ({
+        ...s,
+        incomes: s.incomes.map((item) => (item.id === editingId ? { ...item, date, source: label, amount } : item)),
+      }))
+    } else {
+      const income: Income = { id: uid('inc'), date, source: label, amount }
+      update((s) => ({ ...s, incomes: [income, ...s.incomes] }))
+    }
+    resetForm()
+  }
+
+  const startEdit = (income: Income) => {
+    setEditingId(income.id)
+    setDate(income.date)
+    setSource(income.source)
+    setAmount(income.amount)
+    window.scrollTo({ top: 0, behavior: 'smooth' })
+  }
+
+  const remove = (id: string) => {
+    update((s) => ({ ...s, incomes: s.incomes.filter((item) => item.id !== id) }))
+    if (editingId === id) resetForm()
   }
 
   return (
@@ -40,8 +69,8 @@ export function IncomePanel({ state, update }: Props) {
       </header>
 
       <p className="muted small">
-        Uang jajan {state.mode === 'week' ? 'mingguan' : 'bulan'} sudah otomatis dicatat sebagai pemasukan. Di sini kamu
-        menambah pemasukan lain seperti uang lebaran atau hasil kerja.
+        Uang jajan dibagi rata per hari dan otomatis tercatat sebagai pemasukan. Di sini kamu menambah pemasukan lain
+        seperti uang lebaran atau hasil kerja.
       </p>
 
       <form className="form-grid" onSubmit={submit}>
@@ -65,8 +94,13 @@ export function IncomePanel({ state, update }: Props) {
         </div>
         <div className="form-actions">
           <button type="submit" className="btn" disabled={amount <= 0}>
-            Tambah pemasukan
+            {editingId ? 'Simpan perubahan' : 'Tambah pemasukan'}
           </button>
+          {editingId && (
+            <button type="button" className="btn btn-ghost" onClick={resetForm}>
+              Batal
+            </button>
+          )}
         </div>
       </form>
 
@@ -76,7 +110,7 @@ export function IncomePanel({ state, update }: Props) {
 
       <ul className="tx-list">
         {state.incomes.map((item) => (
-          <li key={item.id} className="tx">
+          <li key={item.id} className={`tx${editingId === item.id ? ' tx-active' : ''}`}>
             <span className="tx-dot" style={{ background: '#2f9e44' }} />
             <span className="tx-main">
               <strong>{item.source}</strong>
@@ -84,11 +118,10 @@ export function IncomePanel({ state, update }: Props) {
             </span>
             <span className="tx-amount tx-in">+{formatIDR(item.amount)}</span>
             <span className="tx-actions">
-              <button
-                type="button"
-                className="btn btn-ghost btn-sm btn-danger"
-                onClick={() => update((s) => ({ ...s, incomes: s.incomes.filter((i) => i.id !== item.id) }))}
-              >
+              <button type="button" className="btn btn-ghost btn-sm" onClick={() => startEdit(item)}>
+                Ubah
+              </button>
+              <button type="button" className="btn btn-ghost btn-sm btn-danger" onClick={() => remove(item.id)}>
                 Hapus
               </button>
             </span>

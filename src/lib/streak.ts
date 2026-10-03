@@ -1,4 +1,5 @@
 import type { AppState, Expense } from '../types'
+import { effectiveSaved } from './state'
 import { addDays, daysBetween, parseISO, toISO } from './money'
 
 export function expenseDates(expenses: Expense[]): Set<string> {
@@ -36,10 +37,10 @@ export interface Badge {
   unlocked: boolean
 }
 
-export function evaluateBadges(state: AppState, now: Date = new Date()): Badge[] {
+export function evaluateBadges(state: AppState, savingsByGoal: Record<string, number> = {}, now: Date = new Date()): Badge[] {
   const streak = currentStreak(state.expenses, now)
   const goal = state.goals.find((item) => item.primary) ?? state.goals[0]
-  const progress = goal && goal.target > 0 ? goal.saved / goal.target : 0
+  const progress = goal && goal.target > 0 ? effectiveSaved(goal, savingsByGoal) / goal.target : 0
 
   return [
     {

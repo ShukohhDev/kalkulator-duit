@@ -39,6 +39,7 @@ function sanitizeExpenses(value: unknown): Expense[] {
       categoryId: str(item.categoryId),
       note: str(item.note),
       amount: Math.max(0, num(item.amount)),
+      goalId: typeof item.goalId === 'string' && item.goalId !== '' ? item.goalId : undefined,
     }))
     .filter((item) => item.date !== '')
 }

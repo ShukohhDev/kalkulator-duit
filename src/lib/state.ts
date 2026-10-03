@@ -11,12 +11,18 @@ export const CATEGORY_COLORS = [
   '#5f3dc4',
 ]
 
+export const SAVINGS_CATEGORY = 'tabungan'
+
+export function effectiveSaved(goal: Goal, savingsByGoal: Record<string, number>): number {
+  return goal.saved + (savingsByGoal[goal.id] ?? 0)
+}
+
 export function defaultCategories(): Category[] {
   return [
     { id: 'makan', name: 'Makan & Minum', ratio: 0.5, builtin: true, color: '#e8590c' },
     { id: 'transport', name: 'Transport & Pulsa', ratio: 0.2, builtin: true, color: '#1971c2' },
     { id: 'nongkrong', name: 'Nongkrong / Ngopi', ratio: 0.1, builtin: true, color: '#9c36b5' },
-    { id: 'tabungan', name: 'Ditabung / Investasi', ratio: 0.2, builtin: true, color: '#2f9e44' },
+    { id: SAVINGS_CATEGORY, name: 'Ditabung / Investasi', ratio: 0.2, builtin: true, color: '#2f9e44' },
   ]
 }
 

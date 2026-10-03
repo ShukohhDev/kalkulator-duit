@@ -3,6 +3,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { act } from 'react'
 import { createRoot, type Root } from 'react-dom/client'
 import App from '../App'
+import { formatIDR } from '../lib/money'
 
 vi.mock('react-chartjs-2', () => ({
   Bar: () => null,
@@ -26,6 +27,16 @@ const setValue = (selector: string, value: string) => {
     input.dispatchEvent(new Event('input', { bubbles: true }))
   })
   return input
+}
+
+const setSelect = (selector: string, value: string) => {
+  const select = container.querySelector(selector) as HTMLSelectElement | null
+  if (!select) throw new Error(`elemen ${selector} tidak ditemukan`)
+  const setter = Object.getOwnPropertyDescriptor(window.HTMLSelectElement.prototype, 'value')!.set!
+  setter.call(select, value)
+  act(() => {
+    select.dispatchEvent(new Event('change', { bubbles: true }))
+  })
 }
 
 const click = (selector: string) => {
@@ -105,5 +116,54 @@ describe('alur aplikasi', () => {
     expect(container.textContent).toContain('Perhitungan untuk')
     expect(container.textContent).toContain('Rekomendasi setoran')
     expect(container.textContent).toContain('/ bulan')
+  })
+
+  it('menambah lalu mengedit pemasukan', () => {
+    click('.period-option')
+    setValue('#inc-source', 'pemasukan uji coba')
+    setValue('#inc-amount', '50000')
+    const form = container.querySelector('#inc-source')!.closest('form') as HTMLFormElement
+    act(() => {
+      form.dispatchEvent(new Event('submit', { bubbles: true, cancelable: true }))
+    })
+
+    const incomeItem = [...container.querySelectorAll('.tx')].find((li) => li.querySelector('.tx-in'))!
+    const editButton = [...incomeItem.querySelectorAll('button')].find((b) => b.textContent === 'Ubah')!
+    act(() => {
+      editButton.dispatchEvent(new MouseEvent('click', { bubbles: true }))
+    })
+
+    setValue('#inc-source', 'thr')
+    setValue('#inc-amount', '75000')
+    act(() => {
+      form.dispatchEvent(new Event('submit', { bubbles: true, cancelable: true }))
+    })
+
+    expect(container.textContent).toContain('thr')
+    expect(container.textContent).not.toContain('pemasukan uji coba')
+  })
+
+  it('pengeluaran kategori tabungan menambah saldo target yang dipilih', () => {
+    click('.period-option')
+
+    const addButton = [...container.querySelectorAll('button')].find((b) =>
+      b.textContent?.includes('Tambah target baru'),
+    )!
+    act(() => {
+      addButton.dispatchEvent(new MouseEvent('click', { bubbles: true }))
+    })
+    setValue('.goal .input-money', '100000')
+
+    setSelect('#exp-cat', 'tabungan')
+    expect(container.querySelector('#exp-goal')).not.toBeNull()
+
+    setValue('#exp-amount', '30000')
+    const form = container.querySelector('#exp-note')!.closest('form') as HTMLFormElement
+    act(() => {
+      form.dispatchEvent(new Event('submit', { bubbles: true, cancelable: true }))
+    })
+
+    expect(container.textContent).toContain(`${formatIDR(30_000)} / ${formatIDR(100_000)} (30%)`)
+    expect(container.textContent).toContain('dari catatan kategori tabungan')
   })
 })

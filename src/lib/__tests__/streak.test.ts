@@ -38,14 +38,14 @@ describe('currentStreak', () => {
 
 describe('evaluateBadges', () => {
   it('belum ada apa-apa → semua terkunci kecuali tidak ada', () => {
-    const badges = evaluateBadges(initialState(), now)
+    const badges = evaluateBadges(initialState(), {}, now)
     expect(badges.every((b) => !b.unlocked)).toBe(true)
   })
 
   it('catatan pertama membuka badge', () => {
     const state = initialState()
     state.expenses = [exp('2026-10-10')]
-    const badges = evaluateBadges(state, now)
+    const badges = evaluateBadges(state, {}, now)
     expect(badges.find((b) => b.id === 'first-log')?.unlocked).toBe(true)
     expect(badges.find((b) => b.id === 'streak-7')?.unlocked).toBe(false)
   })
@@ -55,8 +55,17 @@ describe('evaluateBadges', () => {
     state.goals = [
       { id: 'g1', name: 'HP', target: 1_000_000, saved: 500_000, deposit: 0, targetAge: 18, primary: true },
     ]
-    const badges = evaluateBadges(state, now)
+    const badges = evaluateBadges(state, {}, now)
     expect(badges.find((b) => b.id === 'goal-half')?.unlocked).toBe(true)
     expect(badges.find((b) => b.id === 'goal-full')?.unlocked).toBe(false)
+  })
+
+  it('saldo dari catatan kategori tabungan ikut dihitung', () => {
+    const state = initialState()
+    state.goals = [
+      { id: 'g1', name: 'Sepeda', target: 500_000, saved: 100_000, deposit: 0, targetAge: 18, primary: true },
+    ]
+    const badges = evaluateBadges(state, { g1: 400_000 }, now)
+    expect(badges.find((b) => b.id === 'goal-full')?.unlocked).toBe(true)
   })
 })

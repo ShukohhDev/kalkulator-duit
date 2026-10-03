@@ -3,11 +3,12 @@ import { currentStreak, evaluateBadges } from '../lib/streak'
 
 interface Props {
   state: AppState
+  savingsByGoal: Record<string, number>
 }
 
-export function StreakBar({ state }: Props) {
+export function StreakBar({ state, savingsByGoal }: Props) {
   const streak = currentStreak(state.expenses)
-  const badges = evaluateBadges(state)
+  const badges = evaluateBadges(state, savingsByGoal)
   const unlocked = badges.filter((badge) => badge.unlocked)
 
   return (

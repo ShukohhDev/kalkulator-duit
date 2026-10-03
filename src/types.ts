@@ -16,6 +16,7 @@ export interface Expense {
   categoryId: string
   note: string
   amount: number
+  goalId?: string
 }
 
 export interface Income {
