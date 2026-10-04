@@ -130,6 +130,41 @@ describe('alur aplikasi', () => {
     expect(document.documentElement.dataset.theme).toBe('light')
   })
 
+  it('menambah incaran wishlist dan menyetor dana kepadanya', () => {
+    click('.period-option')
+    clickText('button', 'Tambah incaran baru')
+
+    const wishCard = [...container.querySelectorAll('section.card')].find((card) =>
+      card.textContent?.includes('Wishlist / Incaran Beli'),
+    )
+    expect(wishCard).toBeTruthy()
+
+    const [nameInput, priceInput, , depositInput] = [...wishCard!.querySelectorAll('input')] as HTMLInputElement[]
+    expect(nameInput.value).toBe('Incaran 1')
+    expect(wishCard!.textContent).toContain('(0%)')
+    const setter = Object.getOwnPropertyDescriptor(window.HTMLInputElement.prototype, 'value')!.set!
+    const type = (input: HTMLInputElement, value: string) => {
+      act(() => {
+        setter.call(input, value)
+        input.dispatchEvent(new Event('input', { bubbles: true }))
+      })
+    }
+    type(nameInput as HTMLInputElement, 'HP baru')
+    type(priceInput as HTMLInputElement, '500000')
+    type(depositInput as HTMLInputElement, '50000')
+
+    expect(wishCard!.textContent).toContain('500.000')
+    const setor = [...wishCard!.querySelectorAll('button')].find((button) => button.textContent === 'Setor')
+    expect(setor).toBeTruthy()
+    act(() => {
+      setor!.dispatchEvent(new MouseEvent('click', { bubbles: true }))
+    })
+
+    expect(wishCard!.textContent).toContain('(10%)')
+    expect(wishCard!.textContent).toContain('setoran tercatat')
+    expect(container.textContent).toContain('Setoran HP baru')
+  })
+
   it('mengubah rasio alokasi lewat form dengan validasi jumlah 100%', () => {
     click('.period-option')
     setValue('#allowance', '700000')

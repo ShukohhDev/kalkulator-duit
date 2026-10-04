@@ -9,17 +9,18 @@ Semua data disimpan di `localStorage` browser — tidak ada server, tidak ada da
 - **Periode** 1 minggu atau 1 bulan, dengan uang jajan yang **dibagi rata per hari** untuk grafik dan sisa uang.
 - **Alokasi 50/15/5/10/20**: makan 50%, transport/bensin 15%, pulsa/kuota 5%, nongkrong 10%, tabungan 20% — rasionya **bisa diubah dari UI** (jumlah wajib tepat 100%, ada tombol reset default) dan kategori bisa ditambah sendiri.
 - **Saran Pengeluaran per Hari**: posisi boleh keluar berapa tiap hari per kategori (uang jajan dibagi rata × rasio), tampil tepat di bawah kartu Uang Jajan.
-- **Kalkulator** lewat **tombol melayang** di pojok kanan bawah: tekan untuk buka, tekan lagi/Esc untuk menutup, dan "Pakai angka" otomatis memakai hasilnya sebagai uang jajan lalu menutup panel.
+- **Kalkulator** lewat **tombol melayang** di pojok kanan bawah: tekan untuk buka, tekan lagi/Esc untuk menutup, dan "Pakai angka" otomatis memakai hasilnya sebagai uang jajan lalu menutup panel. **Tema terang/gelap** juga lewat tombol melayang kedua di atasnya.
 - **Pengeluaran**: filter kategori/bulan, pencarian, urut tanggal/nominal, edit & hapus catatan.
 - **Preset kategori**: tiga preset bawaan (Anak Kos, Mahasiswa, Karyawan) dan simpan kategori sendiri jadi preset.
 - **Pemasukan lain**: ditambah, diubah, dan dihapus — uang jajan harian otomatis tercatat sebagai pemasukan.
 - **Grafik kas**: harian, mingguan, bulanan, tahunan dengan **jenis grafik pilihan: batang, garis, donut rekap (pemasukan vs pengeluaran), atau donut per kategori** — pilihannya diingat di browser; donut alokasi vs realisasi; perbandingan bulan ini vs bulan lalu; kalender heatmap.
 - **Target tabungan**: bunga majemuk 8%/tahun (≈0,64%/bulan), beberapa target bisa **aktif diparalel**, rekomendasi setoran dihitung per target.
 - **Auto-sync tabungan**: pengeluaran kategori "Ditabung / Investasi" bisa ditujukan ke target tertentu, dan saldonya ikut terhitung di progres target.
+- **Wishlist / Incaran Beli**: daftar barang yang ingin dibeli (harga + saldo awal), **tanpa bunga/tanpa umur target** — progres = saldo awal + setoran lewat tombol **Setor** (tercatat sebagai pengeluaran "Ditabung" berhari ini) atau lewat select **Masukkan ke** di form pengeluaran.
 - **Laporan bulanan**: ringkasan pemasukan/pengeluaran, rincian per kategori, progres target, dan 5 pengeluaran terbesar — tombol **Cetak / Simpan PDF** memakai dialog cetak browser.
 - **Kebiasaan (streak) & badge**: 6 badge untuk konsistensi mencatat.
 - **Insight otomatis**: kategori yang melebihi alokasi, proyeksi uang habis, kekurangan setoran target.
-- **Data**: ekspor/impor JSON, **ekspor CSV** (pengeluaran + pemasukan, pemisah `;` + BOM UTF-8 agar rapi di Excel), reset data, tema terang/gelap.
+- **Data**: ekspor/impor JSON, **ekspor CSV** (pengeluaran + pemasukan, pemisah `;` + BOM UTF-8 agar rapi di Excel), reset data.
 - **PWA**: bisa dipasang di home screen dan dibuka **offline** setelah kunjungan pertama.
 
 ## Perintah
@@ -38,7 +39,7 @@ npm run preview    # sajian lokal hasil build
 1. Pilih periode (1 Minggu / 1 Bulan), isi nominal uang jajan. Kalau rasio bawaan belum pas, klik **Ubah rasio alokasi** (jumlah harus 100%).
 2. Catat pengeluaran tiap hari; pakai preset kategori kalau mau kategori lebih spesifik.
 3. Buat target tabungan (nama, target, umur target), tandai **Aktif** untuk target yang sedang dikejar.
-4. Kalau menabung lewat kategori "Ditabung / Investasi", pilih targetnya di select **Masukkan ke target**.
+4. Kalau menabung lewat kategori "Ditabung / Investasi", pilih tujuannya di select **Masukkan ke** (target tabungan atau incaran wishlist). Untuk incaran, bisa juga pakai tombol **Setor** di kartu Wishlist.
 5. Buka **Laporan Bulanan**, pilih bulan, lalu **Cetak / Simpan PDF**.
 
 ## Struktur

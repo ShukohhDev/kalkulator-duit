@@ -80,3 +80,19 @@ describe('buildCashflow', () => {
     expect(series.categoryTotals).toEqual({})
   })
 })
+
+describe('wishlistSavings', () => {
+  it('menjumlah pengeluaran kategori tabungan yang diarahkan ke incaran', () => {
+    const state: AppState = {
+      ...initialState(),
+      expenses: [
+        { id: 'e1', date: '2026-10-01', categoryId: 'tabungan', note: 'setor', amount: 50_000, wishlistId: 'w1' },
+        { id: 'e2', date: '2026-10-02', categoryId: 'tabungan', note: 'setor lagi', amount: 20_000, wishlistId: 'w1' },
+        { id: 'e3', date: '2026-10-03', categoryId: 'tabungan', note: 'ke target', amount: 30_000, goalId: 'g1' },
+        { id: 'e4', date: '2026-10-03', categoryId: 'makan', note: 'nasi', amount: 15_000, wishlistId: 'w2' },
+      ],
+    }
+    const derived = derive(state, new Date(2026, 9, 4))
+    expect(derived.wishlistSavings).toEqual({ w1: 70_000 })
+  })
+})

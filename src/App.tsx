@@ -20,6 +20,7 @@ import { ReportCard } from './components/ReportCard'
 import { SavingsPanel } from './components/SavingsPanel'
 import { StreakBar } from './components/StreakBar'
 import { WalletCards } from './components/WalletCards'
+import { WishlistPanel } from './components/WishlistPanel'
 
 const SUN_ICON = (
   <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" aria-hidden="true">
@@ -94,6 +95,7 @@ export default function App() {
           <AllocationDonut state={state} derived={derived} />
           <CalendarHeatmap state={state} />
           <SavingsPanel state={state} derived={derived} update={update} />
+          <WishlistPanel state={state} derived={derived} update={update} />
           <MonthCompare state={state} derived={derived} />
           <ReportCard state={state} />
         </div>

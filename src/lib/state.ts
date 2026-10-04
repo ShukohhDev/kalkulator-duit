@@ -46,6 +46,7 @@ export function initialState(): AppState {
     expenses: [],
     incomes: [],
     goals: [],
+    wishlist: [],
     currentAge: 17,
     theme: 'light',
   }

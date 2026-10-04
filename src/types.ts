@@ -17,6 +17,7 @@ export interface Expense {
   note: string
   amount: number
   goalId?: string
+  wishlistId?: string
 }
 
 export interface Income {
@@ -38,6 +39,13 @@ export interface Goal {
   active: boolean
 }
 
+export interface WishlistItem {
+  id: string
+  name: string
+  price: number
+  saved: number
+}
+
 export interface CategoryPreset {
   id: string
   name: string
@@ -53,6 +61,7 @@ export interface AppState {
   expenses: Expense[]
   incomes: Income[]
   goals: Goal[]
+  wishlist: WishlistItem[]
   currentAge: number
   theme: Theme
 }

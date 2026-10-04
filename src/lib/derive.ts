@@ -23,6 +23,7 @@ export interface Derived {
   spentInPeriod: number
   spentByCategory: Record<string, number>
   savingsByGoal: Record<string, number>
+  wishlistSavings: Record<string, number>
   allocationByCategory: Record<string, number>
   allocationInPeriod: number
   remainingInPeriod: number
@@ -64,12 +65,14 @@ export function derive(state: AppState, now: Date = new Date()): Derived {
 
   const spentByCategory: Record<string, number> = {}
   const savingsByGoal: Record<string, number> = {}
+  const wishlistSavings: Record<string, number> = {}
   let spentInPeriod = 0
 
   for (const expense of state.expenses) {
     spentByCategory[expense.categoryId] = (spentByCategory[expense.categoryId] ?? 0) + expense.amount
-    if (expense.categoryId === SAVINGS_CATEGORY && expense.goalId) {
-      savingsByGoal[expense.goalId] = (savingsByGoal[expense.goalId] ?? 0) + expense.amount
+    if (expense.categoryId === SAVINGS_CATEGORY) {
+      if (expense.goalId) savingsByGoal[expense.goalId] = (savingsByGoal[expense.goalId] ?? 0) + expense.amount
+      if (expense.wishlistId) wishlistSavings[expense.wishlistId] = (wishlistSavings[expense.wishlistId] ?? 0) + expense.amount
     }
     if (period && expense.date >= period.startISO && expense.date <= period.endISO) {
       spentInPeriod += expense.amount
@@ -104,6 +107,7 @@ export function derive(state: AppState, now: Date = new Date()): Derived {
     spentInPeriod,
     spentByCategory,
     savingsByGoal,
+    wishlistSavings,
     allocationByCategory,
     allocationInPeriod,
     remainingInPeriod,

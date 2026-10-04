@@ -1,4 +1,4 @@
-import type { AppState, Category, CategoryPreset, Expense, Goal, Income, PeriodMode } from '../types'
+import type { AppState, Category, CategoryPreset, Expense, Goal, Income, PeriodMode, WishlistItem } from '../types'
 import { initialState, defaultCategories, PULSA_CATEGORY } from './state'
 import { MAX_USER_PRESETS } from './presets'
 
@@ -100,8 +100,21 @@ function sanitizeExpenses(value: unknown): Expense[] {
       note: str(item.note),
       amount: Math.max(0, num(item.amount)),
       goalId: typeof item.goalId === 'string' && item.goalId !== '' ? item.goalId : undefined,
+      wishlistId: typeof item.wishlistId === 'string' && item.wishlistId !== '' ? item.wishlistId : undefined,
     }))
     .filter((item) => item.date !== '')
+}
+
+function sanitizeWishlist(value: unknown): WishlistItem[] {
+  if (!Array.isArray(value)) return []
+  return value
+    .filter((item): item is Record<string, unknown> => !!item && typeof item === 'object')
+    .map((item, index) => ({
+      id: str(item.id, `wish-${index}`),
+      name: str(item.name, 'Incaran baru').trim() || 'Incaran baru',
+      price: Math.max(0, num(item.price)),
+      saved: Math.max(0, num(item.saved)),
+    }))
 }
 
 function sanitizeIncomes(value: unknown): Income[] {
@@ -149,6 +162,7 @@ export function sanitize(raw: unknown): AppState {
     expenses: sanitizeExpenses(data.expenses),
     incomes: sanitizeIncomes(data.incomes),
     goals: sanitizeGoals(data.goals),
+    wishlist: sanitizeWishlist(data.wishlist),
     currentAge: Math.max(1, num(data.currentAge, base.currentAge)),
     theme: data.theme === 'dark' ? 'dark' : 'light',
   }

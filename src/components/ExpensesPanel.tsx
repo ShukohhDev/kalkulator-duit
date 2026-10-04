@@ -68,26 +68,27 @@ export function ExpensesPanel({ state, update }: Props) {
     setEditingId(null)
   }
 
-  const resolveGoalId = (): string | undefined => {
-    if (categoryId !== SAVINGS_CATEGORY || goalTarget === 'none') return undefined
-    if (goalTarget === 'auto') return primaryGoal(state.goals)?.id
-    return goalTarget
+  const resolveTarget = (): { goalId?: string; wishlistId?: string } => {
+    if (categoryId !== SAVINGS_CATEGORY || goalTarget === 'none') return {}
+    if (goalTarget.startsWith('wish:')) return { wishlistId: goalTarget.slice(5) }
+    if (goalTarget === 'auto') return { goalId: primaryGoal(state.goals)?.id }
+    return { goalId: goalTarget }
   }
 
   const submit = (event: FormEvent) => {
     event.preventDefault()
     if (amount <= 0) return
-    const goalId = resolveGoalId()
+    const { goalId, wishlistId } = resolveTarget()
 
     if (editingId) {
       update((s) => ({
         ...s,
         expenses: s.expenses.map((item) =>
-          item.id === editingId ? { ...item, date, categoryId, note, amount, goalId } : item,
+          item.id === editingId ? { ...item, date, categoryId, note, amount, goalId, wishlistId } : item,
         ),
       }))
     } else {
-      const expense: Expense = { id: uid('exp'), date, categoryId, note: note.trim(), amount, goalId }
+      const expense: Expense = { id: uid('exp'), date, categoryId, note: note.trim(), amount, goalId, wishlistId }
       update((s) => ({ ...s, expenses: [expense, ...s.expenses] }))
     }
     resetForm()
@@ -99,7 +100,7 @@ export function ExpensesPanel({ state, update }: Props) {
     setCategoryId(expense.categoryId)
     setNote(expense.note)
     setAmount(expense.amount)
-    setGoalTarget(expense.goalId ?? 'auto')
+    setGoalTarget(expense.wishlistId ? `wish:${expense.wishlistId}` : (expense.goalId ?? 'auto'))
     window.scrollTo({ top: 0, behavior: 'smooth' })
   }
 
@@ -204,19 +205,24 @@ export function ExpensesPanel({ state, update }: Props) {
           </button>
         </div>
 
-        {categoryId === SAVINGS_CATEGORY && state.goals.length > 0 && (
+        {categoryId === SAVINGS_CATEGORY && (state.goals.length > 0 || state.wishlist.length > 0) && (
           <div className="field">
-            <label htmlFor="exp-goal">Masukkan ke target</label>
+            <label htmlFor="exp-goal">Masukkan ke</label>
             <select id="exp-goal" className="input" value={goalTarget} onChange={(e) => setGoalTarget(e.target.value)}>
-              <option value="auto">Target utama (otomatis)</option>
-              <option value="none">Tidak masuk target</option>
+              {state.goals.length > 0 && <option value="auto">Target utama (otomatis)</option>}
+              <option value="none">Tidak masuk target/incaran</option>
               {state.goals.map((goal) => (
                 <option key={goal.id} value={goal.id}>
-                  {goal.name}
+                  {goal.name} — target tabungan
+                </option>
+              ))}
+              {state.wishlist.map((item) => (
+                <option key={item.id} value={`wish:${item.id}`}>
+                  {item.name} — incaran
                 </option>
               ))}
             </select>
-            <span className="muted small">Saldo tabungan pada target itu ikut bertambah.</span>
+            <span className="muted small">Saldo tabungan/incaran yang dipilih ikut bertambah.</span>
           </div>
         )}
 

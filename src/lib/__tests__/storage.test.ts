@@ -64,3 +64,23 @@ describe('migrasi kategori lama ke 5 kategori', () => {
     expect(sanitize(JSON.parse(JSON.stringify(fresh)))).toEqual(fresh)
   })
 })
+
+describe('wishlist', () => {
+  it('data lama tanpa wishlist menjadi [] dan data wishlist tersanitasi', () => {
+    const oldState = sanitize(legacy)
+    expect(oldState.wishlist).toEqual([])
+
+    const withWish = sanitize({
+      ...legacy,
+      wishlist: [{ id: 'w1', name: '  HP  ', price: '3000000', saved: -50 }],
+      expenses: [
+        { id: 'e1', date: '2026-10-01', categoryId: 'tabungan', note: 'setor', amount: 50_000, wishlistId: 'w1' },
+        { id: 'e2', date: '2026-10-02', categoryId: 'makan', note: 'nasi', amount: 10_000 },
+      ],
+    })
+    expect(withWish.wishlist).toEqual([{ id: 'w1', name: 'HP', price: 3_000_000, saved: 0 }])
+    expect(withWish.expenses[0].wishlistId).toBe('w1')
+    expect(withWish.expenses[1].wishlistId).toBeUndefined()
+    expect(sanitize(JSON.parse(JSON.stringify(withWish)))).toEqual(withWish)
+  })
+})
