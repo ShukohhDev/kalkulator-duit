@@ -30,6 +30,10 @@ export function primaryGoal(goals: Goal[]): Goal | undefined {
   return goals.find((goal) => goal.primary) ?? goals[0]
 }
 
+export function activeGoals(goals: Goal[]): Goal[] {
+  return goals.filter((goal) => goal.active && goal.target > 0).sort((a, b) => a.targetAge - b.targetAge)
+}
+
 export function initialState(): AppState {
   return {
     version: 1,

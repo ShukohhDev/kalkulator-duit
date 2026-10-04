@@ -656,6 +656,11 @@ select {
   box-shadow: 0 0 0 3px var(--accent-soft);
 }
 
+.goal-off {
+  opacity: 0.6;
+  border-style: dashed;
+}
+
 .goal-head {
   display: flex;
   gap: 8px;

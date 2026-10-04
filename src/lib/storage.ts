@@ -70,6 +70,7 @@ function sanitizeGoals(value: unknown): Goal[] {
       deposit: Math.max(0, num(item.deposit)),
       targetAge: Math.max(18, num(item.targetAge, 18)),
       primary: Boolean(item.primary),
+      active: typeof item.active === 'boolean' ? item.active : true,
     }))
     .filter((item) => item.target > 0)
 }

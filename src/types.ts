@@ -35,6 +35,7 @@ export interface Goal {
   deposit: number
   targetAge: number
   primary: boolean
+  active: boolean
 }
 
 export interface AppState {

@@ -3,7 +3,7 @@ import type { AppState, Goal } from '../types'
 import type { Derived } from '../lib/derive'
 import type { Updater } from '../hooks/useAppState'
 import { formatIDR } from '../lib/money'
-import { effectiveSaved } from '../lib/state'
+import { activeGoals, effectiveSaved } from '../lib/state'
 import { uid } from '../lib/id'
 import { ageAfter, formatDuration, futureValue, monthsToTarget, requiredDeposit } from '../lib/savings'
 import { MoneyInput } from './MoneyInput'
@@ -19,20 +19,25 @@ const defaultDeposit = (derived: Derived) => Math.round(derived.monthly * 0.2)
 
 const monthsLeft = (goal: Goal, currentAge: number) => (goal.targetAge - currentAge) * 12
 
-export function SavingsPanel({ state, derived, update }: Props) {
-  const primary = state.goals.find((goal) => goal.primary) ?? state.goals[0]
+function projection(goal: Goal, currentAge: number, savingsByGoal: Record<string, number>) {
+  const months = monthsLeft(goal, currentAge)
+  if (goal.target <= 0 || months <= 0) return null
+  const saved = effectiveSaved(goal, savingsByGoal)
+  const need = requiredDeposit({ target: goal.target, saved, months })
+  const projected = monthsToTarget({ target: goal.target, saved, deposit: goal.deposit })
+  const value = futureValue({ target: goal.target, saved, deposit: goal.deposit, months })
+  const deposits = goal.deposit * months
+  return { need, projected, value, months, deposits, interest: Math.max(0, value - saved - deposits) }
+}
 
-  const recommendation = useMemo(() => {
-    if (!primary || primary.target <= 0) return null
-    const months = monthsLeft(primary, state.currentAge)
-    if (months <= 0) return null
-    const saved = effectiveSaved(primary, derived.savingsByGoal)
-    const need = requiredDeposit({ target: primary.target, saved, months })
-    const projected = monthsToTarget({ target: primary.target, saved, deposit: primary.deposit })
-    const value = futureValue({ target: primary.target, saved, deposit: primary.deposit, months })
-    const deposits = primary.deposit * months
-    return { need, projected, value, months, saved, deposits, interest: Math.max(0, value - saved - deposits) }
-  }, [primary, state.currentAge, derived.savingsByGoal])
+export function SavingsPanel({ state, derived, update }: Props) {
+  const recommendations = useMemo(
+    () =>
+      activeGoals(state.goals)
+        .map((goal) => ({ goal, calc: projection(goal, state.currentAge, derived.savingsByGoal) }))
+        .filter((item): item is { goal: Goal; calc: NonNullable<ReturnType<typeof projection>> } => item.calc !== null),
+    [state.goals, state.currentAge, derived.savingsByGoal],
+  )
 
   const addGoal = () => {
     const goal: Goal = {
@@ -43,6 +48,7 @@ export function SavingsPanel({ state, derived, update }: Props) {
       deposit: defaultDeposit(derived),
       targetAge: Math.max(18, state.currentAge + 1),
       primary: state.goals.length === 0,
+      active: true,
     }
     update((s) => ({ ...s, goals: [...s.goals, goal] }))
   }
@@ -91,7 +97,7 @@ export function SavingsPanel({ state, derived, update }: Props) {
           const percent = goal.target > 0 ? Math.round((savedNow / goal.target) * 100) : 0
 
           return (
-            <article key={goal.id} className={`goal${goal.primary ? ' goal-primary' : ''}`}>
+            <article key={goal.id} className={`goal${goal.primary ? ' goal-primary' : ''}${goal.active ? '' : ' goal-off'}`}>
               <header className="goal-head">
                 <input
                   className="input input-name"
@@ -100,6 +106,14 @@ export function SavingsPanel({ state, derived, update }: Props) {
                   aria-label="Nama target"
                 />
                 <div className="goal-head-actions">
+                  <button
+                    type="button"
+                    className={`btn btn-ghost btn-sm${goal.active ? ' btn-active' : ''}`}
+                    aria-pressed={goal.active}
+                    onClick={() => patchGoal(goal.id, { active: !goal.active })}
+                  >
+                    {goal.active ? '● Aktif' : '○ Nonaktif'}
+                  </button>
                   <button
                     type="button"
                     className={`btn btn-ghost btn-sm${goal.primary ? ' btn-active' : ''}`}
@@ -163,37 +177,40 @@ export function SavingsPanel({ state, derived, update }: Props) {
       </button>
       {state.goals.length === 0 && <p className="muted small">Belum ada target. Buat satu untuk mulai menghitung bunga 8% per tahun.</p>}
 
-      {primary && recommendation && (
-        <div className="recommend">
-          <h3 className="section-title">Perhitungan untuk {primary.name}</h3>
+      {recommendations.map(({ goal, calc }) => (
+        <div className="recommend" key={goal.id}>
+          <h3 className="section-title">Perhitungan untuk {goal.name}</h3>
           <ul className="rec-list">
             <li>
               <span>Rekomendasi setoran</span>
-              <strong>{recommendation.need === null ? '—' : `${formatIDR(recommendation.need)} / bulan`}</strong>
+              <strong>{calc.need === null ? '—' : `${formatIDR(calc.need)} / bulan`}</strong>
             </li>
             <li>
               <span>Setoran riil kamu</span>
-              <strong>{formatIDR(primary.deposit)} / bulan</strong>
+              <strong>{formatIDR(goal.deposit)} / bulan</strong>
             </li>
             <li>
               <span>Perkiraan tercapai</span>
               <strong>
-                {recommendation.projected === null
+                {calc.projected === null
                   ? 'Tidak tercapai (belum ada setoran/saldo)'
-                  : recommendation.projected === 0
+                  : calc.projected === 0
                     ? 'Sudah tercapai'
-                    : `umur ${ageAfter(state.currentAge, recommendation.projected).label} (${formatDuration(recommendation.projected)})`}
+                    : `umur ${ageAfter(state.currentAge, calc.projected).label} (${formatDuration(calc.projected)})`}
               </strong>
             </li>
             <li>
-              <span>Nilai tabungan di umur {primary.targetAge}</span>
+              <span>Nilai tabungan di umur {goal.targetAge}</span>
               <strong>
-                {formatIDR(recommendation.value)}
-                <span className="muted small"> (setoran {formatIDR(recommendation.deposits)} + bunga {formatIDR(recommendation.interest)})</span>
+                {formatIDR(calc.value)}
+                <span className="muted small"> (setoran {formatIDR(calc.deposits)} + bunga {formatIDR(calc.interest)})</span>
               </strong>
             </li>
           </ul>
         </div>
+      ))}
+      {state.goals.length > 0 && recommendations.length === 0 && (
+        <p className="muted small">Belum ada target aktif yang bisa dihitung — aktifkan salah satu di atas.</p>
       )}
     </section>
   )

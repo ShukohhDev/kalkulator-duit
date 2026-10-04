@@ -1,7 +1,7 @@
 import { useMemo, useState, type FormEvent } from 'react'
 import type { AppState, Category, Expense } from '../types'
 import type { Updater } from '../hooks/useAppState'
-import { CATEGORY_COLORS, SAVINGS_CATEGORY } from '../lib/state'
+import { CATEGORY_COLORS, SAVINGS_CATEGORY, primaryGoal } from '../lib/state'
 import { formatIDR, formatShortDate, monthKey, monthLabel, todayISO } from '../lib/money'
 import { uid } from '../lib/id'
 import { MoneyInput } from './MoneyInput'
@@ -68,7 +68,7 @@ export function ExpensesPanel({ state, update }: Props) {
 
   const resolveGoalId = (): string | undefined => {
     if (categoryId !== SAVINGS_CATEGORY || goalTarget === 'none') return undefined
-    if (goalTarget === 'auto') return state.goals.find((goal) => goal.primary)?.id ?? state.goals[0]?.id
+    if (goalTarget === 'auto') return primaryGoal(state.goals)?.id
     return goalTarget
   }
 

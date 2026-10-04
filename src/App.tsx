@@ -2,7 +2,7 @@ import { useEffect, useMemo, useState } from 'react'
 import { useAppState } from './hooks/useAppState'
 import { derive } from './lib/derive'
 import { buildInsights } from './lib/insights'
-import { initialState, primaryGoal } from './lib/state'
+import { initialState } from './lib/state'
 import { clearState } from './lib/storage'
 import { AllowanceCard } from './components/AllowanceCard'
 import { AllocationDonut } from './components/AllocationDonut'
@@ -24,8 +24,7 @@ export default function App() {
   const [pickerOpen, setPickerOpen] = useState(false)
 
   const derived = useMemo(() => derive(state), [state])
-  const goal = primaryGoal(state.goals)
-  const insights = useMemo(() => buildInsights(state, derived, goal), [state, derived, goal])
+  const insights = useMemo(() => buildInsights(state, derived), [state, derived])
 
   useEffect(() => {
     document.documentElement.dataset.theme = state.theme

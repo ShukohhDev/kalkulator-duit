@@ -1,7 +1,7 @@
-import type { AppState, Goal } from '../types'
+import type { AppState } from '../types'
 import type { Derived } from './derive'
 import { formatIDR } from './money'
-import { effectiveSaved } from './state'
+import { activeGoals, effectiveSaved } from './state'
 import { ageAfter, monthsToTarget, requiredDeposit } from './savings'
 
 export interface Insight {
@@ -10,9 +10,9 @@ export interface Insight {
   text: string
 }
 
-const MAX_INSIGHTS = 4
+const MAX_INSIGHTS = 5
 
-export function buildInsights(state: AppState, derived: Derived, goal: Goal | undefined): Insight[] {
+export function buildInsights(state: AppState, derived: Derived): Insight[] {
   const out: Insight[] = []
 
   if (state.expenses.length === 0) {
@@ -60,44 +60,46 @@ export function buildInsights(state: AppState, derived: Derived, goal: Goal | un
     }
   }
 
-  if (goal && goal.target > 0) {
+  for (const goal of activeGoals(state.goals)) {
+    if (out.length >= MAX_INSIGHTS) break
     const months = (goal.targetAge - state.currentAge) * 12
     if (months <= 0) {
       out.push({
-        id: 'goal-age',
+        id: `goal-age-${goal.id}`,
         tone: 'warn',
-        text: `Umurmu sekarang (${state.currentAge}) sudah tidak lebih muda dari umur target (${goal.targetAge}). Naikkan umur target atau kejar target lebih cepat.`,
+        text: `Umurmu sekarang (${state.currentAge}) sudah tidak lebih muda dari umur target ${goal.name} (${goal.targetAge}). Naikkan umur target atau kejar target lebih cepat.`,
+      })
+      continue
+    }
+
+    const saved = effectiveSaved(goal, derived.savingsByGoal)
+    const need = requiredDeposit({ target: goal.target, saved, months })
+    const projectedMonths = monthsToTarget({ target: goal.target, saved, deposit: goal.deposit })
+    const finish = projectedMonths !== null ? ageAfter(state.currentAge, projectedMonths) : null
+
+    if (need === null) {
+      // tidak ada rekomendasi yang bisa dihitung
+    } else if (need === 0) {
+      out.push({
+        id: `goal-ok-${goal.id}`,
+        tone: 'good',
+        text: `Tabunganmu ${formatIDR(saved)} yang tumbuh 8%/tahun sudah cukup untuk mencapai ${goal.name} di umur ${goal.targetAge}.`,
+      })
+    } else if (goal.deposit >= need) {
+      out.push({
+        id: `goal-ok-${goal.id}`,
+        tone: 'good',
+        text: `Dengan setoran ${formatIDR(goal.deposit)}/bulan, target ${goal.name} tercapai di umur ${finish ? finish.label : String(goal.targetAge)}.`,
       })
     } else {
-      const saved = effectiveSaved(goal, derived.savingsByGoal)
-      const need = requiredDeposit({ target: goal.target, saved, months })
-      const projectedMonths = monthsToTarget({ target: goal.target, saved, deposit: goal.deposit })
-      const finish = projectedMonths !== null ? ageAfter(state.currentAge, projectedMonths) : null
-
-      if (need === null) {
-        // tidak ada rekomendasi yang bisa dihitung
-      } else if (need === 0) {
-        out.push({
-          id: 'goal-ok',
-          tone: 'good',
-          text: `Tabunganmu ${formatIDR(saved)} yang tumbuh 8%/tahun sudah cukup untuk mencapai ${goal.name} di umur ${goal.targetAge}.`,
-        })
-      } else if (goal.deposit >= need) {
-        out.push({
-          id: 'goal-ok',
-          tone: 'good',
-          text: `Dengan setoran ${formatIDR(goal.deposit)}/bulan, target ${goal.name} tercapai di umur ${finish ? finish.label : String(goal.targetAge)}.`,
-        })
-      } else {
-        const tail = finish
-          ? `Setoranmu sekarang ${formatIDR(goal.deposit)} → tercapai di umur ${finish.label}.`
-          : `Setoranmu sekarang ${formatIDR(goal.deposit)} belum menggerakkan tabunganmu.`
-        out.push({
-          id: 'goal-short',
-          tone: 'warn',
-          text: `Butuh ${formatIDR(need)}/bulan agar ${goal.name} tercapai di umur ${goal.targetAge}. ${tail}`,
-        })
-      }
+      const tail = finish
+        ? `Setoranmu sekarang ${formatIDR(goal.deposit)} → tercapai di umur ${finish.label}.`
+        : `Setoranmu sekarang ${formatIDR(goal.deposit)} belum menggerakkan tabunganmu.`
+      out.push({
+        id: `goal-short-${goal.id}`,
+        tone: 'warn',
+        text: `Butuh ${formatIDR(need)}/bulan agar ${goal.name} tercapai di umur ${goal.targetAge}. ${tail}`,
+      })
     }
   }
 
