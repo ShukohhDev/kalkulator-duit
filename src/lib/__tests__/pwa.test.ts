@@ -36,8 +36,16 @@ describe('pwa', () => {
   it('service worker bisa dibuka offline: navigasi fallback ke root, aset cache-first', () => {
     const sw = swRaw()
     expect(sw).toContain("request.mode === 'navigate'")
-    expect(sw).toContain('await caches.match(ROOT)')
-    expect(sw).toContain('caches.match(request)')
+    expect(sw).toContain('caches.match(ROOT')
+    expect(sw).toContain('caches.match(request')
+    expect(sw).toContain('ignoreVary')
     expect(sw).toContain('addEventListener')
+  })
+
+  it('aset ber-hashed ikut di-precache saat install supaya kunjungan pertama aman offline', () => {
+    const sw = swRaw()
+    expect(sw).toContain('installPrecache')
+    expect(sw).toContain('\\/assets\\/') // regex di sw.js mem-escape slash
+    expect(sw).toContain('manifest.webmanifest')
   })
 })
