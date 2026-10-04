@@ -910,10 +910,18 @@ select {
   filter: brightness(0.92);
 }
 
+.fab-theme {
+  bottom: 86px;
+  background: var(--surface);
+  color: var(--text);
+  border: 1px solid var(--border);
+  box-shadow: 0 6px 18px rgba(16, 24, 40, 0.18);
+}
+
 .calc-pop {
   position: fixed;
   right: 22px;
-  bottom: 90px;
+  bottom: 154px;
   z-index: 40;
   width: min(280px, calc(100vw - 32px));
 }

@@ -8,10 +8,9 @@ interface Props {
   saved: boolean
   onImport: (state: AppState) => void
   onReset: () => void
-  onToggleTheme: () => void
 }
 
-export function DataControls({ state, saved, onImport, onReset, onToggleTheme }: Props) {
+export function DataControls({ state, saved, onImport, onReset }: Props) {
   const fileRef = useRef<HTMLInputElement>(null)
   const [message, setMessage] = useState('')
 
@@ -77,9 +76,6 @@ export function DataControls({ state, saved, onImport, onReset, onToggleTheme }:
         </button>
         <button type="button" className="btn btn-ghost btn-sm" onClick={() => fileRef.current?.click()}>
           Impor JSON
-        </button>
-        <button type="button" className="btn btn-ghost btn-sm" onClick={onToggleTheme}>
-          Ganti tema
         </button>
         <button type="button" className="btn btn-ghost btn-sm btn-danger" onClick={reset}>
           Reset data

@@ -103,7 +103,7 @@ describe('alur aplikasi', () => {
     click('.period-option')
     expect(container.querySelector('.calc-pop')).toBeNull()
 
-    click('.fab')
+    click('.fab:not(.fab-theme)')
     expect(container.querySelector('.calc-pop')).not.toBeNull()
 
     act(() => {
@@ -111,7 +111,7 @@ describe('alur aplikasi', () => {
     })
     expect(container.querySelector('.calc-pop')).toBeNull()
 
-    click('.fab')
+    click('.fab:not(.fab-theme)')
     const useNumber = [...container.querySelectorAll('.calc-pop button')].find((button) =>
       button.textContent?.includes('Pakai angka'),
     )
@@ -120,6 +120,14 @@ describe('alur aplikasi', () => {
       useNumber!.dispatchEvent(new MouseEvent('click', { bubbles: true }))
     })
     expect(container.querySelector('.calc-pop')).toBeNull()
+  })
+
+  it('berganti tema lewat tombol melayang', () => {
+    expect(document.documentElement.dataset.theme).toBe('light')
+    click('.fab-theme')
+    expect(document.documentElement.dataset.theme).toBe('dark')
+    click('.fab-theme')
+    expect(document.documentElement.dataset.theme).toBe('light')
   })
 
   it('mengubah rasio alokasi lewat form dengan validasi jumlah 100%', () => {

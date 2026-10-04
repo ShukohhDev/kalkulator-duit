@@ -21,6 +21,19 @@ import { SavingsPanel } from './components/SavingsPanel'
 import { StreakBar } from './components/StreakBar'
 import { WalletCards } from './components/WalletCards'
 
+const SUN_ICON = (
+  <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" aria-hidden="true">
+    <circle cx="12" cy="12" r="4" />
+    <path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4" />
+  </svg>
+)
+
+const MOON_ICON = (
+  <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" aria-hidden="true">
+    <path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z" />
+  </svg>
+)
+
 export default function App() {
   const { state, update, replace, saved } = useAppState()
   const [pickerOpen, setPickerOpen] = useState(false)
@@ -92,7 +105,6 @@ export default function App() {
             saved={saved}
             onImport={replace}
             onReset={resetAll}
-            onToggleTheme={() => update((s) => ({ ...s, theme: s.theme === 'dark' ? 'light' : 'dark' }))}
           />
         </aside>
       </main>
@@ -113,6 +125,15 @@ export default function App() {
           />
         </div>
       )}
+      <button
+        type="button"
+        className="fab fab-theme"
+        onClick={() => update((s) => ({ ...s, theme: s.theme === 'dark' ? 'light' : 'dark' }))}
+        aria-label="Ganti tema"
+        title="Ganti tema"
+      >
+        {state.theme === 'dark' ? SUN_ICON : MOON_ICON}
+      </button>
       <button
         type="button"
         className={`fab${calcOpen ? ' fab-open' : ''}`}
