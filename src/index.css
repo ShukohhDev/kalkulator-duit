@@ -711,6 +711,77 @@ select {
   font-variant-numeric: tabular-nums;
 }
 
+/* ---------- report ---------- */
+
+.report-actions {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.report-summary {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 8px;
+  margin: 12px 0;
+}
+
+.report-stat {
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 10px 12px;
+  background: var(--surface-2);
+}
+
+.report-stat strong {
+  display: block;
+  margin-top: 4px;
+  font-variant-numeric: tabular-nums;
+}
+
+.report-footer {
+  margin-top: 12px;
+}
+
+@media print {
+  body * {
+    visibility: hidden;
+  }
+
+  .report,
+  .report * {
+    visibility: visible;
+  }
+
+  .report {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100%;
+    border: none;
+    box-shadow: none;
+    background: #fff;
+    color: #000;
+    print-color-adjust: exact;
+    -webkit-print-color-adjust: exact;
+  }
+
+  .no-print {
+    display: none !important;
+  }
+
+  .report .muted,
+  .report .small {
+    color: #444 !important;
+  }
+
+  .report .alloc-list li,
+  .report .report-stat {
+    background: #fff;
+    border-color: #ccc;
+  }
+}
+
 /* ---------- calculator ---------- */
 
 .calc-display {

@@ -178,4 +178,19 @@ describe('alur aplikasi', () => {
     const categorySelect = container.querySelector('#exp-cat') as HTMLSelectElement
     expect([...categorySelect.options].map((option) => option.textContent)).toContain('Laundry & Setrika')
   })
+
+  it('laporan bulanan menampilkan ringkasan dan bisa dicetak', () => {
+    click('.period-option')
+    expect(container.textContent).toContain('Laporan Bulanan')
+
+    const print = vi.spyOn(window, 'print').mockImplementation(() => {})
+    const printButton = [...container.querySelectorAll('button')].find(
+      (b) => b.textContent === 'Cetak / Simpan PDF',
+    )!
+    act(() => {
+      printButton.dispatchEvent(new MouseEvent('click', { bubbles: true }))
+    })
+    expect(print).toHaveBeenCalledTimes(1)
+    print.mockRestore()
+  })
 })

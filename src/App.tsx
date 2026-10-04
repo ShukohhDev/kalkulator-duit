@@ -15,6 +15,7 @@ import { IncomePanel } from './components/IncomePanel'
 import { InsightsPanel } from './components/InsightsPanel'
 import { MonthCompare } from './components/MonthCompare'
 import { PeriodPicker } from './components/PeriodPicker'
+import { ReportCard } from './components/ReportCard'
 import { SavingsPanel } from './components/SavingsPanel'
 import { StreakBar } from './components/StreakBar'
 import { WalletCards } from './components/WalletCards'
@@ -69,6 +70,7 @@ export default function App() {
           <CalendarHeatmap state={state} />
           <SavingsPanel state={state} derived={derived} update={update} />
           <MonthCompare state={state} derived={derived} />
+          <ReportCard state={state} />
         </div>
 
         <aside className="col col-side">
