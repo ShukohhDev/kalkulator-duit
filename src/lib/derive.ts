@@ -139,16 +139,17 @@ export interface CashflowSeries {
   labels: string[]
   income: number[]
   expense: number[]
+  categoryTotals: Record<string, number>
 }
 
 export function buildCashflow(
   incomes: Income[],
-  expenses: { date: string; amount: number }[],
+  expenses: { date: string; amount: number; categoryId?: string }[],
   view: CashflowView,
   now: Date = new Date(),
 ): CashflowSeries {
   const allDates = [...incomes.map((i) => i.date), ...expenses.map((e) => e.date)]
-  if (allDates.length === 0) return { labels: [], income: [], expense: [] }
+  if (allDates.length === 0) return { labels: [], income: [], expense: [], categoryTotals: {} }
 
   const minDate = allDates.reduce((min, d) => (d < min ? d : min), allDates[0])
   const firstKey = bucketKey(parseISO(minDate), view)
@@ -177,10 +178,19 @@ export function buildCashflow(
   }
 
   const keys = [...buckets.keys()].slice(-VIEW_LIMIT[view])
+  const visible = new Set(keys)
+  const categoryTotals: Record<string, number> = {}
+  for (const item of expenses) {
+    const id = item.categoryId
+    if (!id || !visible.has(bucketKey(parseISO(item.date), view))) continue
+    categoryTotals[id] = (categoryTotals[id] ?? 0) + item.amount
+  }
+
   return {
     labels: keys.map((key) => bucketLabel(key, view)),
     income: keys.map((key) => buckets.get(key)!.income),
     expense: keys.map((key) => buckets.get(key)!.expense),
+    categoryTotals,
   }
 }
 

@@ -8,6 +8,7 @@ import { formatIDR } from '../lib/money'
 vi.mock('react-chartjs-2', () => ({
   Bar: () => null,
   Doughnut: () => null,
+  Line: () => null,
 }))
 
 declare global {

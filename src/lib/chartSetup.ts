@@ -3,12 +3,29 @@ import {
   BarElement,
   CategoryScale,
   Chart as ChartJS,
+  DoughnutController,
   Legend,
+  LineController,
+  LineElement,
   LinearScale,
+  PieController,
+  PointElement,
   Tooltip,
 } from 'chart.js'
 
-ChartJS.register(ArcElement, BarElement, CategoryScale, LinearScale, Tooltip, Legend)
+ChartJS.register(
+  ArcElement,
+  BarElement,
+  CategoryScale,
+  DoughnutController,
+  Legend,
+  LineController,
+  LineElement,
+  LinearScale,
+  PieController,
+  PointElement,
+  Tooltip,
+)
 
 export const CHART_FONT = {
   family: "'Inter', 'Segoe UI', system-ui, sans-serif",

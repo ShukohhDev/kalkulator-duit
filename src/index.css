@@ -952,6 +952,10 @@ select {
   position: relative;
 }
 
+.chart-type-row {
+  margin-top: 10px;
+}
+
 .chart-box-bar {
   height: 300px;
 }

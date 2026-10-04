@@ -1,9 +1,10 @@
-import { useMemo, useState } from 'react'
-import { Bar } from 'react-chartjs-2'
-import type { AppState, CashflowView } from '../types'
+import { useEffect, useMemo, useState } from 'react'
+import { Bar, Doughnut, Line } from 'react-chartjs-2'
+import type { AppState, CashflowChartType, CashflowView } from '../types'
 import type { Derived } from '../lib/derive'
 import { buildCashflow } from '../lib/derive'
 import { CHART_FONT, EXPENSE_COLOR, INCOME_COLOR, MUTED_COLOR } from '../lib/chartSetup'
+import { loadPrefs, savePrefs } from '../lib/prefs'
 import { formatIDR } from '../lib/money'
 
 interface Props {
@@ -18,8 +19,33 @@ const VIEWS: { id: CashflowView; label: string }[] = [
   { id: 'year', label: 'Tahunan' },
 ]
 
+const CHARTS: { id: CashflowChartType; label: string }[] = [
+  { id: 'bar', label: 'Batang' },
+  { id: 'line', label: 'Garis' },
+  { id: 'donut', label: 'Donut' },
+  { id: 'category', label: 'Kategori' },
+]
+
+const donutOptions = {
+  responsive: true,
+  maintainAspectRatio: false,
+  plugins: {
+    legend: { labels: { color: MUTED_COLOR, font: CHART_FONT } },
+    tooltip: {
+      callbacks: {
+        label: (ctx: { label?: string; parsed: number }) => `${ctx.label}: ${formatIDR(Number(ctx.parsed))}`,
+      },
+    },
+  },
+}
+
 export function CashflowChart({ state, derived }: Props) {
-  const [view, setView] = useState<CashflowView>('day')
+  const [view, setView] = useState<CashflowView>(() => loadPrefs().view)
+  const [chartType, setChartType] = useState<CashflowChartType>(() => loadPrefs().chartType)
+
+  useEffect(() => {
+    savePrefs({ view, chartType })
+  }, [view, chartType])
 
   const series = useMemo(
     () => buildCashflow(derived.allIncomes, state.expenses, view),
@@ -28,8 +54,34 @@ export function CashflowChart({ state, derived }: Props) {
 
   const totalIn = series.income.reduce((sum, value) => sum + value, 0)
   const totalOut = series.expense.reduce((sum, value) => sum + value, 0)
-
   const empty = series.labels.length === 0
+
+  const categoryRows = state.categories
+    .map((category) => ({ category, amount: series.categoryTotals[category.id] ?? 0 }))
+    .filter((row) => row.amount > 0)
+  const donutEmpty = chartType === 'donut' ? totalIn + totalOut === 0 : categoryRows.length === 0
+
+  const lineData = {
+    labels: series.labels,
+    datasets: [
+      {
+        label: 'Pemasukan',
+        data: series.income,
+        borderColor: INCOME_COLOR,
+        backgroundColor: INCOME_COLOR,
+        tension: 0.25,
+        pointRadius: 2,
+      },
+      {
+        label: 'Pengeluaran',
+        data: series.expense,
+        borderColor: EXPENSE_COLOR,
+        backgroundColor: EXPENSE_COLOR,
+        tension: 0.25,
+        pointRadius: 2,
+      },
+    ],
+  }
 
   return (
     <section className="card">
@@ -49,36 +101,110 @@ export function CashflowChart({ state, derived }: Props) {
         </div>
       </header>
 
-      {empty ? (
+      <div className="chart-type-row seg">
+        {CHARTS.map((item) => (
+          <button
+            key={item.id}
+            type="button"
+            className={`seg-btn${chartType === item.id ? ' seg-active' : ''}`}
+            onClick={() => setChartType(item.id)}
+          >
+            {item.label}
+          </button>
+        ))}
+      </div>
+
+      {empty || donutEmpty ? (
         <p className="muted">Belum ada data untuk digambar.</p>
       ) : (
         <>
-          <div className="chart-box chart-box-bar">
-            <Bar
-              data={{
-                labels: series.labels,
-                datasets: [
-                  { label: 'Pemasukan', data: series.income, backgroundColor: INCOME_COLOR, borderRadius: 4 },
-                  { label: 'Pengeluaran', data: series.expense, backgroundColor: EXPENSE_COLOR, borderRadius: 4 },
-                ],
-              }}
-              options={{
-                responsive: true,
-                maintainAspectRatio: false,
-                plugins: {
-                  legend: { labels: { color: MUTED_COLOR, font: CHART_FONT } },
-                  tooltip: { callbacks: { label: (ctx) => `${ctx.dataset.label}: ${formatIDR(Number(ctx.parsed.y))}` } },
-                },
-                scales: {
-                  x: { ticks: { color: MUTED_COLOR, font: CHART_FONT }, grid: { display: false } },
-                  y: {
-                    ticks: { color: MUTED_COLOR, font: CHART_FONT, callback: (value) => formatIDR(Number(value)) },
-                    grid: { color: 'rgba(134,142,150,0.15)' },
+          {chartType === 'bar' && (
+            <div className="chart-box chart-box-bar">
+              <Bar
+                data={{
+                  labels: series.labels,
+                  datasets: [
+                    { label: 'Pemasukan', data: series.income, backgroundColor: INCOME_COLOR, borderRadius: 4 },
+                    { label: 'Pengeluaran', data: series.expense, backgroundColor: EXPENSE_COLOR, borderRadius: 4 },
+                  ],
+                }}
+                options={{
+                  responsive: true,
+                  maintainAspectRatio: false,
+                  plugins: {
+                    legend: { labels: { color: MUTED_COLOR, font: CHART_FONT } },
+                    tooltip: { callbacks: { label: (ctx) => `${ctx.dataset.label}: ${formatIDR(Number(ctx.parsed.y))}` } },
                   },
-                },
-              }}
-            />
-          </div>
+                  scales: {
+                    x: { ticks: { color: MUTED_COLOR, font: CHART_FONT }, grid: { display: false } },
+                    y: {
+                      ticks: { color: MUTED_COLOR, font: CHART_FONT, callback: (value) => formatIDR(Number(value)) },
+                      grid: { color: 'rgba(134,142,150,0.15)' },
+                    },
+                  },
+                }}
+              />
+            </div>
+          )}
+
+          {chartType === 'line' && (
+            <div className="chart-box chart-box-bar">
+              <Line
+                data={lineData}
+                options={{
+                  responsive: true,
+                  maintainAspectRatio: false,
+                  plugins: {
+                    legend: { labels: { color: MUTED_COLOR, font: CHART_FONT } },
+                    tooltip: { callbacks: { label: (ctx) => `${ctx.dataset.label}: ${formatIDR(Number(ctx.parsed.y))}` } },
+                  },
+                  scales: {
+                    x: { ticks: { color: MUTED_COLOR, font: CHART_FONT }, grid: { display: false } },
+                    y: {
+                      ticks: { color: MUTED_COLOR, font: CHART_FONT, callback: (value) => formatIDR(Number(value)) },
+                      grid: { color: 'rgba(134,142,150,0.15)' },
+                    },
+                  },
+                }}
+              />
+            </div>
+          )}
+
+          {chartType === 'donut' && (
+            <div className="chart-box chart-box-donut">
+              <Doughnut
+                data={{
+                  labels: ['Pemasukan', 'Pengeluaran'],
+                  datasets: [
+                    {
+                      data: [totalIn, totalOut],
+                      backgroundColor: [INCOME_COLOR, EXPENSE_COLOR],
+                      borderWidth: 0,
+                    },
+                  ],
+                }}
+                options={donutOptions}
+              />
+            </div>
+          )}
+
+          {chartType === 'category' && (
+            <div className="chart-box chart-box-donut">
+              <Doughnut
+                data={{
+                  labels: categoryRows.map((row) => row.category.name),
+                  datasets: [
+                    {
+                      data: categoryRows.map((row) => row.amount),
+                      backgroundColor: categoryRows.map((row) => row.category.color),
+                      borderWidth: 0,
+                    },
+                  ],
+                }}
+                options={donutOptions}
+              />
+            </div>
+          )}
 
           <div className="chart-summary">
             <span>

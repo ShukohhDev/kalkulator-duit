@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import type { AppState } from '../../types'
-import { derive } from '../derive'
+import { buildCashflow, derive } from '../derive'
 import { initialState } from '../state'
 
 const now = new Date(2026, 9, 10) // Sabtu, 10 Oktober 2026
@@ -54,5 +54,29 @@ describe('uang jajan harian', () => {
     const state = initialState()
     expect(derive(state, now).generatedIncomes).toHaveLength(0)
     expect(derive(base('week', 0), now).generatedIncomes).toHaveLength(0)
+  })
+})
+
+describe('buildCashflow', () => {
+  it('menjumlah pengeluaran per kategori pada jendela yang sama dengan grafik', () => {
+    const now = new Date(2026, 9, 4)
+    const incomes = [{ id: 'i1', date: '2026-10-01', source: 'Gaji', amount: 500_000 }]
+    const expenses = [
+      { date: '2026-10-01', amount: 15_000, categoryId: 'makan' },
+      { date: '2026-10-02', amount: 5_000, categoryId: 'makan' },
+      { date: '2026-10-03', amount: 10_000, categoryId: 'transport' },
+      { date: '2026-01-15', amount: 99_000, categoryId: 'nongkrong' },
+    ]
+
+    const series = buildCashflow(incomes, expenses, 'day', now)
+
+    expect(series.categoryTotals).toEqual({ makan: 20_000, transport: 10_000 })
+    expect(series.expense.reduce((sum, value) => sum + value, 0)).toBe(30_000)
+  })
+
+  it('mengembalikan struktur kosong tanpa data', () => {
+    const series = buildCashflow([], [], 'day', new Date(2026, 9, 4))
+    expect(series.labels).toEqual([])
+    expect(series.categoryTotals).toEqual({})
   })
 })
