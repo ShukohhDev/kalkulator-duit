@@ -48,6 +48,14 @@ const click = (selector: string) => {
   })
 }
 
+const clickText = (selector: string, text: string) => {
+  const element = [...container.querySelectorAll(selector)].find((item) => item.textContent?.includes(text))
+  if (!element) throw new Error(`elemen ${selector} berisi "${text}" tidak ditemukan`)
+  act(() => {
+    element.dispatchEvent(new MouseEvent('click', { bubbles: true }))
+  })
+}
+
 beforeEach(() => {
   globalThis.IS_REACT_ACT_ENVIRONMENT = true
   window.localStorage.clear()
@@ -112,6 +120,32 @@ describe('alur aplikasi', () => {
       useNumber!.dispatchEvent(new MouseEvent('click', { bubbles: true }))
     })
     expect(container.querySelector('.calc-pop')).toBeNull()
+  })
+
+  it('mengubah rasio alokasi lewat form dengan validasi jumlah 100%', () => {
+    click('.period-option')
+    setValue('#allowance', '700000')
+
+    clickText('button', 'Ubah rasio alokasi')
+    expect(container.querySelector('.ratio-edit')).not.toBeNull()
+
+    setValue('[aria-label="Persen Makan & Minum"]', '60')
+    expect(container.querySelector('.ratio-sum')?.textContent).toContain('Jumlah 110%')
+
+    const simpan = [...container.querySelectorAll('.ratio-edit button')].find((b) =>
+      b.textContent?.includes('Simpan rasio'),
+    ) as HTMLButtonElement
+    expect(simpan.disabled).toBe(true)
+
+    setValue('[aria-label="Persen Transport / Bensin"]', '5')
+    expect(container.querySelector('.ratio-sum')?.textContent).toContain('Jumlah 100%')
+    expect(simpan.disabled).toBe(false)
+
+    clickText('.ratio-edit button', 'Simpan rasio')
+    expect(container.querySelector('.ratio-edit')).toBeNull()
+
+    expect(container.textContent).toContain('420.000')
+    expect(container.textContent).toContain('60.000')
   })
 
   it('mencatat pengeluaran dan membuka badge pertama', () => {

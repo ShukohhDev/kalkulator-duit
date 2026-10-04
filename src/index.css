@@ -433,6 +433,55 @@ select {
   font-variant-numeric: tabular-nums;
 }
 
+/* ---------- ubah rasio alokasi ---------- */
+
+.ratio-edit {
+  margin-top: 10px;
+  border-top: 1px dashed var(--border);
+  padding-top: 10px;
+}
+
+.ratio-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+  gap: 8px;
+  margin-bottom: 8px;
+}
+
+.ratio-field {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 7px 10px;
+}
+
+.ratio-name {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  flex: 1;
+  min-width: 0;
+  font-size: 13px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.ratio-input {
+  width: 64px;
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+  padding: 5px 7px;
+}
+
+.ratio-unit {
+  color: var(--muted);
+  font-size: 13px;
+}
+
 /* ---------- progress ---------- */
 
 .bar {
