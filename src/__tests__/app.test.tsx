@@ -73,15 +73,21 @@ describe('alur aplikasi', () => {
     expect(container.textContent).toContain('1 Bulan')
   })
 
-  it('memilih 1 minggu lalu menghitung alokasi 50/20/10/20', () => {
+  it('memilih 1 minggu lalu menghitung alokasi 50/15/5/10/20', () => {
     click('.period-option')
     setValue('#allowance', '700000')
 
     expect(container.textContent).toContain('Hasil alokasi')
     expect(container.textContent).toContain('350.000')
-    expect(container.textContent).toContain('140.000')
+    expect(container.textContent).toContain('105.000')
+    expect(container.textContent).toContain('35.000')
     expect(container.textContent).toContain('70.000')
     expect(container.textContent).toContain('Boleh belanja hari ini')
+
+    expect(container.textContent).toContain('Alokasi per Hari')
+    expect(container.textContent).toContain('50.000')
+    expect(container.textContent).toContain('15.000')
+    expect(container.textContent).toContain('/ hari')
   })
 
   it('mencatat pengeluaran dan membuka badge pertama', () => {

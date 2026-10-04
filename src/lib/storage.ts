@@ -1,5 +1,5 @@
 import type { AppState, Category, CategoryPreset, Expense, Goal, Income, PeriodMode } from '../types'
-import { initialState, defaultCategories } from './state'
+import { initialState, defaultCategories, PULSA_CATEGORY } from './state'
 import { MAX_USER_PRESETS } from './presets'
 
 const STORAGE_KEY = 'kalkulator-duitmu:v1'
@@ -33,6 +33,47 @@ function sanitizeCategoryList(value: unknown): Category[] {
 function sanitizeCategories(value: unknown): Category[] {
   const list = sanitizeCategoryList(value)
   return list.length > 0 ? list : defaultCategories()
+}
+
+function normalizeRatios(categories: Category[]): Category[] {
+  const sum = categories.reduce((total, category) => total + category.ratio, 0)
+  if (sum <= 0 || Math.abs(sum - 1) < 1e-9) return categories
+  return categories.map((category) => ({ ...category, ratio: category.ratio / sum }))
+}
+
+// data lama (4 kategori, "Transport & Pulsa" 20%) dipecah: transport 3/4, pulsa 1/4 — jumlah tetap 100%
+function migrateCategories(categories: Category[]): Category[] {
+  if (categories.some((category) => category.id === PULSA_CATEGORY)) return categories
+  const pulsa = defaultCategories().find((category) => category.id === PULSA_CATEGORY)
+  if (!pulsa) return categories
+
+  // nama/warna kategori bawaan ikut disegarkan (mis. "Transport & Pulsa" → "Transport / Bensin")
+  const defaults = new Map(defaultCategories().map((category) => [category.id, category]))
+  const refreshed = categories.map((category) => {
+    const fallback = category.builtin ? defaults.get(category.id) : undefined
+    return fallback ? { ...category, name: fallback.name, color: fallback.color } : category
+  })
+
+  const index = refreshed.findIndex((category) => category.id === 'transport' && category.builtin)
+  if (index >= 0) {
+    const transport = refreshed[index]
+    const next = [...refreshed]
+    next[index] = { ...transport, ratio: transport.ratio * 0.75 }
+    next.splice(index + 1, 0, { ...pulsa, ratio: transport.ratio * 0.25 })
+    return normalizeRatios(next)
+  }
+
+  // jalur langka: tanpa transport bawaan — pulsa 5% diambil dari rasio terbesar
+  const next = [...refreshed]
+  let biggest = -1
+  next.forEach((category, i) => {
+    if (category.ratio > (next[biggest]?.ratio ?? -1)) biggest = i
+  })
+  if (biggest >= 0 && next[biggest].ratio >= pulsa.ratio) {
+    next[biggest] = { ...next[biggest], ratio: next[biggest].ratio - pulsa.ratio }
+  }
+  next.push(pulsa)
+  return normalizeRatios(next)
 }
 
 function sanitizePresets(value: unknown): CategoryPreset[] {
@@ -103,7 +144,7 @@ export function sanitize(raw: unknown): AppState {
     version: 1,
     mode: isPeriodMode(data.mode) ? data.mode : null,
     allowance: Math.max(0, num(data.allowance)),
-    categories: sanitizeCategories(data.categories),
+    categories: migrateCategories(sanitizeCategories(data.categories)),
     presets: sanitizePresets(data.presets),
     expenses: sanitizeExpenses(data.expenses),
     incomes: sanitizeIncomes(data.incomes),

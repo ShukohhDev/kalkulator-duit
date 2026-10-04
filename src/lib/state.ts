@@ -12,6 +12,7 @@ export const CATEGORY_COLORS = [
 ]
 
 export const SAVINGS_CATEGORY = 'tabungan'
+export const PULSA_CATEGORY = 'pulsa'
 
 export function effectiveSaved(goal: Goal, savingsByGoal: Record<string, number>): number {
   return goal.saved + (savingsByGoal[goal.id] ?? 0)
@@ -20,7 +21,8 @@ export function effectiveSaved(goal: Goal, savingsByGoal: Record<string, number>
 export function defaultCategories(): Category[] {
   return [
     { id: 'makan', name: 'Makan & Minum', ratio: 0.5, builtin: true, color: '#e8590c' },
-    { id: 'transport', name: 'Transport & Pulsa', ratio: 0.2, builtin: true, color: '#1971c2' },
+    { id: 'transport', name: 'Transport / Bensin', ratio: 0.15, builtin: true, color: '#1971c2' },
+    { id: PULSA_CATEGORY, name: 'Pulsa & Kuota', ratio: 0.05, builtin: true, color: '#0c8599' },
     { id: 'nongkrong', name: 'Nongkrong / Ngopi', ratio: 0.1, builtin: true, color: '#9c36b5' },
     { id: SAVINGS_CATEGORY, name: 'Ditabung / Investasi', ratio: 0.2, builtin: true, color: '#2f9e44' },
   ]

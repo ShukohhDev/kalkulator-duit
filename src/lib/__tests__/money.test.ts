@@ -54,14 +54,15 @@ describe('format & parse', () => {
   })
 })
 
-describe('alokasi 50/20/10/20', () => {
+describe('alokasi 50/15/5/10/20', () => {
   it('menjumlah 100% dari uang jajan', () => {
     const a = computeAllocation(700_000)
     expect(a.makan).toBe(350_000)
-    expect(a.transport).toBe(140_000)
+    expect(a.transport).toBe(105_000)
+    expect(a.pulsa).toBe(35_000)
     expect(a.nongkrong).toBe(70_000)
     expect(a.tabungan).toBe(140_000)
-    expect(a.makan + a.transport + a.nongkrong + a.tabungan).toBe(700_000)
+    expect(a.makan + a.transport + a.pulsa + a.nongkrong + a.tabungan).toBe(700_000)
   })
 })
 

@@ -9,6 +9,7 @@ import { AllocationDonut } from './components/AllocationDonut'
 import { CalendarHeatmap } from './components/CalendarHeatmap'
 import { Calculator } from './components/Calculator'
 import { CashflowChart } from './components/CashflowChart'
+import { DailyAllocation } from './components/DailyAllocation'
 import { DataControls } from './components/DataControls'
 import { ExpensesPanel } from './components/ExpensesPanel'
 import { IncomePanel } from './components/IncomePanel'
@@ -46,7 +47,7 @@ export default function App() {
       <header className="topbar">
         <div>
           <h1 className="brand">Kalkulator Uang Jajan</h1>
-          <p className="muted small">Alokasi 50/20/10/20 · target tabungan bunga 8% per tahun</p>
+          <p className="muted small">Alokasi 50/15/5/10/20 · target tabungan bunga 8% per tahun</p>
         </div>
         <div className="topbar-actions">
           {state.mode && (
@@ -61,6 +62,7 @@ export default function App() {
       <main className="layout">
         <div className="col">
           <AllowanceCard state={state} derived={derived} update={update} onChangePeriod={() => setPickerOpen(true)} />
+          <DailyAllocation state={state} derived={derived} />
           <WalletCards state={state} derived={derived} />
           <InsightsPanel insights={insights} />
           <ExpensesPanel state={state} update={update} />
