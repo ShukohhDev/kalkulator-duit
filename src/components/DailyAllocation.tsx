@@ -15,7 +15,7 @@ export function DailyAllocation({ state, derived }: Props) {
   return (
     <section className="card">
       <header className="card-head">
-        <h2>Alokasi per Hari</h2>
+        <h2>Saran Pengeluaran per Hari</h2>
         <span className="muted small">{formatIDR(derived.daily)} / hari</span>
       </header>
 

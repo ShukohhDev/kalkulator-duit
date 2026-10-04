@@ -93,7 +93,7 @@ describe('alur aplikasi', () => {
     expect(container.textContent).toContain('70.000')
     expect(container.textContent).toContain('Boleh belanja hari ini')
 
-    expect(container.textContent).toContain('Alokasi per Hari')
+    expect(container.textContent).toContain('Saran Pengeluaran per Hari')
     expect(container.textContent).toContain('50.000')
     expect(container.textContent).toContain('15.000')
     expect(container.textContent).toContain('/ hari')
