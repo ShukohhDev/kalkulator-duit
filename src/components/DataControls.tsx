@@ -1,5 +1,6 @@
 import { useRef, useState } from 'react'
 import type { AppState } from '../types'
+import { buildCsv } from '../lib/csv'
 import { sanitize } from '../lib/storage'
 
 interface Props {
@@ -14,15 +15,29 @@ export function DataControls({ state, saved, onImport, onReset, onToggleTheme }:
   const fileRef = useRef<HTMLInputElement>(null)
   const [message, setMessage] = useState('')
 
-  const exportFile = () => {
-    const blob = new Blob([JSON.stringify(state, null, 2)], { type: 'application/json' })
+  const download = (filename: string, blob: Blob) => {
     const url = URL.createObjectURL(blob)
     const link = document.createElement('a')
     link.href = url
-    link.download = `kalkulator-duitmu-${new Date().toISOString().slice(0, 10)}.json`
+    link.download = filename
     link.click()
     URL.revokeObjectURL(url)
+  }
+
+  const exportFile = () => {
+    download(
+      `kalkulator-duitmu-${new Date().toISOString().slice(0, 10)}.json`,
+      new Blob([JSON.stringify(state, null, 2)], { type: 'application/json' }),
+    )
     setMessage('Data berhasil diekspor.')
+  }
+
+  const exportCsv = () => {
+    download(
+      `kalkulator-duitmu-${new Date().toISOString().slice(0, 10)}.csv`,
+      new Blob([buildCsv(state)], { type: 'text/csv;charset=utf-8' }),
+    )
+    setMessage('CSV berhasil diekspor.')
   }
 
   const importFile = (file: File) => {
@@ -56,6 +71,9 @@ export function DataControls({ state, saved, onImport, onReset, onToggleTheme }:
       <div className="btn-row">
         <button type="button" className="btn btn-ghost btn-sm" onClick={exportFile}>
           Ekspor JSON
+        </button>
+        <button type="button" className="btn btn-ghost btn-sm" onClick={exportCsv}>
+          Ekspor CSV
         </button>
         <button type="button" className="btn btn-ghost btn-sm" onClick={() => fileRef.current?.click()}>
           Impor JSON
