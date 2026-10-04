@@ -3,6 +3,9 @@ import type { AppState } from '../../types'
 import { buildReport, monthDays, savingsByGoalOf } from '../report'
 import { initialState } from '../state'
 
+// laporan Oktober dengan referensi tanggal yang pasti, supaya hasil tidak bergantung hari ini
+const at = (iso: [number, number, number]) => new Date(iso[0], iso[1], iso[2])
+
 function base(): AppState {
   const state = initialState()
   state.mode = 'week'
@@ -22,44 +25,53 @@ function base(): AppState {
 
 describe('buildReport', () => {
   it('menjumlah hanya bulan yang dipilih', () => {
-    const report = buildReport(base(), '2026-10')
+    const report = buildReport(base(), '2026-10', at([2026, 11, 1]))
     expect(report.expense).toBe(150_000)
     expect(report.noteCount).toBe(3)
     expect(report.manualIncome).toBe(50_000)
   })
 
-  it('uang jajan harian masuk pemasukan laporan', () => {
-    const report = buildReport(base(), '2026-10') // Oktober 31 hari × Rp 100.000
+  it('bulan lampau: uang jajan dihitung penuh', () => {
+    const report = buildReport(base(), '2026-10', at([2026, 11, 1])) // Oktober 31 hari × Rp 100.000
     expect(report.allowance).toBeCloseTo(3_100_000, 6)
     expect(report.income).toBeCloseTo(3_150_000, 6)
     expect(report.net).toBeCloseTo(3_000_000, 6)
   })
 
+  it('bulan berjalan: uang jajan hanya sampai hari ini', () => {
+    const report = buildReport(base(), '2026-10', at([2026, 9, 10])) // 1–10 Oktober
+    expect(report.allowance).toBeCloseTo(1_000_000, 6)
+  })
+
+  it('bulan depan: uang jajan 0', () => {
+    expect(buildReport(base(), '2026-11', at([2026, 9, 10])).allowance).toBe(0)
+  })
+
   it('tanpa mode periode → uang jajan 0', () => {
     const state = base()
     state.mode = null
-    expect(buildReport(state, '2026-10').allowance).toBe(0)
+    expect(buildReport(state, '2026-10', at([2026, 11, 1])).allowance).toBe(0)
   })
 
   it('rincian per kategori terurut dengan share benar', () => {
-    const report = buildReport(base(), '2026-10')
+    const report = buildReport(base(), '2026-10', at([2026, 11, 1]))
     expect(report.byCategory.map((item) => item.category.id)).toEqual(['tabungan', 'nongkrong', 'makan'])
     expect(report.byCategory[0].share).toBeCloseTo(100_000 / 150_000, 6)
   })
 
   it('progres target pakai saldo efektif, tabungan bulan ini tercatat', () => {
-    const [first] = buildReport(base(), '2026-10').byGoal
+    const [first] = buildReport(base(), '2026-10', at([2026, 11, 1])).byGoal
     expect(first.saved).toBe(600_000)
     expect(first.logged).toBe(100_000)
     expect(first.percent).toBe(10)
   })
 
-  it('pengeluaran terbesar, bulan kosong, dan bulan penuh di luar data', () => {
-    const september = buildReport(base(), '2026-09')
+  it('pengeluaran terbesar dan bulan tanpa data', () => {
+    const september = buildReport(base(), '2026-09', at([2026, 11, 1]))
     expect(september.topExpenses).toHaveLength(1)
     expect(september.topExpenses[0].amount).toBe(999_000)
 
-    const january = buildReport(base(), '2027-01')
+    const january = buildReport(base(), '2027-01', at([2027, 1, 1]))
     expect(january.expense).toBe(0)
     expect(january.noteCount).toBe(0)
     expect(january.allowance).toBeCloseTo(3_100_000, 6)

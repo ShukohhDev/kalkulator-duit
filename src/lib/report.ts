@@ -1,6 +1,6 @@
 import type { AppState, Category, Expense, Goal } from '../types'
 import { dailyAllowanceEntries } from './allocation'
-import { monthKey } from './money'
+import { monthKey, toISO } from './money'
 import { SAVINGS_CATEGORY, effectiveSaved } from './state'
 
 export interface ReportCategory {
@@ -52,13 +52,14 @@ export function savingsByGoalOf(expenses: Expense[]): Record<string, number> {
   return out
 }
 
-export function buildReport(state: AppState, month: string): MonthlyReport {
+export function buildReport(state: AppState, month: string, now: Date = new Date()): MonthlyReport {
+  const firstDay = `${month}-01`
   const lastDay = `${month}-${String(monthDays(month)).padStart(2, '0')}`
+  const today = toISO(now)
+  // bulan berjalan baru dihitung sampai hari ini; bulan depan belum ada uang jajannya
+  const to = monthKey(today) === month ? today : today < firstDay ? '' : lastDay
   const allowance = state.mode
-    ? dailyAllowanceEntries(state.allowance, state.mode, `${month}-01`, lastDay).reduce(
-        (sum, item) => sum + item.amount,
-        0,
-      )
+    ? dailyAllowanceEntries(state.allowance, state.mode, firstDay, to).reduce((sum, item) => sum + item.amount, 0)
     : 0
 
   const manualIncome = state.incomes
