@@ -69,3 +69,37 @@ describe('evaluateBadges', () => {
     expect(badges.find((b) => b.id === 'goal-full')?.unlocked).toBe(true)
   })
 })
+
+describe('progres badge', () => {
+  it('badge streak & catatan membawa current/target/unit', () => {
+    const state = initialState()
+    state.expenses = [exp('2026-10-10'), exp('2026-10-09'), exp('2026-10-08')]
+    const badges = evaluateBadges(state, {}, now)
+
+    const s7 = badges.find((b) => b.id === 'streak-7')!
+    expect(s7.current).toBe(3)
+    expect(s7.target).toBe(7)
+    expect(s7.unit).toBe('hari')
+    expect(s7.progress).toBeCloseTo(3 / 7)
+
+    const jago = badges.find((b) => b.id === 'logged-50')!
+    expect(jago.current).toBe(3)
+    expect(jago.unit).toBe('catatan')
+
+    const first = badges.find((b) => b.id === 'first-log')!
+    expect(first.unlocked).toBe(true)
+    expect(first.progress).toBe(1)
+  })
+
+  it('badge target memakai persen', () => {
+    const state = initialState()
+    state.goals = [
+      { id: 'g1', name: 'HP', target: 1_000_000, saved: 250_000, deposit: 0, targetAge: 18, primary: true, active: true },
+    ]
+    const half = evaluateBadges(state, {}, now).find((b) => b.id === 'goal-half')!
+    expect(half.current).toBe(25)
+    expect(half.target).toBe(50)
+    expect(half.unit).toBe('persen')
+    expect(half.unlocked).toBe(false)
+  })
+})

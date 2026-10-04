@@ -35,50 +35,46 @@ export interface Badge {
   name: string
   desc: string
   unlocked: boolean
+  current: number
+  target: number
+  unit: 'hari' | 'catatan' | 'persen'
+  progress: number
 }
+
+const clamp01 = (value: number) => Math.min(1, Math.max(0, value))
 
 export function evaluateBadges(state: AppState, savingsByGoal: Record<string, number> = {}, now: Date = new Date()): Badge[] {
   const streak = currentStreak(state.expenses, now)
   const goal = activeGoals(state.goals)[0]
-  const progress = goal && goal.target > 0 ? effectiveSaved(goal, savingsByGoal) / goal.target : 0
+  const ratio = goal && goal.target > 0 ? effectiveSaved(goal, savingsByGoal) / goal.target : 0
+  const percent = Math.round(ratio * 100)
+  const expenseCount = state.expenses.length
+
+  const badge = (
+    id: string,
+    name: string,
+    desc: string,
+    current: number,
+    target: number,
+    unit: Badge['unit'],
+  ): Badge => ({
+    id,
+    name,
+    desc,
+    unlocked: current >= target,
+    current,
+    target,
+    unit,
+    progress: target > 0 ? clamp01(current / target) : 0,
+  })
 
   return [
-    {
-      id: 'first-log',
-      name: 'Langkah Pertama',
-      desc: 'Catat pengeluaran pertamamu',
-      unlocked: state.expenses.length >= 1,
-    },
-    {
-      id: 'streak-7',
-      name: 'Konsisten 7 Hari',
-      desc: 'Catat pengeluaran 7 hari berturut-turut',
-      unlocked: streak >= 7,
-    },
-    {
-      id: 'streak-30',
-      name: 'Disiplin 30 Hari',
-      desc: 'Catat pengeluaran 30 hari berturut-turut',
-      unlocked: streak >= 30,
-    },
-    {
-      id: 'goal-half',
-      name: 'Setengah Jalan',
-      desc: 'Target utama sudah 50% terkumpul',
-      unlocked: progress >= 0.5,
-    },
-    {
-      id: 'goal-full',
-      name: 'Target Tercapai',
-      desc: 'Target utama terkumpul penuh',
-      unlocked: progress >= 1,
-    },
-    {
-      id: 'logged-50',
-      name: 'Jago Catat',
-      desc: '50 pengeluaran tercatat',
-      unlocked: state.expenses.length >= 50,
-    },
+    badge('first-log', 'Langkah Pertama', 'Catat pengeluaran pertamamu', expenseCount, 1, 'catatan'),
+    badge('streak-7', 'Konsisten 7 Hari', 'Catat pengeluaran 7 hari berturut-turut', streak, 7, 'hari'),
+    badge('streak-30', 'Disiplin 30 Hari', 'Catat pengeluaran 30 hari berturut-turut', streak, 30, 'hari'),
+    badge('goal-half', 'Setengah Jalan', 'Target utama sudah 50% terkumpul', percent, 50, 'persen'),
+    badge('goal-full', 'Target Tercapai', 'Target utama terkumpul penuh', percent, 100, 'persen'),
+    badge('logged-50', 'Jago Catat', '50 pengeluaran tercatat', expenseCount, 50, 'catatan'),
   ]
 }
 

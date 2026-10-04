@@ -1081,6 +1081,57 @@ select {
   background: currentColor;
 }
 
+.streak-number.is-zero {
+  color: var(--muted);
+}
+
+.streak-flame {
+  color: var(--warn);
+  flex-shrink: 0;
+}
+
+.streak-number.is-zero + .streak-flame {
+  color: var(--muted);
+}
+
+.badge-next {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 10px 12px;
+  margin-bottom: 10px;
+}
+
+.badge-next-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 8px;
+}
+
+.badge-next-title {
+  font-size: 13.5px;
+  font-weight: 600;
+}
+
+.badge-chip svg {
+  flex-shrink: 0;
+}
+
+.badge-progress {
+  font-size: 11px;
+  color: var(--muted);
+}
+
+.cta-log {
+  display: block;
+  width: 100%;
+  margin: 2px 0 8px;
+}
+
 /* ---------- charts ---------- */
 
 .seg {

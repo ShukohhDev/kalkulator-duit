@@ -178,6 +178,27 @@ describe('alur aplikasi', () => {
     expect(container.querySelector('.toast')?.textContent).toContain('Cadangan tersimpan')
   })
 
+  it('CTA kebiasaan membawa fokus ke form dan hilang setelah mencatat', () => {
+    click('.period-option')
+    expect(container.textContent).toContain('Menuju Langkah Pertama')
+    expect(container.textContent).toContain('0/1 catatan')
+
+    clickText('button', 'Catat pengeluaran hari ini')
+    expect(document.activeElement?.id).toBe('exp-date')
+
+    setValue('#exp-amount', '9000')
+    const form = container.querySelector('#exp-amount')!.closest('form') as HTMLFormElement
+    act(() => {
+      form.dispatchEvent(new Event('submit', { bubbles: true, cancelable: true }))
+    })
+
+    expect(
+      [...container.querySelectorAll('button')].some((b) => b.textContent?.includes('Catat pengeluaran hari ini')),
+    ).toBe(false)
+    expect(container.textContent).toContain('1 dari 6 badge terbuka')
+    expect(container.textContent).toContain('1/7 hari')
+  })
+
   it('mengubah rasio alokasi lewat form dengan validasi jumlah 100%', () => {
     click('.period-option')
     setValue('#allowance', '700000')
