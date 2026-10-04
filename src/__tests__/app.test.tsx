@@ -90,6 +90,29 @@ describe('alur aplikasi', () => {
     expect(container.textContent).toContain('/ hari')
   })
 
+  it('membuka kalkulator lewat tombol melayang lalu menutup dengan Esc dan setelah Pakai angka', () => {
+    click('.period-option')
+    expect(container.querySelector('.calc-pop')).toBeNull()
+
+    click('.fab')
+    expect(container.querySelector('.calc-pop')).not.toBeNull()
+
+    act(() => {
+      window.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape' }))
+    })
+    expect(container.querySelector('.calc-pop')).toBeNull()
+
+    click('.fab')
+    const useNumber = [...container.querySelectorAll('.calc-pop button')].find((button) =>
+      button.textContent?.includes('Pakai angka'),
+    )
+    expect(useNumber).toBeTruthy()
+    act(() => {
+      useNumber!.dispatchEvent(new MouseEvent('click', { bubbles: true }))
+    })
+    expect(container.querySelector('.calc-pop')).toBeNull()
+  })
+
   it('mencatat pengeluaran dan membuka badge pertama', () => {
     click('.period-option')
     setValue('#allowance', '700000')

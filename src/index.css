@@ -829,8 +829,50 @@ select {
 }
 
 .calc-clear {
-  color: var(--danger);
+  color: var(--danger, #c92a2a);
 }
+
+/* ---------- kalkulator melayang ---------- */
+
+.fab {
+  position: fixed;
+  right: 22px;
+  bottom: 22px;
+  z-index: 40;
+  width: 56px;
+  height: 56px;
+  border: none;
+  border-radius: 50%;
+  background: var(--accent);
+  color: #fff;
+  display: grid;
+  place-items: center;
+  cursor: pointer;
+  box-shadow: 0 8px 24px rgba(16, 24, 40, 0.28);
+  transition: transform 0.12s ease, filter 0.12s ease;
+}
+
+.fab:hover {
+  filter: brightness(1.07);
+  transform: translateY(-1px);
+}
+
+.fab-open {
+  filter: brightness(0.92);
+}
+
+.calc-pop {
+  position: fixed;
+  right: 22px;
+  bottom: 90px;
+  z-index: 40;
+  width: min(280px, calc(100vw - 32px));
+}
+
+.calc-pop .card {
+  box-shadow: 0 12px 32px rgba(16, 24, 40, 0.24);
+}
+
 
 /* ---------- streak ---------- */
 

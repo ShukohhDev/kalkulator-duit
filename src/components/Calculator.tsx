@@ -10,9 +10,10 @@ const KEYS = [
 
 interface Props {
   onUseNumber: (value: number) => void
+  onClose?: () => void
 }
 
-export function Calculator({ onUseNumber }: Props) {
+export function Calculator({ onUseNumber, onClose }: Props) {
   const [display, setDisplay] = useState('0')
   const [accumulator, setAccumulator] = useState<number | null>(null)
   const [pending, setPending] = useState<string | null>(null)
@@ -92,7 +93,10 @@ export function Calculator({ onUseNumber }: Props) {
         <button
           type="button"
           className="btn btn-ghost btn-sm"
-          onClick={() => onUseNumber(Math.round(Math.abs(current)))}
+          onClick={() => {
+            onUseNumber(Math.round(Math.abs(current)))
+            onClose?.()
+          }}
           title="Pakai angka ini di form uang jajan"
         >
           Pakai angka

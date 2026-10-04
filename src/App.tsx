@@ -24,6 +24,7 @@ import { WalletCards } from './components/WalletCards'
 export default function App() {
   const { state, update, replace, saved } = useAppState()
   const [pickerOpen, setPickerOpen] = useState(false)
+  const [calcOpen, setCalcOpen] = useState(false)
 
   const derived = useMemo(() => derive(state), [state])
   const insights = useMemo(() => buildInsights(state, derived), [state, derived])
@@ -31,6 +32,15 @@ export default function App() {
   useEffect(() => {
     document.documentElement.dataset.theme = state.theme
   }, [state.theme])
+
+  useEffect(() => {
+    if (!calcOpen) return
+    const onKeyDown = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') setCalcOpen(false)
+    }
+    window.addEventListener('keydown', onKeyDown)
+    return () => window.removeEventListener('keydown', onKeyDown)
+  }, [calcOpen])
 
   const pickMode = (mode: 'week' | 'month') => {
     update((s) => ({ ...s, mode }))
@@ -76,7 +86,6 @@ export default function App() {
         </div>
 
         <aside className="col col-side">
-          <Calculator onUseNumber={(value) => update((s) => ({ ...s, allowance: value }))} />
           <StreakBar state={state} savingsByGoal={derived.savingsByGoal} />
           <DataControls
             state={state}
@@ -95,6 +104,29 @@ export default function App() {
       {(pickerOpen || state.mode === null) && (
         <PeriodPicker current={state.mode} onPick={pickMode} onCancel={state.mode === null ? undefined : () => setPickerOpen(false)} />
       )}
+
+      {calcOpen && (
+        <div className="calc-pop">
+          <Calculator
+            onUseNumber={(value) => update((s) => ({ ...s, allowance: value }))}
+            onClose={() => setCalcOpen(false)}
+          />
+        </div>
+      )}
+      <button
+        type="button"
+        className={`fab${calcOpen ? ' fab-open' : ''}`}
+        onClick={() => setCalcOpen((open) => !open)}
+        aria-expanded={calcOpen}
+        aria-label="Kalkulator"
+        title="Kalkulator"
+      >
+        <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" aria-hidden="true">
+          <rect x="5" y="3" width="14" height="18" rx="2" />
+          <path d="M8 7h8" />
+          <path d="M8 12h.01M12 12h.01M16 12h.01M8 16h.01M12 16h.01M16 16h.01" />
+        </svg>
+      </button>
     </div>
   )
 }
