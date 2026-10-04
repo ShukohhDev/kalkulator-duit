@@ -165,6 +165,19 @@ describe('alur aplikasi', () => {
     expect(container.textContent).toContain('Setoran HP baru')
   })
 
+  it('menampilkan baris aksi data dan toast saat dicadangkan', () => {
+    expect(container.textContent).toContain('Data & Cadangan')
+    expect(container.textContent).toContain('Cadangkan data')
+    expect(container.textContent).toContain('Pulihkan dari cadangan')
+    expect(container.textContent).toContain('Unduh untuk Excel')
+
+    globalThis.URL.createObjectURL = vi.fn(() => 'blob:test') as unknown as typeof URL.createObjectURL
+    globalThis.URL.revokeObjectURL = vi.fn()
+    click('.period-option')
+    clickText('button', 'Cadangkan data')
+    expect(container.querySelector('.toast')?.textContent).toContain('Cadangan tersimpan')
+  })
+
   it('mengubah rasio alokasi lewat form dengan validasi jumlah 100%', () => {
     click('.period-option')
     setValue('#allowance', '700000')
@@ -196,7 +209,7 @@ describe('alur aplikasi', () => {
     setValue('#allowance', '700000')
 
     setValue('#exp-note', 'nasi goreng')
-    setValue('#exp-amount', '15000')
+    setValue('#exp-amount', '360000')
 
     const form = container.querySelector('#exp-note')!.closest('form') as HTMLFormElement
     act(() => {

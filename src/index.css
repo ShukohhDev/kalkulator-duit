@@ -228,6 +228,108 @@ select {
   margin-bottom: 8px;
 }
 
+/* ---------- data & cadangan ---------- */
+
+.data-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-bottom: 10px;
+}
+
+.data-action {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: 12px;
+  align-items: start;
+  width: 100%;
+  padding: 11px 12px;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  background: var(--surface-2);
+  color: var(--text);
+  text-align: left;
+  cursor: pointer;
+  transition: border-color 0.15s ease, background 0.15s ease, transform 0.05s ease;
+}
+
+.data-action:hover {
+  border-color: var(--accent);
+}
+
+.data-action:active {
+  transform: translateY(1px);
+}
+
+.data-action-icon {
+  display: flex;
+  color: var(--accent);
+  padding-top: 1px;
+}
+
+.data-action-title {
+  display: block;
+  font-size: 14.5px;
+}
+
+.data-action-desc {
+  display: block;
+  font-size: 12.5px;
+  color: var(--muted);
+  margin-top: 2px;
+}
+
+.data-list .data-action-danger {
+  margin-top: 8px;
+  border-color: var(--danger-soft);
+  background: var(--danger-soft);
+}
+
+.data-list .data-action-danger:hover {
+  border-color: var(--danger);
+}
+
+.data-action-danger .data-action-icon,
+.data-action-danger .data-action-title {
+  color: var(--danger);
+}
+
+.data-action-danger .data-action-desc {
+  color: var(--danger);
+  opacity: 0.8;
+}
+
+.toast {
+  position: fixed;
+  left: 16px;
+  bottom: 24px;
+  z-index: 70;
+  max-width: min(380px, calc(100vw - 96px));
+  padding: 10px 14px;
+  border-radius: 10px;
+  background: var(--text);
+  color: var(--surface);
+  box-shadow: var(--shadow);
+  font-size: 13.5px;
+  animation: toast-in 0.22s ease;
+}
+
+.toast-error {
+  background: var(--danger);
+  color: #fff;
+}
+
+@keyframes toast-in {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
 .link {
   background: none;
   border: none;
