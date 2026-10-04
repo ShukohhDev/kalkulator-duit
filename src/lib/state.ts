@@ -40,6 +40,7 @@ export function initialState(): AppState {
     mode: null,
     allowance: 0,
     categories: defaultCategories(),
+    presets: [],
     expenses: [],
     incomes: [],
     goals: [],

@@ -1,5 +1,6 @@
-import type { AppState, Category, Expense, Goal, Income, PeriodMode } from '../types'
+import type { AppState, Category, CategoryPreset, Expense, Goal, Income, PeriodMode } from '../types'
 import { initialState, defaultCategories } from './state'
+import { MAX_USER_PRESETS } from './presets'
 
 const STORAGE_KEY = 'kalkulator-duitmu:v1'
 
@@ -16,8 +17,8 @@ function str(value: unknown, fallback = ''): string {
   return typeof value === 'string' ? value : fallback
 }
 
-function sanitizeCategories(value: unknown): Category[] {
-  if (!Array.isArray(value) || value.length === 0) return defaultCategories()
+function sanitizeCategoryList(value: unknown): Category[] {
+  if (!Array.isArray(value)) return []
   return value
     .filter((item): item is Record<string, unknown> => !!item && typeof item === 'object')
     .map((item, index) => ({
@@ -27,6 +28,24 @@ function sanitizeCategories(value: unknown): Category[] {
       builtin: Boolean(item.builtin),
       color: str(item.color, '#f08c00'),
     }))
+}
+
+function sanitizeCategories(value: unknown): Category[] {
+  const list = sanitizeCategoryList(value)
+  return list.length > 0 ? list : defaultCategories()
+}
+
+function sanitizePresets(value: unknown): CategoryPreset[] {
+  if (!Array.isArray(value)) return []
+  return value
+    .filter((item): item is Record<string, unknown> => !!item && typeof item === 'object')
+    .map((item, index) => ({
+      id: str(item.id, `pre-${index}`),
+      name: str(item.name, '').trim(),
+      categories: sanitizeCategoryList(item.categories),
+    }))
+    .filter((item) => item.name !== '' && item.categories.length > 0)
+    .slice(0, MAX_USER_PRESETS)
 }
 
 function sanitizeExpenses(value: unknown): Expense[] {
@@ -85,6 +104,7 @@ export function sanitize(raw: unknown): AppState {
     mode: isPeriodMode(data.mode) ? data.mode : null,
     allowance: Math.max(0, num(data.allowance)),
     categories: sanitizeCategories(data.categories),
+    presets: sanitizePresets(data.presets),
     expenses: sanitizeExpenses(data.expenses),
     incomes: sanitizeIncomes(data.incomes),
     goals: sanitizeGoals(data.goals),

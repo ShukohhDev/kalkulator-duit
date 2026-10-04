@@ -2,6 +2,7 @@ import { useMemo, useState, type FormEvent } from 'react'
 import type { AppState, Category, Expense } from '../types'
 import type { Updater } from '../hooks/useAppState'
 import { CATEGORY_COLORS, SAVINGS_CATEGORY, primaryGoal } from '../lib/state'
+import { BUILTIN_PRESETS, applyPreset, savePreset } from '../lib/presets'
 import { formatIDR, formatShortDate, monthKey, monthLabel, todayISO } from '../lib/money'
 import { uid } from '../lib/id'
 import { MoneyInput } from './MoneyInput'
@@ -28,6 +29,7 @@ export function ExpensesPanel({ state, update }: Props) {
 
   const [showCategoryForm, setShowCategoryForm] = useState(false)
   const [newCategory, setNewCategory] = useState('')
+  const [presetId, setPresetId] = useState('')
 
   const months = useMemo(() => {
     const keys = new Set(state.expenses.map((item) => monthKey(item.date)))
@@ -122,6 +124,19 @@ export function ExpensesPanel({ state, update }: Props) {
     setShowCategoryForm(false)
   }
 
+  const applyPresetId = () => {
+    const preset = [...BUILTIN_PRESETS, ...state.presets].find((item) => item.id === presetId)
+    if (!preset) return
+    update((s) => ({ ...s, categories: applyPreset(s.categories, preset) }))
+    setPresetId('')
+  }
+
+  const saveCurrentAsPreset = () => {
+    const name = window.prompt('Nama preset baru', `Preset ${state.presets.length + 1}`)
+    if (name === null) return
+    update((s) => ({ ...s, presets: savePreset(s.presets, name, s.categories) }))
+  }
+
   return (
     <section className="card">
       <header className="card-head">
@@ -161,6 +176,32 @@ export function ExpensesPanel({ state, update }: Props) {
               </button>
             </div>
           )}
+          <div className="inline-form">
+            <select
+              className="input"
+              aria-label="Preset kategori"
+              value={presetId}
+              onChange={(e) => setPresetId(e.target.value)}
+            >
+              <option value="">Preset kategori…</option>
+              {BUILTIN_PRESETS.map((preset) => (
+                <option key={preset.id} value={preset.id}>
+                  {preset.name} (bawaan)
+                </option>
+              ))}
+              {state.presets.map((preset) => (
+                <option key={preset.id} value={preset.id}>
+                  {preset.name}
+                </option>
+              ))}
+            </select>
+            <button type="button" className="btn btn-sm" disabled={presetId === ''} onClick={applyPresetId}>
+              Terapkan
+            </button>
+          </div>
+          <button type="button" className="link" onClick={saveCurrentAsPreset}>
+            Simpan kategori saat ini sebagai preset
+          </button>
         </div>
 
         {categoryId === SAVINGS_CATEGORY && state.goals.length > 0 && (

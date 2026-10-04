@@ -166,4 +166,16 @@ describe('alur aplikasi', () => {
     expect(container.textContent).toContain(`${formatIDR(30_000)} / ${formatIDR(100_000)} (30%)`)
     expect(container.textContent).toContain('dari catatan kategori tabungan')
   })
+
+  it('menerapkan preset kategori bawaan', () => {
+    click('.period-option')
+    setSelect('[aria-label="Preset kategori"]', 'preset-kos')
+    const applyButton = [...container.querySelectorAll('button')].find((b) => b.textContent === 'Terapkan')!
+    act(() => {
+      applyButton.dispatchEvent(new MouseEvent('click', { bubbles: true }))
+    })
+
+    const categorySelect = container.querySelector('#exp-cat') as HTMLSelectElement
+    expect([...categorySelect.options].map((option) => option.textContent)).toContain('Laundry & Setrika')
+  })
 })

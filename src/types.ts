@@ -38,11 +38,18 @@ export interface Goal {
   active: boolean
 }
 
+export interface CategoryPreset {
+  id: string
+  name: string
+  categories: Category[]
+}
+
 export interface AppState {
   version: 1
   mode: PeriodMode | null
   allowance: number
   categories: Category[]
+  presets: CategoryPreset[]
   expenses: Expense[]
   incomes: Income[]
   goals: Goal[]
