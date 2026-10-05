@@ -42,7 +42,7 @@ function normalizeRatios(categories: Category[]): Category[] {
   return categories.map((category) => ({ ...category, ratio: category.ratio / sum }))
 }
 
-// data lama (4 kategori, "Transport & Pulsa" 20%) dipecah: transport 3/4, pulsa 1/4 — jumlah tetap 100%
+// data lama (4 kategori, "Transport & Pulsa" 20%) dipecah: transport 3/4, pulsa 1/4, jumlah tetap 100%
 function migrateCategories(categories: Category[]): Category[] {
   const migrated = migratePulsa(categories)
   const missing = defaultCategories().filter(
@@ -74,7 +74,7 @@ function migratePulsa(categories: Category[]): Category[] {
     return normalizeRatios(next)
   }
 
-  // jalur langka: tanpa transport bawaan — pulsa 5% diambil dari rasio terbesar
+  // jalur langka: tanpa transport bawaan, pulsa 5% diambil dari rasio terbesar
   const next = [...refreshed]
   let biggest = -1
   next.forEach((category, i) => {
