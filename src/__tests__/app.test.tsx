@@ -328,7 +328,7 @@ describe('alur aplikasi', () => {
     expect(container.textContent).toContain('Cadangkan')
     expect(container.textContent).toContain('Pulihkan')
     expect(container.textContent).toContain('Excel')
-    expect(container.querySelector('#nav-beranda section.card h2')?.textContent).toBe('Hari Ini')
+    expect(container.querySelector('#nav-beranda section.card h2')?.textContent).toBe('Total Aset')
     expect(container.querySelector('#nav-data section.card h2')?.textContent).toBe('Data & Cadangan')
 
     globalThis.URL.createObjectURL = vi.fn(() => 'blob:test') as unknown as typeof URL.createObjectURL
@@ -338,24 +338,42 @@ describe('alur aplikasi', () => {
     expect(container.querySelector('.toast')?.textContent).toContain('Cadangan tersimpan')
   })
 
-  it('kartu Hari Ini menampilkan status dan membawa fokus ke form', () => {
+  it('tombol catat cepat di topbar membuka form ringkas di Beranda', () => {
     click('.period-option')
-    setValue('#allowance', '700000')
-    expect(container.textContent).toContain('Hari Ini')
-    expect(container.textContent).toContain('Hari ke-')
-    expect(container.textContent).toContain('Realisasi vs rencana hari ini')
 
-    clickText('button', 'Catat sekarang')
-    expect(document.activeElement?.id).toBe('exp-date')
+    clickText('.topbar button', '+ Pengeluaran')
+    expect(container.querySelector('#nav-beranda #qk-amount')).not.toBeNull()
 
-    setValue('#exp-amount', '9000')
-    const form = container.querySelector('#exp-amount')!.closest('form') as HTMLFormElement
+    setValue('#qk-note', 'kopi susu')
+    setValue('#qk-amount', '18000')
+    const form = container.querySelector('#qk-amount')!.closest('form') as HTMLFormElement
     act(() => {
       form.dispatchEvent(new Event('submit', { bubbles: true, cancelable: true }))
     })
 
-    expect(container.textContent).toContain('Sudah catat hari ini')
-    expect([...container.querySelectorAll('button')].some((b) => b.textContent?.includes('Catat sekarang'))).toBe(false)
+    expect(container.querySelector('.toast')?.textContent).toContain('Pengeluaran dicatat')
+    expect(container.querySelector('#qk-amount') as HTMLInputElement).toBeTruthy()
+    const expenseRow = [...container.querySelectorAll('#nav-catat .tx')].find((li) =>
+      li.textContent?.includes('kopi susu'),
+    )
+    expect(expenseRow).toBeTruthy()
+    expect(expenseRow!.textContent).toContain('18.000')
+
+    clickText('.topbar button', '+ Pemasukan')
+    expect(container.querySelector('#nav-beranda #qk-source')).not.toBeNull()
+    setValue('#qk-amount', '50000')
+    const incomeForm = container.querySelector('#qk-amount')!.closest('form') as HTMLFormElement
+    act(() => {
+      incomeForm.dispatchEvent(new Event('submit', { bubbles: true, cancelable: true }))
+    })
+
+    expect(container.querySelector('.toast')?.textContent).toContain('Pemasukan dicatat')
+    const incomeRow = [...container.querySelectorAll('#nav-catat .tx')].find((li) => li.querySelector('.tx-in'))!
+    expect(incomeRow.textContent).toContain('Uang Lembaran')
+    expect(incomeRow.textContent).toContain('50.000')
+
+    clickText('.topbar button', '+ Pemasukan')
+    expect(container.querySelector('#nav-beranda #qk-source')).toBeNull()
   })
 
   it('mengubah alokasi lewat form nominal dengan persen otomatis dan validasi total', () => {

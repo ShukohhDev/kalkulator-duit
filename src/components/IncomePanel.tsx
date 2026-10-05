@@ -3,16 +3,17 @@ import type { FormEvent } from 'react'
 import type { AppState, Income, Notify } from '../types'
 import type { Updater } from '../hooks/useAppState'
 import { formatIDR, formatShortDate, monthKey, monthLabel, todayISO } from '../lib/money'
+import { INCOME_SOURCES } from '../lib/state'
 import { uid } from '../lib/id'
 import { MoneyInput } from './MoneyInput'
+
+const SOURCES = INCOME_SOURCES
 
 interface Props {
   state: AppState
   update: Updater
   notify: Notify
 }
-
-const SOURCES = ['Uang Lembaran', 'Transfer']
 
 export function IncomePanel({ state, update, notify }: Props) {
   const [date, setDate] = useState(todayISO())

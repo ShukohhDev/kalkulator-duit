@@ -144,7 +144,7 @@ select {
 }
 
 .front {
-  max-width: 680px;
+  max-width: 960px;
   margin: 24px auto 0;
   padding: 0 16px;
   display: flex;
@@ -1159,34 +1159,17 @@ select {
 }
 
 
-/* ---------- hari ini ---------- */
+/* ---------- form catat cepat ---------- */
 
-.today-progress {
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-  margin: 12px 0;
+.quick-form {
+  border-color: var(--accent);
 }
 
-.today-head {
-  display: flex;
-  justify-content: space-between;
-  align-items: baseline;
-  gap: 8px;
-  font-size: 13.5px;
-}
-
-.today-ok {
-  color: var(--ok);
-  font-size: 13.5px;
+.quick-on {
+  background: var(--accent-soft);
+  border-color: var(--accent);
+  color: var(--accent);
   font-weight: 600;
-  margin: 6px 0 0;
-}
-
-.cta-log {
-  display: block;
-  width: 100%;
-  margin: 6px 0 12px;
 }
 
 /* ---------- charts ---------- */

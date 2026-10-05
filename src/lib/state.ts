@@ -15,6 +15,7 @@ export const SAVINGS_CATEGORY = 'tabungan'
 export const PULSA_CATEGORY = 'pulsa'
 export const CICILAN_CATEGORY = 'cicilan'
 export const TAGIHAN_CATEGORY = 'tagihan'
+export const INCOME_SOURCES = ['Uang Lembaran', 'Transfer']
 
 export function effectiveSaved(goal: Goal, savingsByGoal: Record<string, number>): number {
   return goal.saved + (savingsByGoal[goal.id] ?? 0)

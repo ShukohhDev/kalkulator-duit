@@ -22,8 +22,8 @@ import { ObligationsPanel } from './components/ObligationsPanel'
 import { PeriodPicker } from './components/PeriodPicker'
 import { ReportCard } from './components/ReportCard'
 import { SavingsPanel } from './components/SavingsPanel'
+import { QuickEntry } from './components/QuickEntry'
 import { SectionNav, type NavItem } from './components/SectionNav'
-import { TodayCard } from './components/TodayCard'
 import { TotalAsetCard } from './components/TotalAsetCard'
 import { TrendPanel } from './components/TrendPanel'
 import { WalletCards } from './components/WalletCards'
@@ -57,6 +57,7 @@ export default function App() {
   const [pickerOpen, setPickerOpen] = useState(false)
   const [calcOpen, setCalcOpen] = useState(false)
   const [openPanel, setOpenPanel] = useState<string | null>(null)
+  const [quick, setQuick] = useState<'expense' | 'income' | null>(null)
   const [toast, setToast] = useState<{ text: string; error?: boolean; undo?: () => void } | null>(null)
   const toastTimer = useRef<number | undefined>(undefined)
 
@@ -83,18 +84,19 @@ export default function App() {
   }, [calcOpen])
 
   useEffect(() => {
-    if (!openPanel) return
+    if (!openPanel && !quick) return
     const onKeyDown = (event: KeyboardEvent) => {
-      if (event.key === 'Escape') setOpenPanel(null)
+      if (event.key !== 'Escape') return
+      if (openPanel) setOpenPanel(null)
+      else setQuick(null)
     }
     window.addEventListener('keydown', onKeyDown)
     return () => window.removeEventListener('keydown', onKeyDown)
-  }, [openPanel])
+  }, [openPanel, quick])
 
   const pickMode = (mode: 'week' | 'month') => {
     update((s) => ({ ...s, mode }))
     setPickerOpen(false)
-    setOpenPanel((prev) => prev ?? 'nav-beranda')
   }
 
   const applyProfile = (profileId: ProfileId) => {
@@ -113,7 +115,18 @@ export default function App() {
     toastTimer.current = window.setTimeout(() => setToast(null), options?.undo ? 6000 : 2500)
   }
 
-  const togglePanel = (id: string) => setOpenPanel((prev) => (prev === id ? null : id))
+  const togglePanel = (id: string) => {
+    if (id === 'nav-beranda') {
+      setOpenPanel(null)
+      return
+    }
+    setOpenPanel((prev) => (prev === id ? null : id))
+  }
+
+  const toggleQuick = (mode: 'expense' | 'income') => {
+    setOpenPanel(null)
+    setQuick((prev) => (prev === mode ? null : mode))
+  }
 
   const sectionClass = (id: string) => `nav-section${openPanel === id ? ' nav-section-window' : ''}`
 
@@ -147,6 +160,22 @@ export default function App() {
           <h1 className="brand">Kalkulator Uang Jajan</h1>
         </div>
         <div className="topbar-actions">
+          <button
+            type="button"
+            className={`btn btn-sm${quick === 'expense' ? ' quick-on' : ''}`}
+            aria-expanded={quick === 'expense'}
+            onClick={() => toggleQuick('expense')}
+          >
+            + Pengeluaran
+          </button>
+          <button
+            type="button"
+            className={`btn btn-sm${quick === 'income' ? ' quick-on' : ''}`}
+            aria-expanded={quick === 'income'}
+            onClick={() => toggleQuick('income')}
+          >
+            + Pemasukan
+          </button>
           {state.mode && (
             <button type="button" className="btn btn-ghost btn-sm" onClick={() => setPickerOpen(true)}>
               Periode: {state.mode === 'week' ? '1 Minggu' : '1 Bulan'}
@@ -156,28 +185,22 @@ export default function App() {
         </div>
       </header>
 
-      <SectionNav items={NAV_ITEMS} openId={openPanel} onOpen={togglePanel} />
+      <SectionNav items={NAV_ITEMS} openId={openPanel ?? 'nav-beranda'} onOpen={togglePanel} />
 
       {!openPanel && (
-        <main className="front">
+        <main className="front" id="nav-beranda">
           <TotalAsetCard state={state} />
+          {quick && (
+            <QuickEntry key={quick} mode={quick} state={state} update={update} notify={notify} onClose={() => setQuick(null)} />
+          )}
+          <AllowanceCard state={state} derived={derived} update={update} onChangePeriod={() => setPickerOpen(true)} />
+          <WalletCards state={state} derived={derived} />
+          <InsightsPanel insights={insights} />
         </main>
       )}
 
       {openPanel && <div className="window-backdrop" onClick={() => setOpenPanel(null)} />}
 
-      <div
-        id="nav-beranda"
-        className={sectionClass('nav-beranda')}
-        role={openPanel === 'nav-beranda' ? 'dialog' : undefined}
-        aria-modal={openPanel === 'nav-beranda' ? 'true' : undefined}
-      >
-        {windowHead('nav-beranda')}
-        <TodayCard state={state} derived={derived} />
-        <AllowanceCard state={state} derived={derived} update={update} onChangePeriod={() => setPickerOpen(true)} />
-        <WalletCards state={state} derived={derived} />
-        <InsightsPanel insights={insights} />
-      </div>
       <div
         id="nav-catat"
         className={sectionClass('nav-catat')}

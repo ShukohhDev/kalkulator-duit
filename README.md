@@ -6,8 +6,9 @@ Semua data disimpan di `localStorage` browser; tidak ada server, tidak ada data 
 
 ## Fitur
 
-- **Total Aset di halaman depan**: jumlah saldo semua dompet, dengan tombol mata untuk menyembunyikan sementara (`Rp ••••••`, pilihan diingat di browser) kalau ada orang yang melihat layar.
-- **Navigasi panel**: chip sticky di atas (Beranda, Catat, Kewajiban, Analisis, Tabungan, Laporan, Data); tiap chip **membuka jendela panel** di atas halaman depan (tutup lewat tombol X, Esc, atau klik latar), chip lain bisa langsung diganti, dan di layar kecil chip bisa digeser.
+- **Beranda = halaman depan**: langsung terlihat saat dibuka, diawali **Total Aset** (jumlah saldo semua dompet, tombol mata untuk menyembunyikan sementara `Rp ••••••`, pilihan diingat di browser), lalu kartu Uang Jajan, dompet, dan insight.
+- **Navigasi panel**: chip sticky di atas (Beranda, Catat, Kewajiban, Analisis, Tabungan, Laporan, Data); chip Beranda kembali ke halaman depan, chip lain **membuka jendela panel** di atas Beranda (tutup lewat tombol X, Esc, atau klik latar), chip lain bisa langsung diganti, dan di layar kecil chip bisa digeser.
+- **Catat cepat dari topbar**: tombol **+ Pengeluaran** dan **+ Pemasukan** membuka form ringkas langsung di Beranda (tanggal, kategori/sumber, nominal), jadi bisa mencatat tanpa pindah jendela; tekan lagi untuk menutup.
 - **Periode** 1 minggu atau 1 bulan, dengan uang jajan yang **dibagi rata per hari** untuk grafik dan sisa uang.
 - **Alokasi per kategori lewat input nominal rupiah**: persen ikut terhitung otomatis, jumlah seluruh alokasi wajib tepat sama dengan uang jajan (ada pesan kurang/lebih), dan kategori bisa ditambah sendiri.
 - **2 profil alokasi**: Tinggal di Rumah dan Tinggal di Kos; saat pertama kali ada **wizard onboarding** yang menanyakan profil (Langkah 1) sebelum periode (Langkah 2), lalu profil bisa diganti lewat chip di pemilih periode (ada konfirmasi), rasio nominal tetap bebas diubah dan kategori tetap bisa ditambah; data transaksi tidak ikut berubah. Data lama dengan profil lain otomatis dimigrasi.
@@ -25,7 +26,6 @@ Semua data disimpan di `localStorage` browser; tidak ada server, tidak ada data 
 - **Auto-sync tabungan**: pengeluaran kategori "Ditabung / Investasi" bisa ditujukan ke target tertentu, dan saldonya ikut terhitung di progres target.
 - **Wishlist / Incaran Beli**: daftar barang yang ingin dibeli (harga + saldo awal), **tanpa bunga/tanpa umur target**: progres = saldo awal + setoran lewat tombol **Setor** (tercatat sebagai pengeluaran "Ditabung" berhari ini) atau lewat select **Masukkan ke** di form pengeluaran.
 - **Laporan bulanan**: ringkasan pemasukan/pengeluaran, rincian per kategori, progres target, dan 5 pengeluaran terbesar; tombol **Cetak / Simpan PDF** memakai dialog cetak browser.
-- **Hari Ini** (di jendela Beranda): status harian: tanggal, hari ke-n periode, realisasi vs rencana hari ini (progress bar), dan tombol catat cepat yang hilang otomatis setelah mencatat.
 - **Insight otomatis**: kategori yang melebihi alokasi, kartu dompet yang hampir mencapai batas alokasi (badge + insight di 80%), proyeksi uang habis, kekurangan setoran target.
 - **Data**: ekspor/impor JSON, **ekspor Excel `.xlsx`** (3 sheet: Transaksi, Ringkasan Kategori, Ringkasan Bulan; header tebal, lebar kolom, baris beku, format Rp), reset data.
 - **PWA**: bisa dipasang di home screen dan dibuka **offline** setelah kunjungan pertama.
@@ -44,7 +44,7 @@ npm run preview    # sajian lokal hasil build
 ## Cara pakai singkat
 
 1. Pilih periode (1 Minggu / 1 Bulan), isi nominal uang jajan, lalu pilih profil (Tinggal di Rumah / Tinggal di Kos). Kalau nominal alokasinya belum pas, klik **Ubah alokasi** (total wajib tepat sama dengan uang jajan).
-2. Catat pengeluaran tiap hari lewat chip **Catat**; pakai preset kategori kalau mau kategori lebih spesifik.
+2. Catat pengeluaran tiap hari lewat tombol **+ Pengeluaran** di topbar (form ringkas di Beranda) atau chip **Catat**; pakai preset kategori kalau mau kategori lebih spesifik.
 3. Buat target tabungan (nama, target, umur target), tandai **Aktif** untuk target yang sedang dikejar.
 4. Kalau menabung lewat kategori "Ditabung / Investasi", pilih tujuannya di select **Masukkan ke** (target tabungan atau incaran wishlist). Untuk incaran, bisa juga pakai tombol **Setor** di kartu Wishlist.
 5. Buka **Laporan Bulanan**, pilih bulan, lalu **Cetak / Simpan PDF**.
