@@ -1483,6 +1483,41 @@ select {
   flex: 1 1 160px;
 }
 
+/* ---------- dompet ---------- */
+
+.wallet-total {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin-bottom: 12px;
+}
+
+.wallet-total-value {
+  font-size: 26px;
+}
+
+.wallet-rate {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.rate-input {
+  width: 110px;
+  padding: 5px 8px;
+}
+
+.ob-row > .input-name {
+  flex: 1 1 180px;
+  width: auto;
+}
+
+.ob-row > .input:not(.input-name) {
+  flex: 0 0 150px;
+  width: 150px;
+}
+
 .profile-label {
   font-size: 13px;
   font-weight: 600;

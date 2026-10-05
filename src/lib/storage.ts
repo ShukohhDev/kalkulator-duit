@@ -1,5 +1,5 @@
 import type { AppState, Bill, Category, CategoryPreset, Debt, Expense, Goal, Income, PeriodMode, WishlistItem } from '../types'
-import { initialState, defaultCategories, PULSA_CATEGORY, CICILAN_CATEGORY, TAGIHAN_CATEGORY } from './state'
+import { initialState, defaultCategories, defaultWallets, PULSA_CATEGORY, CICILAN_CATEGORY, TAGIHAN_CATEGORY } from './state'
 import { MAX_USER_PRESETS } from './presets'
 import { isProfileId } from './profiles'
 
@@ -158,6 +158,17 @@ function sanitizeBills(value: unknown): Bill[] {
     .filter((item) => item.amount > 0)
 }
 
+function sanitizeWallets(value: unknown): AppState['wallets'] {
+  if (!Array.isArray(value)) return []
+  return value
+    .filter((item): item is Record<string, unknown> => !!item && typeof item === 'object')
+    .map((item, index) => ({
+      id: str(item.id, `wallet-${index}`),
+      name: str(item.name, 'Dompet').trim() || 'Dompet',
+      balance: num(item.balance),
+    }))
+}
+
 function sanitizeIncomes(value: unknown): Income[] {
   if (!Array.isArray(value)) return []
   return value
@@ -207,6 +218,7 @@ export function sanitize(raw: unknown): AppState {
     wishlist: sanitizeWishlist(data.wishlist),
     debts: sanitizeDebts(data.debts),
     bills: sanitizeBills(data.bills),
+    wallets: Array.isArray(data.wallets) ? sanitizeWallets(data.wallets) : defaultWallets(),
     currentAge: Math.max(1, num(data.currentAge, base.currentAge)),
     theme: data.theme === 'dark' ? 'dark' : 'light',
   }

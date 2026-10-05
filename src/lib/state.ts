@@ -32,6 +32,14 @@ export function defaultCategories(): Category[] {
   ]
 }
 
+export function defaultWallets(): AppState['wallets'] {
+  return [
+    { id: 'wallet-rekening', name: 'Rekening bank', balance: 0 },
+    { id: 'wallet-ewallet', name: 'E-wallet', balance: 0 },
+    { id: 'wallet-tunai', name: 'Tunai', balance: 0 },
+  ]
+}
+
 export function primaryGoal(goals: Goal[]): Goal | undefined {
   return goals.find((goal) => goal.primary) ?? goals[0]
 }
@@ -54,6 +62,7 @@ export function initialState(): AppState {
     wishlist: [],
     debts: [],
     bills: [],
+    wallets: defaultWallets(),
     currentAge: 17,
     theme: 'light',
   }

@@ -13,6 +13,7 @@ import { CalendarHeatmap } from './components/CalendarHeatmap'
 import { Calculator } from './components/Calculator'
 import { CashflowChart } from './components/CashflowChart'
 import { DataControls } from './components/DataControls'
+import { DompetPanel } from './components/DompetPanel'
 import { ExpensesPanel } from './components/ExpensesPanel'
 import { IncomePanel } from './components/IncomePanel'
 import { InsightsPanel } from './components/InsightsPanel'
@@ -129,6 +130,7 @@ export default function App() {
             <MonthCompare state={state} derived={derived} />
           </div>
           <div id="nav-tabungan" className="nav-section">
+            <DompetPanel state={state} update={update} />
             <SavingsPanel state={state} derived={derived} update={update} />
             <WishlistPanel state={state} derived={derived} update={update} />
           </div>

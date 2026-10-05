@@ -65,6 +65,12 @@ export interface Bill {
   lastPaid?: string
 }
 
+export interface Wallet {
+  id: string
+  name: string
+  balance: number
+}
+
 export interface CategoryPreset {
   id: string
   name: string
@@ -84,6 +90,7 @@ export interface AppState {
   wishlist: WishlistItem[]
   debts: Debt[]
   bills: Bill[]
+  wallets: Wallet[]
   currentAge: number
   theme: Theme
 }

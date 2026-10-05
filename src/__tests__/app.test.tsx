@@ -143,6 +143,27 @@ describe('alur aplikasi', () => {
     expect(container.textContent).toContain('Menampilkan 2 dari 2 catatan')
   })
 
+  it('mengelola dompet dan mengonversi total ke USD dengan kurs manual', () => {
+    click('.period-option')
+
+    expect(container.textContent).toContain('Dompet & E-wallet')
+    setValue('#w-bal-wallet-rekening', '1570000')
+    expect(container.querySelector('.wallet-total-value')?.textContent).toContain('1.570.000')
+
+    clickText('.card-head .nav-chip', 'USD')
+    expect(container.querySelector('#wallet-rate')).not.toBeNull()
+    expect(container.querySelector('.wallet-total-value')?.textContent).toBe('$98')
+
+    setValue('#wallet-rate', '15700')
+    expect(container.querySelector('.wallet-total-value')?.textContent).toBe('$100')
+
+    clickText('button', '+ Tambah dompet')
+    expect(container.querySelectorAll('.ob-row')).toHaveLength(4)
+
+    clickText('.ob-row .btn-danger', 'Hapus')
+    expect(container.querySelectorAll('.ob-row')).toHaveLength(3)
+  })
+
   it('membuka kalkulator lewat tombol melayang lalu menutup dengan Esc dan setelah Pakai angka', () => {
     click('.period-option')
     expect(container.querySelector('.calc-pop')).toBeNull()

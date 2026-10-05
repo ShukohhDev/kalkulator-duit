@@ -96,3 +96,16 @@ describe('profil alokasi', () => {
     expect(sanitize({ version: 1, profile: 'kos' }).profile).toBe('standar')
   })
 })
+
+describe('dompet', () => {
+  it('data lama tanpa dompet mendapat dompet bawaan dan daftar tersanitasi', () => {
+    const legacy = sanitize({ version: 1 })
+    expect(legacy.wallets.map((wallet) => wallet.id)).toEqual(['wallet-rekening', 'wallet-ewallet', 'wallet-tunai'])
+
+    const custom = sanitize({ version: 1, wallets: [{ id: 'w1', name: '  GoPay ', balance: '25000' }] })
+    expect(custom.wallets).toEqual([{ id: 'w1', name: 'GoPay', balance: 25000 }])
+
+    const empty = sanitize({ version: 1, wallets: [] })
+    expect(empty.wallets).toEqual([])
+  })
+})

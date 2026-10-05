@@ -1,34 +1,45 @@
 import type { CashflowChartType, CashflowView } from '../types'
 
+export type WalletCurrency = 'idr' | 'usd'
+
 export interface Prefs {
   view: CashflowView
   chartType: CashflowChartType
+  walletCurrency: WalletCurrency
+  usdRate: number
 }
 
 const KEY = 'kalkulator-duitmu:prefs'
 const VIEWS: CashflowView[] = ['day', 'week', 'month', 'year']
 const CHART_TYPES: CashflowChartType[] = ['bar', 'line', 'donut', 'category']
+const CURRENCIES: WalletCurrency[] = ['idr', 'usd']
 
 export function loadPrefs(): Prefs {
-  const fallback: Prefs = { view: 'day', chartType: 'bar' }
+  const fallback: Prefs = { view: 'day', chartType: 'bar', walletCurrency: 'idr', usdRate: 16_000 }
   try {
     const raw = localStorage.getItem(KEY)
     if (!raw) return fallback
     const data = JSON.parse(raw) as Partial<Prefs>
+    const rate = Number(data.usdRate)
     return {
       view: VIEWS.includes(data.view as CashflowView) ? (data.view as CashflowView) : fallback.view,
       chartType: CHART_TYPES.includes(data.chartType as CashflowChartType)
         ? (data.chartType as CashflowChartType)
         : fallback.chartType,
+      walletCurrency: CURRENCIES.includes(data.walletCurrency as WalletCurrency)
+        ? (data.walletCurrency as WalletCurrency)
+        : fallback.walletCurrency,
+      usdRate: Number.isFinite(rate) && rate > 0 ? rate : fallback.usdRate,
     }
   } catch {
     return fallback
   }
 }
 
-export function savePrefs(prefs: Prefs): void {
+export function savePrefs(patch: Partial<Prefs>): void {
   try {
-    localStorage.setItem(KEY, JSON.stringify(prefs))
+    const current = loadPrefs()
+    localStorage.setItem(KEY, JSON.stringify({ ...current, ...patch }))
   } catch {
     // penyimpanan penuh/di-block: preferensi hanya hilang untuk sesi ini
   }
