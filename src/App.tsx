@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { useAppState } from './hooks/useAppState'
 import { derive } from './lib/derive'
 import { buildInsights } from './lib/insights'
@@ -6,7 +6,7 @@ import { notifyDue } from './lib/obligations'
 import { applyProfile as applyProfileToCategories, findProfile } from './lib/profiles'
 import { initialState } from './lib/state'
 import { clearState } from './lib/storage'
-import type { ProfileId } from './types'
+import type { Notify, ProfileId } from './types'
 import { AllowanceCard } from './components/AllowanceCard'
 import { AllocationDonut } from './components/AllocationDonut'
 import { CalendarHeatmap } from './components/CalendarHeatmap'
@@ -57,6 +57,8 @@ export default function App() {
   const [pickerOpen, setPickerOpen] = useState(false)
   const [calcOpen, setCalcOpen] = useState(false)
   const [openPanel, setOpenPanel] = useState<string | null>(null)
+  const [toast, setToast] = useState<{ text: string; error?: boolean; undo?: () => void } | null>(null)
+  const toastTimer = useRef<number | undefined>(undefined)
 
   const derived = useMemo(() => derive(state), [state])
   const insights = useMemo(() => buildInsights(state, derived), [state, derived])
@@ -64,6 +66,8 @@ export default function App() {
   useEffect(() => {
     document.documentElement.dataset.theme = state.theme
   }, [state.theme])
+
+  useEffect(() => () => window.clearTimeout(toastTimer.current), [])
 
   useEffect(() => {
     notifyDue(state)
@@ -101,6 +105,12 @@ export default function App() {
   const resetAll = () => {
     clearState()
     replace(initialState())
+  }
+
+  const notify: Notify = (text, options) => {
+    setToast({ text, error: options?.error, undo: options?.undo })
+    window.clearTimeout(toastTimer.current)
+    toastTimer.current = window.setTimeout(() => setToast(null), options?.undo ? 6000 : 2500)
   }
 
   const togglePanel = (id: string) => setOpenPanel((prev) => (prev === id ? null : id))
@@ -175,8 +185,8 @@ export default function App() {
         aria-modal={openPanel === 'nav-catat' ? 'true' : undefined}
       >
         {windowHead('nav-catat')}
-        <ExpensesPanel state={state} update={update} />
-        <IncomePanel state={state} update={update} />
+        <ExpensesPanel state={state} update={update} notify={notify} />
+        <IncomePanel state={state} update={update} notify={notify} />
       </div>
       <div
         id="nav-kewajiban"
@@ -185,7 +195,7 @@ export default function App() {
         aria-modal={openPanel === 'nav-kewajiban' ? 'true' : undefined}
       >
         {windowHead('nav-kewajiban')}
-        <ObligationsPanel state={state} update={update} />
+        <ObligationsPanel state={state} update={update} notify={notify} />
       </div>
       <div
         id="nav-analisis"
@@ -227,12 +237,30 @@ export default function App() {
         aria-modal={openPanel === 'nav-data' ? 'true' : undefined}
       >
         {windowHead('nav-data')}
-        <DataControls state={state} saved={saved} onImport={replace} onReset={resetAll} />
+        <DataControls state={state} saved={saved} onImport={replace} onReset={resetAll} notify={notify} />
       </div>
 
       <footer className="footer muted small">
         Data tersimpan lokal di browser kamu. Bunga dihitung majemuk 8% per tahun (setara 0,64%/bulan).
       </footer>
+
+      {toast && (
+        <div className={`toast${toast.error ? ' toast-error' : ''}`} role="status">
+          <span>{toast.text}</span>
+          {toast.undo && (
+            <button
+              type="button"
+              className="btn btn-ghost btn-sm toast-undo"
+              onClick={() => {
+                toast.undo?.()
+                setToast(null)
+              }}
+            >
+              Urungkan
+            </button>
+          )}
+        </div>
+      )}
 
       {(pickerOpen || state.mode === null) && (
         <PeriodPicker

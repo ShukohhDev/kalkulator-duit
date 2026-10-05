@@ -1,5 +1,5 @@
 import { useMemo, useState, type FormEvent } from 'react'
-import type { AppState, Category, Expense } from '../types'
+import type { AppState, Category, Expense, Notify } from '../types'
 import type { Updater } from '../hooks/useAppState'
 import { CATEGORY_COLORS, SAVINGS_CATEGORY, primaryGoal } from '../lib/state'
 import { BUILTIN_PRESETS, applyPreset, savePreset } from '../lib/presets'
@@ -12,11 +12,12 @@ import { ReceiptView } from './ReceiptView'
 interface Props {
   state: AppState
   update: Updater
+  notify: Notify
 }
 
 const QUICK_ADDS = [5_000, 10_000, 20_000]
 
-export function ExpensesPanel({ state, update }: Props) {
+export function ExpensesPanel({ state, update, notify }: Props) {
   const [date, setDate] = useState(todayISO())
   const [categoryId, setCategoryId] = useState(() => state.categories[0]?.id ?? 'makan')
   const [note, setNote] = useState('')
@@ -126,10 +127,20 @@ export function ExpensesPanel({ state, update }: Props) {
   }
 
   const remove = (id: string) => {
-    const target = state.expenses.find((item) => item.id === id)
+    const index = state.expenses.findIndex((item) => item.id === id)
+    const target = state.expenses[index]
+    if (!target) return
     update((s) => ({ ...s, expenses: s.expenses.filter((item) => item.id !== id) }))
-    if (target?.receiptId) void deleteReceipt(target.receiptId)
+    if (target.receiptId) void deleteReceipt(target.receiptId)
     if (editingId === id) resetForm()
+    notify('Catatan dihapus.', {
+      undo: () =>
+        update((s) => {
+          const next = [...s.expenses]
+          next.splice(Math.min(index, next.length), 0, { ...target, receiptId: undefined })
+          return { ...s, expenses: next }
+        }),
+    })
   }
 
   const addCategory = () => {

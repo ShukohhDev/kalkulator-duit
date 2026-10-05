@@ -1,5 +1,5 @@
-import { useEffect, useRef, useState, type ReactNode } from 'react'
-import type { AppState } from '../types'
+import { useRef, type ReactNode } from 'react'
+import type { AppState, Notify } from '../types'
 import { exportXlsx } from '../lib/xlsx'
 import { sanitize } from '../lib/storage'
 
@@ -8,6 +8,7 @@ interface Props {
   saved: boolean
   onImport: (state: AppState) => void
   onReset: () => void
+  notify: Notify
 }
 
 const svgProps = {
@@ -70,15 +71,8 @@ function DataAction({ icon, title, desc, danger, onClick }: ActionProps) {
   )
 }
 
-export function DataControls({ state, saved, onImport, onReset }: Props) {
+export function DataControls({ state, saved, onImport, onReset, notify }: Props) {
   const fileRef = useRef<HTMLInputElement>(null)
-  const [toast, setToast] = useState<{ text: string; error?: boolean } | null>(null)
-
-  useEffect(() => {
-    if (!toast) return
-    const timer = setTimeout(() => setToast(null), 2500)
-    return () => clearTimeout(timer)
-  }, [toast])
 
   const download = (filename: string, blob: Blob) => {
     const url = URL.createObjectURL(blob)
@@ -94,15 +88,15 @@ export function DataControls({ state, saved, onImport, onReset }: Props) {
       `kalkulator-duitmu-${new Date().toISOString().slice(0, 10)}.json`,
       new Blob([JSON.stringify(state, null, 2)], { type: 'application/json' }),
     )
-    setToast({ text: 'Cadangan tersimpan (.json).' })
+    notify('Cadangan tersimpan (.json).')
   }
 
   const exportExcel = async () => {
     try {
       await exportXlsx(state)
-      setToast({ text: 'File Excel siap diunduh (.xlsx).' })
+      notify('File Excel siap diunduh (.xlsx).')
     } catch {
-      setToast({ text: 'Gagal membuat file Excel.', error: true })
+      notify('Gagal membuat file Excel.', { error: true })
     }
   }
 
@@ -112,9 +106,9 @@ export function DataControls({ state, saved, onImport, onReset }: Props) {
       try {
         const parsed = sanitize(JSON.parse(String(reader.result)))
         onImport(parsed)
-        setToast({ text: 'Data dipulihkan dari cadangan.' })
+        notify('Data dipulihkan dari cadangan.')
       } catch {
-        setToast({ text: 'File tidak valid, pilih file cadangan .json.', error: true })
+        notify('File tidak valid, pilih file cadangan .json.', { error: true })
       }
     }
     reader.readAsText(file)
@@ -123,7 +117,7 @@ export function DataControls({ state, saved, onImport, onReset }: Props) {
   const reset = () => {
     if (window.confirm('Hapus semua data (uang jajan, pengeluaran, target)? Tindakan ini tidak bisa dibatalkan.')) {
       onReset()
-      setToast({ text: 'Semua data dihapus.' })
+      notify('Semua data dihapus.')
     }
   }
 
@@ -173,12 +167,6 @@ export function DataControls({ state, saved, onImport, onReset }: Props) {
           event.target.value = ''
         }}
       />
-
-      {toast && (
-        <div className={`toast${toast.error ? ' toast-error' : ''}`} role="status">
-          {toast.text}
-        </div>
-      )}
     </section>
   )
 }

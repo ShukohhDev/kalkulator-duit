@@ -98,3 +98,5 @@ export interface AppState {
 
 export type CashflowView = 'day' | 'week' | 'month' | 'year'
 export type CashflowChartType = 'bar' | 'line' | 'donut' | 'category'
+
+export type Notify = (text: string, options?: { error?: boolean; undo?: () => void }) => void

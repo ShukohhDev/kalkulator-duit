@@ -1,5 +1,5 @@
 import { useState, type FormEvent } from 'react'
-import type { AppState, Bill, Debt } from '../types'
+import type { AppState, Bill, Debt, Notify } from '../types'
 import type { Updater } from '../hooks/useAppState'
 import { formatIDR } from '../lib/money'
 import {
@@ -19,9 +19,10 @@ import { ProgressBar } from './ProgressBar'
 interface Props {
   state: AppState
   update: Updater
+  notify: Notify
 }
 
-export function ObligationsPanel({ state, update }: Props) {
+export function ObligationsPanel({ state, update, notify }: Props) {
   const [billName, setBillName] = useState('')
   const [billAmount, setBillAmount] = useState(0)
   const [billDay, setBillDay] = useState(1)
@@ -49,7 +50,18 @@ export function ObligationsPanel({ state, update }: Props) {
   const payBill = (bill: Bill) => update((s) => markBillPaid(s, bill))
 
   const removeBill = (id: string) => {
+    const index = state.bills.findIndex((item) => item.id === id)
+    const target = state.bills[index]
+    if (!target) return
     update((s) => ({ ...s, bills: s.bills.filter((item) => item.id !== id) }))
+    notify('Tagihan dihapus.', {
+      undo: () =>
+        update((s) => {
+          const next = [...s.bills]
+          next.splice(Math.min(index, next.length), 0, target)
+          return { ...s, bills: next }
+        }),
+    })
   }
 
   const addDebt = (event: FormEvent) => {
@@ -71,7 +83,18 @@ export function ObligationsPanel({ state, update }: Props) {
   const payDebt = (debt: Debt) => update((s) => markDebtPaid(s, debt))
 
   const removeDebt = (id: string) => {
+    const index = state.debts.findIndex((item) => item.id === id)
+    const target = state.debts[index]
+    if (!target) return
     update((s) => ({ ...s, debts: s.debts.filter((item) => item.id !== id) }))
+    notify('Utang dihapus.', {
+      undo: () =>
+        update((s) => {
+          const next = [...s.debts]
+          next.splice(Math.min(index, next.length), 0, target)
+          return { ...s, debts: next }
+        }),
+    })
   }
 
   return (

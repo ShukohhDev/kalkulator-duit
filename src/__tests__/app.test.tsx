@@ -429,6 +429,30 @@ describe('alur aplikasi', () => {
     expect(listText).not.toContain('Transfer')
   })
 
+  it('menghapus catatan lalu mengurungkannya lewat toast', () => {
+    click('.period-option')
+    setValue('#exp-note', 'nasi goreng')
+    setValue('#exp-amount', '9000')
+    const form = container.querySelector('#exp-amount')!.closest('form') as HTMLFormElement
+    act(() => {
+      form.dispatchEvent(new Event('submit', { bubbles: true, cancelable: true }))
+    })
+    expect(container.textContent).toContain('nasi goreng')
+
+    const row = [...container.querySelectorAll('.tx')].find((li) => li.textContent?.includes('nasi goreng'))!
+    const del = row.querySelector('.btn-danger') as HTMLButtonElement
+    act(() => {
+      del.dispatchEvent(new MouseEvent('click', { bubbles: true }))
+    })
+    expect(container.textContent).not.toContain('nasi goreng')
+
+    const toast = container.querySelector('.toast')!
+    expect(toast.textContent).toContain('Catatan dihapus')
+    clickText('.toast button', 'Urungkan')
+    expect(container.textContent).toContain('nasi goreng')
+    expect(container.querySelector('.toast')).toBeNull()
+  })
+
   it('pengeluaran kategori tabungan menambah saldo target yang dipilih', () => {
     click('.period-option')
 

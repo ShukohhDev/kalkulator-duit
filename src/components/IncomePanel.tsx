@@ -1,6 +1,6 @@
 import { useMemo, useState } from 'react'
 import type { FormEvent } from 'react'
-import type { AppState, Income } from '../types'
+import type { AppState, Income, Notify } from '../types'
 import type { Updater } from '../hooks/useAppState'
 import { formatIDR, formatShortDate, monthKey, monthLabel, todayISO } from '../lib/money'
 import { uid } from '../lib/id'
@@ -9,11 +9,12 @@ import { MoneyInput } from './MoneyInput'
 interface Props {
   state: AppState
   update: Updater
+  notify: Notify
 }
 
 const SOURCES = ['Uang Lembaran', 'Transfer']
 
-export function IncomePanel({ state, update }: Props) {
+export function IncomePanel({ state, update, notify }: Props) {
   const [date, setDate] = useState(todayISO())
   const [source, setSource] = useState(SOURCES[0])
   const [amount, setAmount] = useState(0)
@@ -59,8 +60,19 @@ export function IncomePanel({ state, update }: Props) {
   }
 
   const remove = (id: string) => {
+    const index = state.incomes.findIndex((item) => item.id === id)
+    const target = state.incomes[index]
+    if (!target) return
     update((s) => ({ ...s, incomes: s.incomes.filter((item) => item.id !== id) }))
     if (editingId === id) resetForm()
+    notify('Pemasukan dihapus.', {
+      undo: () =>
+        update((s) => {
+          const next = [...s.incomes]
+          next.splice(Math.min(index, next.length), 0, target)
+          return { ...s, incomes: next }
+        }),
+    })
   }
 
   return (

@@ -404,6 +404,15 @@ select {
   box-shadow: var(--shadow);
   font-size: 13.5px;
   animation: toast-in 0.22s ease;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.toast-undo {
+  color: inherit;
+  border-color: currentColor;
+  white-space: nowrap;
 }
 
 .toast-error {
