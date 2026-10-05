@@ -24,6 +24,7 @@ import { ReportCard } from './components/ReportCard'
 import { SavingsPanel } from './components/SavingsPanel'
 import { SectionNav, type NavItem } from './components/SectionNav'
 import { TodayCard } from './components/TodayCard'
+import { TotalAsetCard } from './components/TotalAsetCard'
 import { TrendPanel } from './components/TrendPanel'
 import { WalletCards } from './components/WalletCards'
 import { WishlistPanel } from './components/WishlistPanel'
@@ -96,7 +97,6 @@ export default function App() {
       <header className="topbar">
         <div>
           <h1 className="brand">Kalkulator Uang Jajan</h1>
-          <p className="muted small">Alokasi 50/15/5/10/20 · target tabungan bunga 8% per tahun</p>
         </div>
         <div className="topbar-actions">
           {state.mode && (
@@ -113,6 +113,7 @@ export default function App() {
       <main className="layout">
         <div className="col">
           <div id="nav-beranda" className="nav-section">
+            <TotalAsetCard state={state} />
             <AllowanceCard state={state} derived={derived} update={update} onChangePeriod={() => setPickerOpen(true)} />
             <WalletCards state={state} derived={derived} />
             <InsightsPanel insights={insights} />

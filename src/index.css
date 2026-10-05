@@ -554,6 +554,21 @@ select {
   color: var(--accent);
 }
 
+/* ---------- total aset ---------- */
+
+.aset-total {
+  font-size: 32px;
+  font-weight: 800;
+  line-height: 1.1;
+  letter-spacing: -0.02em;
+  margin: 4px 0 6px;
+}
+
+.aset-eye {
+  padding: 8px;
+  line-height: 0;
+}
+
 .alloc-list,
 .rec-list,
 .delta-list {

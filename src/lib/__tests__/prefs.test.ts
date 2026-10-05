@@ -2,7 +2,7 @@
 import { beforeEach, describe, expect, it } from 'vitest'
 import { loadPrefs, savePrefs } from '../prefs'
 
-const DEFAULTS = { view: 'day', chartType: 'bar', trendView: 'day', walletCurrency: 'idr', usdRate: 16_000 }
+const DEFAULTS = { view: 'day', chartType: 'bar', trendView: 'day', walletCurrency: 'idr', usdRate: 16_000, asetVisible: true }
 
 describe('preferensi grafik', () => {
   beforeEach(() => {
@@ -34,4 +34,11 @@ describe('preferensi grafik', () => {
     window.localStorage.setItem('kalkulator-duitmu:prefs', 'bukan json {')
     expect(loadPrefs()).toEqual(DEFAULTS)
   })
+})
+
+it('menyimpan preferensi sembunyikan total aset', () => {
+  savePrefs({ asetVisible: false })
+  expect(loadPrefs().asetVisible).toBe(false)
+  savePrefs({ asetVisible: true })
+  expect(loadPrefs().asetVisible).toBe(true)
 })
