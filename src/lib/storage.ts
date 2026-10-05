@@ -1,6 +1,7 @@
 import type { AppState, Category, CategoryPreset, Expense, Goal, Income, PeriodMode, WishlistItem } from '../types'
 import { initialState, defaultCategories, PULSA_CATEGORY } from './state'
 import { MAX_USER_PRESETS } from './presets'
+import { isProfileId } from './profiles'
 
 const STORAGE_KEY = 'kalkulator-duitmu:v1'
 
@@ -157,6 +158,7 @@ export function sanitize(raw: unknown): AppState {
     version: 1,
     mode: isPeriodMode(data.mode) ? data.mode : null,
     allowance: Math.max(0, num(data.allowance)),
+    profile: isProfileId(data.profile) ? data.profile : 'standar',
     categories: migrateCategories(sanitizeCategories(data.categories)),
     presets: sanitizePresets(data.presets),
     expenses: sanitizeExpenses(data.expenses),

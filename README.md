@@ -9,6 +9,7 @@ Semua data disimpan di `localStorage` browser — tidak ada server, tidak ada da
 - **Navigasi panel**: chip sticky di atas — Beranda, Catat, Analisis, Tabungan, Laporan, Data — scroll mulus dan chip aktif otomatis mengikuti panel yang terlihat (di layar kecil chip bisa digeser, kartu "Hari Ini" naik ke atas).
 - **Periode** 1 minggu atau 1 bulan, dengan uang jajan yang **dibagi rata per hari** untuk grafik dan sisa uang.
 - **Alokasi 50/15/5/10/20**: makan 50%, transport/bensin 15%, pulsa/kuota 5%, nongkrong 10%, tabungan 20% — rasionya **bisa diubah dari UI** (jumlah wajib tepat 100%, ada tombol reset default) dan kategori bisa ditambah sendiri.
+- **4 profil alokasi**: Standar, Anak Kos, Mahasiswa, Karyawan — pilih lewat chip di pemilih periode (ada konfirmasi), rasionya tetap bebas diubah dan kategori tetap bisa ditambah; data transaksi tidak ikut berubah.
 - **Kalkulator** lewat **tombol melayang** di pojok kanan bawah: tekan untuk buka, tekan lagi/Esc untuk menutup, dan "Pakai angka" otomatis memakai hasilnya sebagai uang jajan lalu menutup panel. **Tema terang/gelap** juga lewat tombol melayang kedua di atasnya.
 - **Pengeluaran**: filter kategori/bulan, pencarian, urut tanggal/nominal, edit & hapus catatan.
 - **Preset kategori**: tiga preset bawaan (Anak Kos, Mahasiswa, Karyawan) dan simpan kategori sendiri jadi preset.

@@ -2,8 +2,10 @@ import { useEffect, useMemo, useState } from 'react'
 import { useAppState } from './hooks/useAppState'
 import { derive } from './lib/derive'
 import { buildInsights } from './lib/insights'
+import { applyProfile as applyProfileToCategories, findProfile } from './lib/profiles'
 import { initialState } from './lib/state'
 import { clearState } from './lib/storage'
+import type { ProfileId } from './types'
 import { AllowanceCard } from './components/AllowanceCard'
 import { AllocationDonut } from './components/AllocationDonut'
 import { CalendarHeatmap } from './components/CalendarHeatmap'
@@ -68,6 +70,11 @@ export default function App() {
   const pickMode = (mode: 'week' | 'month') => {
     update((s) => ({ ...s, mode }))
     setPickerOpen(false)
+  }
+
+  const applyProfile = (profileId: ProfileId) => {
+    const profile = findProfile(profileId)
+    update((s) => ({ ...s, profile: profileId, categories: applyProfileToCategories(s.categories, profile) }))
   }
 
   const resetAll = () => {
@@ -138,7 +145,13 @@ export default function App() {
       </footer>
 
       {(pickerOpen || state.mode === null) && (
-        <PeriodPicker current={state.mode} onPick={pickMode} onCancel={state.mode === null ? undefined : () => setPickerOpen(false)} />
+        <PeriodPicker
+          current={state.mode}
+          onPick={pickMode}
+          onCancel={state.mode === null ? undefined : () => setPickerOpen(false)}
+          profile={state.profile}
+          onApplyProfile={applyProfile}
+        />
       )}
 
       {calcOpen && (

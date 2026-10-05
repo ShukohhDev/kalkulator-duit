@@ -2,6 +2,8 @@ export type PeriodMode = 'week' | 'month'
 
 export type Theme = 'light' | 'dark'
 
+export type ProfileId = 'standar' | 'anak-kos' | 'mahasiswa' | 'karyawan'
+
 export interface Category {
   id: string
   name: string
@@ -56,6 +58,7 @@ export interface AppState {
   version: 1
   mode: PeriodMode | null
   allowance: number
+  profile: ProfileId
   categories: Category[]
   presets: CategoryPreset[]
   expenses: Expense[]

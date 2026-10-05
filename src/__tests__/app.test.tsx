@@ -94,6 +94,25 @@ describe('alur aplikasi', () => {
     expect(container.textContent).toContain('Boleh belanja hari ini')
   })
 
+  it('mengganti profil alokasi dari chip di pemilih periode', () => {
+    click('.period-option')
+    clickText('button', 'Periode: 1 Minggu')
+    expect(container.querySelectorAll('.profile-chip')).toHaveLength(4)
+    expect(container.querySelector('.profile-chip-on')?.textContent).toBe('Standar')
+
+    clickText('.profile-chip', 'Anak Kos')
+    expect(container.querySelector('.profile-chip-on')?.textContent).toBe('Anak Kos')
+    clickText('button', 'Batal')
+
+    const options = [...container.querySelectorAll('#exp-cat option')].map((option) => option.textContent)
+    expect(options.some((text) => text?.includes('Laundry & Setrika'))).toBe(true)
+    expect(options.some((text) => text?.includes('Internet / WiFi'))).toBe(true)
+
+    setValue('#allowance', '700000')
+    expect(container.textContent).toContain('315.000')
+    expect(container.textContent).toContain('105.000')
+  })
+
   it('membuka kalkulator lewat tombol melayang lalu menutup dengan Esc dan setelah Pakai angka', () => {
     click('.period-option')
     expect(container.querySelector('.calc-pop')).toBeNull()

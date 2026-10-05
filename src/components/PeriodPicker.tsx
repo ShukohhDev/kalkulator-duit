@@ -1,9 +1,12 @@
-import type { PeriodMode } from '../types'
+import type { PeriodMode, ProfileId } from '../types'
+import { PROFILES } from '../lib/profiles'
 
 interface Props {
   current: PeriodMode | null
   onPick: (mode: PeriodMode) => void
   onCancel?: () => void
+  profile?: ProfileId
+  onApplyProfile?: (id: ProfileId) => void
 }
 
 const OPTIONS: { mode: PeriodMode; title: string; desc: string }[] = [
@@ -19,8 +22,14 @@ const OPTIONS: { mode: PeriodMode; title: string; desc: string }[] = [
   },
 ]
 
-export function PeriodPicker({ current, onPick, onCancel }: Props) {
+export function PeriodPicker({ current, onPick, onCancel, profile, onApplyProfile }: Props) {
   const onboard = current === null
+
+  const pickProfile = (id: ProfileId, label: string) => {
+    if (id === profile) return
+    if (!window.confirm(`Terapkan profil ${label}? Rasio alokasi akan diganti sesuai profil ini (kamu tetap bisa mengubahnya).`)) return
+    onApplyProfile?.(id)
+  }
 
   return (
     <div className={`overlay${onboard ? ' overlay-onboard' : ''}`} role="dialog" aria-modal="true">
@@ -45,6 +54,25 @@ export function PeriodPicker({ current, onPick, onCancel }: Props) {
             </button>
           ))}
         </div>
+
+        {!onboard && (
+          <div className="profile-block">
+            <p className="profile-label">Profil alokasi</p>
+            <div className="profile-chips">
+              {PROFILES.map((item) => (
+                <button
+                  key={item.id}
+                  type="button"
+                  className={`profile-chip${profile === item.id ? ' profile-chip-on' : ''}`}
+                  onClick={() => pickProfile(item.id, item.label)}
+                >
+                  {item.label}
+                </button>
+              ))}
+            </div>
+            <p className="muted small">Ganti profil menukar rasio alokasi; data transaksi tetap aman.</p>
+          </div>
+        )}
 
         {!onboard && onCancel && (
           <button type="button" className="btn btn-ghost" onClick={onCancel}>

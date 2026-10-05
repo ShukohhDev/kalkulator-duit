@@ -41,6 +41,7 @@ export function initialState(): AppState {
     version: 1,
     mode: null,
     allowance: 0,
+    profile: 'standar',
     categories: defaultCategories(),
     presets: [],
     expenses: [],

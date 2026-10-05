@@ -84,3 +84,11 @@ describe('wishlist', () => {
     expect(sanitize(JSON.parse(JSON.stringify(withWish)))).toEqual(withWish)
   })
 })
+
+describe('profil alokasi', () => {
+  it('data lama tanpa profil menjadi standar dan nilai asing dinormalisasi', () => {
+    expect(sanitize({ version: 1 }).profile).toBe('standar')
+    expect(sanitize({ version: 1, profile: 'anak-kos' }).profile).toBe('anak-kos')
+    expect(sanitize({ version: 1, profile: 'kos' }).profile).toBe('standar')
+  })
+})
