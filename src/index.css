@@ -1726,6 +1726,45 @@ select {
   font-weight: 600;
 }
 
+.wizard-step {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  text-align: left;
+}
+
+.wizard-cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 12px;
+}
+
+.wizard-card {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  text-align: left;
+  padding: 16px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  background: var(--surface);
+  cursor: pointer;
+  transition: border-color 0.15s ease, background 0.15s ease;
+}
+
+.wizard-card:hover {
+  border-color: var(--accent);
+}
+
+.wizard-card-on {
+  border-color: var(--accent);
+  background: var(--accent-soft);
+}
+
+.wizard-card-title {
+  font-size: 15px;
+}
+
 .overlay-onboard {
   background: var(--bg);
 }

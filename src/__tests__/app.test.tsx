@@ -97,6 +97,23 @@ describe('alur aplikasi', () => {
     expect(container.textContent).toContain('1 Bulan')
   })
 
+  it('wizard onboarding memilih profil sebelum periode', () => {
+    expect(container.textContent).toContain('Langkah 1')
+    const cards = [...container.querySelectorAll('.wizard-card')]
+    expect(cards).toHaveLength(2)
+
+    const kos = cards.find((card) => card.textContent?.includes('Tinggal di Kos'))!
+    act(() => {
+      kos.dispatchEvent(new MouseEvent('click', { bubbles: true }))
+    })
+    expect(container.querySelector('.wizard-card')).toBeNull()
+
+    click('.period-option')
+    setValue('#allowance', '700000')
+    const allowance = container.querySelector('#allowance')!.closest('section')!
+    expect(allowance.textContent).toContain('Laundry & Setrika')
+  })
+
   it('memilih 1 minggu lalu menghitung alokasi profil tinggal di rumah', () => {
     click('.period-option')
     setValue('#allowance', '700000')

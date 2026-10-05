@@ -9,6 +9,7 @@ export interface Prefs {
   walletCurrency: WalletCurrency
   usdRate: number
   asetVisible: boolean
+  profilePicked: boolean
 }
 
 const KEY = 'kalkulator-duitmu:prefs'
@@ -17,7 +18,15 @@ const CHART_TYPES: CashflowChartType[] = ['bar', 'line', 'donut', 'category']
 const CURRENCIES: WalletCurrency[] = ['idr', 'usd']
 
 export function loadPrefs(): Prefs {
-  const fallback: Prefs = { view: 'day', chartType: 'bar', trendView: 'day', walletCurrency: 'idr', usdRate: 16_000, asetVisible: true }
+  const fallback: Prefs = {
+    view: 'day',
+    chartType: 'bar',
+    trendView: 'day',
+    walletCurrency: 'idr',
+    usdRate: 16_000,
+    asetVisible: true,
+    profilePicked: false,
+  }
   try {
     const raw = localStorage.getItem(KEY)
     if (!raw) return fallback
@@ -34,6 +43,7 @@ export function loadPrefs(): Prefs {
         : fallback.walletCurrency,
       usdRate: Number.isFinite(rate) && rate > 0 ? rate : fallback.usdRate,
       asetVisible: typeof data.asetVisible === 'boolean' ? data.asetVisible : fallback.asetVisible,
+      profilePicked: typeof data.profilePicked === 'boolean' ? data.profilePicked : fallback.profilePicked,
     }
   } catch {
     return fallback

@@ -1,5 +1,7 @@
+import { useState } from 'react'
 import type { PeriodMode, ProfileId } from '../types'
 import { PROFILES } from '../lib/profiles'
+import { loadPrefs, savePrefs } from '../lib/prefs'
 
 interface Props {
   current: PeriodMode | null
@@ -22,8 +24,14 @@ const OPTIONS: { mode: PeriodMode; title: string; desc: string }[] = [
   },
 ]
 
+const WIZARD_DESC: Record<ProfileId, string> = {
+  'tinggal-rumah': 'Ada jatah kebutuhan rumah: listrik, belanja, internet.',
+  'tinggal-kos': 'Fokus anak kos: laundry, WiFi, makan di luar.',
+}
+
 export function PeriodPicker({ current, onPick, onCancel, profile, onApplyProfile }: Props) {
   const onboard = current === null
+  const [profilePicked, setProfilePicked] = useState(() => loadPrefs().profilePicked)
 
   const pickProfile = (id: ProfileId, label: string) => {
     if (id === profile) return
@@ -40,6 +48,30 @@ export function PeriodPicker({ current, onPick, onCancel, profile, onApplyProfil
             ? 'Pilih dulu uang jajan kamu masuknya tiap apa, supaya alokasinya sesuai.'
             : 'Alokasi dan pemasukan otomatis akan ikut menyesuaikan.'}
         </p>
+
+        {onboard && !profilePicked && (
+          <div className="wizard-step">
+            <p className="profile-label">Langkah 1: kamu tinggal di mana?</p>
+            <div className="wizard-cards">
+              {PROFILES.map((item) => (
+                <button
+                  key={item.id}
+                  type="button"
+                  className={`wizard-card${profile === item.id ? ' wizard-card-on' : ''}`}
+                  onClick={() => {
+                    onApplyProfile?.(item.id)
+                    savePrefs({ profilePicked: true })
+                    setProfilePicked(true)
+                  }}
+                >
+                  <strong className="wizard-card-title">{item.label}</strong>
+                  <span className="muted small">{WIZARD_DESC[item.id]}</span>
+                </button>
+              ))}
+            </div>
+            <p className="profile-label">Langkah 2: uang jajan kamu masuknya tiap apa?</p>
+          </div>
+        )}
 
         <div className="period-options">
           {OPTIONS.map((option) => (
