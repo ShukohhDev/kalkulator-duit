@@ -84,7 +84,7 @@ export function AllocationDonut({ state, derived }: Props) {
                   <span className="alloc-dot" style={{ background: row.category.color }} />
                   {row.category.name}
                 </td>
-                <td>{row.allocated > 0 ? formatIDR(row.allocated) : '—'}</td>
+                <td>{row.allocated > 0 ? formatIDR(row.allocated) : '·'}</td>
                 <td className={row.allocated > 0 && row.spent > row.allocated ? 'text-danger' : ''}>
                   {formatIDR(row.spent)}
                 </td>

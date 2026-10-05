@@ -21,7 +21,7 @@ export function buildInsights(state: AppState, derived: Derived): Insight[] {
     out.push({
       id: `due-${due.id}`,
       tone: 'warn',
-      text: `${due.name} ${dueLabel(due.days)} — ${formatIDR(due.amount)}.`,
+      text: `${due.name} ${dueLabel(due.days)}, ${formatIDR(due.amount)}.`,
     })
   }
 
@@ -47,7 +47,7 @@ export function buildInsights(state: AppState, derived: Derived): Insight[] {
     out.push({
       id: `over-${item.category.id}`,
       tone: 'warn',
-      text: `${item.category.name} sudah ${item.pct}% dari alokasi periode ini — kelebihan ${formatIDR(item.over)}.`,
+      text: `${item.category.name} sudah ${item.pct}% dari alokasi periode ini, kelebihan ${formatIDR(item.over)}.`,
     })
   }
 
@@ -65,7 +65,7 @@ export function buildInsights(state: AppState, derived: Derived): Insight[] {
       out.push({
         id: 'under-pace',
         tone: 'good',
-        text: `Belanjaumu masih jauh di bawah alokasi — sekitar ${formatIDR(state.allowance - projected)} masih bisa dialihkan ke tabungan.`,
+        text: `Belanjaumu masih jauh di bawah alokasi, sekitar ${formatIDR(state.allowance - projected)} masih bisa dialihkan ke tabungan.`,
       })
     }
   }

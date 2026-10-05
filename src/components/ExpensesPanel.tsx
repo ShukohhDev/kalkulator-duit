@@ -236,12 +236,12 @@ export function ExpensesPanel({ state, update }: Props) {
               <option value="none">Tidak masuk target/incaran</option>
               {state.goals.map((goal) => (
                 <option key={goal.id} value={goal.id}>
-                  {goal.name} — target tabungan
+                  {goal.name} · target tabungan
                 </option>
               ))}
               {state.wishlist.map((item) => (
                 <option key={item.id} value={`wish:${item.id}`}>
-                  {item.name} — incaran
+                  {item.name} · incaran
                 </option>
               ))}
             </select>

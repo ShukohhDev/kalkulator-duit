@@ -57,7 +57,7 @@ export function WishlistPanel({ state, derived, update }: Props) {
     <section className="card">
       <header className="card-head">
         <h2>Wishlist / Incaran Beli</h2>
-        <span className="muted small">tanpa bunga — kumpulkan sampai cukup harga barang</span>
+        <span className="muted small">tanpa bunga, kumpulkan sampai cukup harga barang</span>
       </header>
 
       <div className="goal-list">

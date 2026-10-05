@@ -86,7 +86,7 @@ export function SavingsPanel({ state, derived, update }: Props) {
           value={state.currentAge}
           onChange={(e) => update((s) => ({ ...s, currentAge: Math.max(1, Number(e.target.value) || 1) }))}
         />
-        <span className="muted small">tahun — target minimal umur 18 (sudah punya KTP)</span>
+        <span className="muted small">tahun, target minimal umur 18 (sudah punya KTP)</span>
       </div>
 
       <div className="goal-list">
@@ -183,7 +183,7 @@ export function SavingsPanel({ state, derived, update }: Props) {
           <ul className="rec-list">
             <li>
               <span>Rekomendasi setoran</span>
-              <strong>{calc.need === null ? '—' : `${formatIDR(calc.need)} / bulan`}</strong>
+              <strong>{calc.need === null ? '·' : `${formatIDR(calc.need)} / bulan`}</strong>
             </li>
             <li>
               <span>Setoran riil kamu</span>
@@ -210,7 +210,7 @@ export function SavingsPanel({ state, derived, update }: Props) {
         </div>
       ))}
       {state.goals.length > 0 && recommendations.length === 0 && (
-        <p className="muted small">Belum ada target aktif yang bisa dihitung — aktifkan salah satu di atas.</p>
+        <p className="muted small">Belum ada target aktif yang bisa dihitung. Aktifkan salah satu di atas.</p>
       )}
     </section>
   )

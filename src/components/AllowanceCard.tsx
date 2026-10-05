@@ -135,7 +135,7 @@ export function AllowanceCard({ state, derived, update, onChangePeriod }: Props)
                 ))}
               </div>
               <p className={`ratio-sum ${sumOk ? 'muted small' : 'text-danger small'}`}>
-                Jumlah {percentTotal}% {sumOk ? '— pas, siap disimpan' : '— harus tepat 100% sebelum disimpan'}
+                Jumlah {percentTotal}% {sumOk ? ', pas, siap disimpan' : ', harus tepat 100% sebelum disimpan'}
               </p>
               <div className="btn-row">
                 <button type="button" className="btn btn-sm" disabled={!sumOk} onClick={saveRatios}>

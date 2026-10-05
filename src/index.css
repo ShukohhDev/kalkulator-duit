@@ -1,38 +1,39 @@
 :root {
-  --bg: #f4f6f8;
-  --surface: #ffffff;
-  --surface-2: #f8fafc;
-  --text: #1b2430;
-  --muted: #667085;
-  --border: #e4e7ec;
-  --accent: #1971c2;
-  --accent-soft: rgba(25, 113, 194, 0.1);
+  --bg: #faf5ec;
+  --surface: #fffdf8;
+  --surface-2: #f5ecdd;
+  --text: #2b2118;
+  --muted: #72604d;
+  --border: #e8d9c3;
+  --accent: #c2410c;
+  --accent-soft: rgba(194, 65, 12, 0.12);
   --danger: #e03131;
   --danger-soft: rgba(224, 49, 49, 0.1);
-  --ok: #2f9e44;
-  --ok-soft: rgba(47, 158, 68, 0.12);
-  --warn: #f08c00;
-  --warn-soft: rgba(240, 140, 0, 0.14);
-  --shadow: 0 1px 2px rgba(16, 24, 40, 0.05), 0 4px 12px rgba(16, 24, 40, 0.05);
-  --radius: 14px;
+  --ok: #2b8a3e;
+  --ok-soft: rgba(43, 138, 62, 0.12);
+  --warn: #d97706;
+  --warn-soft: rgba(217, 119, 6, 0.15);
+  --shadow: 0 1px 2px rgba(120, 72, 20, 0.06), 0 8px 20px rgba(120, 72, 20, 0.07);
+  --radius: 20px;
+  --radius-sm: 14px;
   color-scheme: light;
 }
 
 [data-theme='dark'] {
-  --bg: #0f1116;
-  --surface: #171a21;
-  --surface-2: #1e222b;
-  --text: #e7eaef;
-  --muted: #98a2b3;
-  --border: #2a2f3a;
-  --accent: #4dabf7;
-  --accent-soft: rgba(77, 171, 247, 0.16);
+  --bg: #141110;
+  --surface: #1f1a16;
+  --surface-2: #2a221b;
+  --text: #f5ece1;
+  --muted: #b8a693;
+  --border: #3d332a;
+  --accent: #ffa94d;
+  --accent-soft: rgba(255, 169, 77, 0.16);
   --danger: #ff6b6b;
   --danger-soft: rgba(255, 107, 107, 0.15);
   --ok: #69db7c;
   --ok-soft: rgba(105, 219, 124, 0.15);
-  --warn: #ffc078;
-  --warn-soft: rgba(255, 192, 120, 0.15);
+  --warn: #ffd43b;
+  --warn-soft: rgba(255, 212, 59, 0.14);
   --shadow: 0 1px 2px rgba(0, 0, 0, 0.4), 0 6px 16px rgba(0, 0, 0, 0.35);
   color-scheme: dark;
 }
@@ -60,7 +61,7 @@ select {
 .app {
   max-width: 1180px;
   margin: 0 auto;
-  padding: 20px 16px 48px;
+  padding: 24px 18px 72px;
 }
 
 .topbar {
@@ -69,11 +70,12 @@ select {
   justify-content: space-between;
   gap: 16px;
   flex-wrap: wrap;
-  margin-bottom: 18px;
+  margin-bottom: 24px;
 }
 
 .brand {
-  font-size: 22px;
+  font-size: 24px;
+  font-weight: 800;
   margin: 0;
   letter-spacing: -0.02em;
 }
@@ -91,10 +93,10 @@ select {
   top: 0;
   z-index: 40;
   display: flex;
-  gap: 8px;
+  gap: 10px;
   overflow-x: auto;
-  padding: 8px 0;
-  margin-bottom: 8px;
+  padding: 10px 2px;
+  margin-bottom: 12px;
   background: var(--bg);
   scrollbar-width: none;
 }
@@ -108,7 +110,7 @@ select {
   background: var(--surface);
   color: var(--muted);
   border-radius: 999px;
-  padding: 7px 14px;
+  padding: 9px 16px;
   font-size: 13.5px;
   white-space: nowrap;
   cursor: pointer;
@@ -130,7 +132,7 @@ select {
 .nav-section {
   display: flex;
   flex-direction: column;
-  gap: 16px;
+  gap: 24px;
   min-width: 0;
   scroll-margin-top: 64px;
 }
@@ -147,14 +149,14 @@ select {
 .layout {
   display: grid;
   grid-template-columns: minmax(0, 1fr) 320px;
-  gap: 16px;
+  gap: 24px;
   align-items: start;
 }
 
 .col {
   display: flex;
   flex-direction: column;
-  gap: 16px;
+  gap: 24px;
   min-width: 0;
 }
 
@@ -178,7 +180,7 @@ select {
   border: 1px solid var(--border);
   border-radius: var(--radius);
   box-shadow: var(--shadow);
-  padding: 18px;
+  padding: 24px;
 }
 
 .card-head {
@@ -187,21 +189,23 @@ select {
   justify-content: space-between;
   gap: 12px;
   flex-wrap: wrap;
-  margin-bottom: 12px;
+  margin-bottom: 16px;
 }
 
 .card-head h2 {
-  font-size: 17px;
+  font-size: 19px;
+  font-weight: 700;
   margin: 0;
   letter-spacing: -0.01em;
 }
 
 .section-title {
   font-size: 13px;
+  font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.06em;
   color: var(--muted);
-  margin: 16px 0 8px;
+  margin: 24px 0 12px;
 }
 
 .muted {
@@ -217,7 +221,7 @@ select {
 }
 
 .footer {
-  margin-top: 22px;
+  margin-top: 32px;
   text-align: center;
 }
 
@@ -227,8 +231,9 @@ select {
   border: 1px solid var(--accent);
   background: var(--accent);
   color: #fff;
-  border-radius: 10px;
-  padding: 9px 14px;
+  border-radius: var(--radius-sm);
+  padding: 11px 18px;
+  font-weight: 600;
   cursor: pointer;
   transition: filter 0.15s ease, transform 0.05s ease;
 }
@@ -257,9 +262,9 @@ select {
 }
 
 .btn-sm {
-  padding: 5px 10px;
+  padding: 7px 12px;
   font-size: 13px;
-  border-radius: 8px;
+  border-radius: 12px;
 }
 
 .btn-danger {
@@ -276,8 +281,8 @@ select {
 .btn-row {
   display: flex;
   flex-wrap: wrap;
-  gap: 8px;
-  margin-bottom: 8px;
+  gap: 10px;
+  margin-bottom: 12px;
 }
 
 /* ---------- data & cadangan ---------- */
@@ -285,8 +290,8 @@ select {
 .data-list {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 8px;
-  margin-bottom: 6px;
+  gap: 12px;
+  margin-bottom: 10px;
 }
 
 .data-action {
@@ -295,9 +300,9 @@ select {
   gap: 12px;
   align-items: start;
   width: 100%;
-  padding: 11px 12px;
+  padding: 14px 16px;
   border: 1px solid var(--border);
-  border-radius: 12px;
+  border-radius: 16px;
   background: var(--surface-2);
   color: var(--text);
   text-align: left;
@@ -362,8 +367,8 @@ select {
   bottom: 24px;
   z-index: 70;
   max-width: min(380px, calc(100vw - 96px));
-  padding: 10px 14px;
-  border-radius: 10px;
+  padding: 12px 18px;
+  border-radius: var(--radius-sm);
   background: var(--text);
   color: var(--surface);
   box-shadow: var(--shadow);
@@ -398,9 +403,9 @@ select {
 
 .input {
   width: 100%;
-  padding: 9px 11px;
+  padding: 11px 14px;
   border: 1px solid var(--border);
-  border-radius: 10px;
+  border-radius: var(--radius-sm);
   background: var(--surface-2);
   outline: none;
 }
@@ -431,8 +436,8 @@ select {
 .field {
   display: flex;
   flex-direction: column;
-  gap: 5px;
-  margin-bottom: 12px;
+  gap: 7px;
+  margin-bottom: 16px;
 }
 
 .field label {
@@ -463,14 +468,14 @@ select {
 .form-actions {
   grid-column: 1 / -1;
   display: flex;
-  gap: 8px;
-  margin-top: 4px;
+  gap: 10px;
+  margin-top: 8px;
 }
 
 .inline-form {
   display: flex;
-  gap: 8px;
-  margin-top: 6px;
+  gap: 10px;
+  margin-top: 10px;
 }
 
 @media (max-width: 560px) {
@@ -483,7 +488,7 @@ select {
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  padding: 2px 8px;
+  padding: 4px 12px;
   border-radius: 999px;
   background: var(--accent-soft);
   color: var(--accent);
@@ -504,16 +509,16 @@ select {
 .quick-row {
   display: flex;
   flex-wrap: wrap;
-  gap: 6px;
-  margin-top: 6px;
+  gap: 8px;
+  margin-top: 10px;
 }
 
 .filter-row {
   display: flex;
   flex-wrap: wrap;
-  gap: 8px;
-  margin-top: 14px;
-  padding-top: 14px;
+  gap: 10px;
+  margin-top: 20px;
+  padding-top: 20px;
   border-top: 1px dashed var(--border);
 }
 
@@ -528,11 +533,11 @@ select {
   background: var(--surface-2);
   border: 1px solid var(--border);
   border-radius: var(--radius);
-  padding: 14px;
+  padding: 20px;
   display: flex;
   flex-direction: column;
-  gap: 6px;
-  margin: 14px 0;
+  gap: 8px;
+  margin: 20px 0;
 }
 
 .safe-label {
@@ -543,7 +548,7 @@ select {
 }
 
 .safe-value {
-  font-size: 30px;
+  font-size: 32px;
   line-height: 1.1;
   letter-spacing: -0.02em;
   color: var(--accent);
@@ -557,7 +562,7 @@ select {
   padding: 0;
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 10px;
 }
 
 .alloc-list li,
@@ -566,10 +571,10 @@ select {
   grid-template-columns: 12px 1fr auto auto;
   align-items: center;
   gap: 8px;
-  padding: 8px 10px;
+  padding: 12px 14px;
   background: var(--surface-2);
   border: 1px solid var(--border);
-  border-radius: 10px;
+  border-radius: var(--radius-sm);
 }
 
 .delta-list li {
@@ -595,16 +600,16 @@ select {
 /* ---------- ubah rasio alokasi ---------- */
 
 .ratio-edit {
-  margin-top: 10px;
+  margin-top: 16px;
   border-top: 1px dashed var(--border);
-  padding-top: 10px;
+  padding-top: 16px;
 }
 
 .ratio-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
-  gap: 8px;
-  margin-bottom: 8px;
+  gap: 10px;
+  margin-bottom: 12px;
 }
 
 .ratio-field {
@@ -613,8 +618,8 @@ select {
   gap: 8px;
   background: var(--surface-2);
   border: 1px solid var(--border);
-  border-radius: 10px;
-  padding: 7px 10px;
+  border-radius: var(--radius-sm);
+  padding: 10px 14px;
 }
 
 .ratio-name {
@@ -644,7 +649,7 @@ select {
 /* ---------- progress ---------- */
 
 .bar {
-  height: 8px;
+  height: 10px;
   background: var(--border);
   border-radius: 999px;
   overflow: hidden;
@@ -666,18 +671,18 @@ select {
 .wallet-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(210px, 1fr));
-  gap: 12px;
+  gap: 16px;
 }
 
 .wallet {
   border: 1px solid var(--border);
   border-left: 4px solid var(--wallet-color, var(--accent));
-  border-radius: 12px;
-  padding: 12px;
+  border-radius: 16px;
+  padding: 16px;
   background: var(--surface-2);
   display: flex;
   flex-direction: column;
-  gap: 6px;
+  gap: 8px;
 }
 
 .wallet header {
@@ -725,15 +730,15 @@ select {
   padding: 0;
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 10px;
 }
 
 .insight {
   display: flex;
   gap: 10px;
   align-items: flex-start;
-  padding: 10px 12px;
-  border-radius: 10px;
+  padding: 14px 16px;
+  border-radius: var(--radius-sm);
   font-size: 14px;
 }
 
@@ -779,11 +784,11 @@ select {
 
 .tx-list {
   list-style: none;
-  margin: 8px 0 0;
+  margin: 12px 0 0;
   padding: 0;
   display: flex;
   flex-direction: column;
-  gap: 6px;
+  gap: 10px;
   max-height: 420px;
   overflow-y: auto;
 }
@@ -792,10 +797,10 @@ select {
   display: grid;
   grid-template-columns: 10px 1fr auto auto;
   align-items: center;
-  gap: 10px;
-  padding: 9px 10px;
+  gap: 12px;
+  padding: 13px 14px;
   border: 1px solid var(--border);
-  border-radius: 10px;
+  border-radius: var(--radius-sm);
   background: var(--surface-2);
 }
 
@@ -840,7 +845,12 @@ select {
 .empty {
   color: var(--muted);
   font-size: 14px;
-  padding: 10px 2px;
+  padding: 20px;
+  margin-top: 8px;
+  text-align: center;
+  background: var(--surface-2);
+  border: 1.5px dashed var(--border);
+  border-radius: var(--radius-sm);
 }
 
 /* ---------- goals ---------- */
@@ -848,14 +858,14 @@ select {
 .goal-list {
   display: flex;
   flex-direction: column;
-  gap: 12px;
-  margin-bottom: 12px;
+  gap: 16px;
+  margin-bottom: 16px;
 }
 
 .goal {
   border: 1px solid var(--border);
-  border-radius: 12px;
-  padding: 12px;
+  border-radius: 16px;
+  padding: 18px;
   background: var(--surface-2);
 }
 
@@ -874,7 +884,7 @@ select {
   gap: 8px;
   align-items: center;
   justify-content: space-between;
-  margin-bottom: 10px;
+  margin-bottom: 14px;
 }
 
 .goal-head .input-name {
@@ -889,15 +899,15 @@ select {
 .goal-progress {
   display: flex;
   flex-direction: column;
-  gap: 6px;
-  margin-top: 8px;
+  gap: 8px;
+  margin-top: 12px;
 }
 
 .recommend {
-  margin-top: 14px;
+  margin-top: 20px;
   border: 1px solid var(--border);
-  border-radius: 12px;
-  padding: 4px 14px 12px;
+  border-radius: 16px;
+  padding: 8px 20px 16px;
   background: var(--surface-2);
 }
 
@@ -905,7 +915,7 @@ select {
   display: flex;
   justify-content: space-between;
   gap: 12px;
-  padding: 8px 0;
+  padding: 12px 0;
   border-bottom: 1px dashed var(--border);
   font-size: 14px;
 }
@@ -930,14 +940,14 @@ select {
 .report-summary {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-  gap: 8px;
-  margin: 12px 0;
+  gap: 12px;
+  margin: 16px 0;
 }
 
 .report-stat {
   border: 1px solid var(--border);
-  border-radius: 10px;
-  padding: 10px 12px;
+  border-radius: var(--radius-sm);
+  padding: 14px 16px;
   background: var(--surface-2);
 }
 
@@ -995,8 +1005,8 @@ select {
 .calc-display {
   background: var(--surface-2);
   border: 1px solid var(--border);
-  border-radius: 10px;
-  padding: 14px 12px;
+  border-radius: 16px;
+  padding: 18px 16px;
   text-align: right;
   font-size: 26px;
   font-weight: 600;
@@ -1009,15 +1019,15 @@ select {
 .calc-keys {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
-  gap: 8px;
-  margin-top: 10px;
+  gap: 10px;
+  margin-top: 14px;
 }
 
 .calc-key {
-  padding: 12px 0;
+  padding: 14px 0;
   border: 1px solid var(--border);
   background: var(--surface-2);
-  border-radius: 10px;
+  border-radius: var(--radius-sm);
   cursor: pointer;
   font-size: 16px;
   transition: background 0.12s ease;
@@ -1095,8 +1105,8 @@ select {
 .today-progress {
   display: flex;
   flex-direction: column;
-  gap: 6px;
-  margin: 8px 0;
+  gap: 10px;
+  margin: 12px 0;
 }
 
 .today-head {
@@ -1117,7 +1127,7 @@ select {
 .cta-log {
   display: block;
   width: 100%;
-  margin: 2px 0 8px;
+  margin: 6px 0 12px;
 }
 
 /* ---------- charts ---------- */
@@ -1126,8 +1136,8 @@ select {
   display: inline-flex;
   background: var(--surface-2);
   border: 1px solid var(--border);
-  border-radius: 10px;
-  padding: 3px;
+  border-radius: var(--radius-sm);
+  padding: 4px;
   gap: 2px;
 }
 
@@ -1135,8 +1145,8 @@ select {
   border: none;
   background: transparent;
   color: var(--muted);
-  padding: 5px 10px;
-  border-radius: 8px;
+  padding: 7px 14px;
+  border-radius: 10px;
   cursor: pointer;
   font-size: 13px;
 }
@@ -1151,7 +1161,7 @@ select {
 }
 
 .chart-type-row {
-  margin-top: 10px;
+  margin-top: 14px;
 }
 
 .chart-box-bar {
@@ -1165,8 +1175,8 @@ select {
 .chart-summary {
   display: flex;
   flex-wrap: wrap;
-  gap: 14px;
-  margin-top: 10px;
+  gap: 16px;
+  margin-top: 14px;
   font-size: 13px;
   color: var(--muted);
 }
@@ -1182,7 +1192,7 @@ select {
 .donut-wrap {
   display: grid;
   grid-template-columns: minmax(0, 220px) minmax(0, 1fr);
-  gap: 16px;
+  gap: 20px;
   align-items: center;
 }
 
@@ -1202,12 +1212,12 @@ select {
   text-align: left;
   color: var(--muted);
   font-weight: 500;
-  padding: 6px 4px;
+  padding: 10px 6px;
   border-bottom: 1px solid var(--border);
 }
 
 .table td {
-  padding: 7px 4px;
+  padding: 12px 6px;
   border-bottom: 1px dashed var(--border);
   font-variant-numeric: tabular-nums;
 }
@@ -1235,7 +1245,7 @@ select {
 .cal-row {
   display: grid;
   grid-template-columns: repeat(7, 1fr);
-  gap: 4px;
+  gap: 6px;
 }
 
 .cal-head span {
@@ -1248,9 +1258,9 @@ select {
 .cal-cell {
   border: 1px solid var(--border);
   background: color-mix(in srgb, var(--warn) calc(var(--heat, 0) * 65%), var(--surface-2));
-  border-radius: 8px;
-  min-height: 54px;
-  padding: 4px 5px;
+  border-radius: 12px;
+  min-height: 60px;
+  padding: 8px;
   display: flex;
   flex-direction: column;
   align-items: flex-start;
@@ -1296,17 +1306,17 @@ select {
 .compare-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-  gap: 10px;
+  gap: 14px;
 }
 
 .compare {
   background: var(--surface-2);
   border: 1px solid var(--border);
-  border-radius: 12px;
-  padding: 12px;
+  border-radius: 16px;
+  padding: 16px;
   display: flex;
   flex-direction: column;
-  gap: 4px;
+  gap: 6px;
 }
 
 .compare strong {
@@ -1347,8 +1357,8 @@ select {
 .overlay-card {
   background: var(--surface);
   border: 1px solid var(--border);
-  border-radius: 18px;
-  padding: 26px;
+  border-radius: 24px;
+  padding: 32px;
   max-width: 520px;
   width: 100%;
   box-shadow: var(--shadow);
@@ -1370,8 +1380,8 @@ select {
 .period-options {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 12px;
-  margin-bottom: 14px;
+  gap: 16px;
+  margin-bottom: 20px;
 }
 
 @media (max-width: 480px) {
@@ -1383,12 +1393,12 @@ select {
 .period-option {
   border: 1px solid var(--border);
   background: var(--surface-2);
-  border-radius: 14px;
-  padding: 18px 14px;
+  border-radius: 18px;
+  padding: 22px 18px;
   cursor: pointer;
   display: flex;
   flex-direction: column;
-  gap: 6px;
+  gap: 8px;
   align-items: center;
   transition: border-color 0.15s ease, transform 0.1s ease;
 }
@@ -1414,7 +1424,7 @@ select {
 }
 
 .profile-block {
-  margin-bottom: 14px;
+  margin-bottom: 20px;
   text-align: center;
 }
 
@@ -1428,8 +1438,8 @@ select {
   flex-wrap: wrap;
   border: 1px solid var(--border);
   background: var(--surface-2);
-  border-radius: 14px;
-  padding: 12px 14px;
+  border-radius: 16px;
+  padding: 16px 18px;
 }
 
 .ob-main {
@@ -1442,7 +1452,7 @@ select {
 
 .ob-badge {
   font-size: 12px;
-  padding: 3px 9px;
+  padding: 4px 12px;
   border-radius: 999px;
   background: var(--surface);
   border: 1px solid var(--border);
@@ -1472,10 +1482,10 @@ select {
 .ob-form {
   display: flex;
   flex-wrap: wrap;
-  gap: 10px;
+  gap: 12px;
   align-items: end;
-  margin-top: 12px;
-  padding-top: 12px;
+  margin-top: 16px;
+  padding-top: 16px;
   border-top: 1px dashed var(--border);
 }
 
@@ -1490,11 +1500,12 @@ select {
   align-items: baseline;
   gap: 10px;
   flex-wrap: wrap;
-  margin-bottom: 12px;
+  margin-bottom: 16px;
 }
 
 .wallet-total-value {
   font-size: 26px;
+  font-weight: 700;
 }
 
 .wallet-rate {
@@ -1550,7 +1561,7 @@ select {
   flex-wrap: wrap;
   justify-content: center;
   gap: 8px;
-  margin-bottom: 8px;
+  margin-bottom: 12px;
 }
 
 .profile-chip {
@@ -1558,7 +1569,7 @@ select {
   background: var(--surface-2);
   color: var(--muted);
   border-radius: 999px;
-  padding: 7px 14px;
+  padding: 9px 16px;
   font-size: 13.5px;
   cursor: pointer;
   transition: border-color 0.15s ease, color 0.15s ease, background 0.15s ease;

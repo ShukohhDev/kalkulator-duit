@@ -77,7 +77,7 @@ export function notifyDue(state: AppState, now: Date = new Date()): number {
     const when = days === 0 ? 'hari ini' : days === 1 ? 'besok' : `dalam ${days} hari`
     const amount = 'amount' in item ? item.amount : Math.min(item.installment, Math.max(0, item.total - item.paid))
     new Notification('Pengingat Kalkulator Uang Jajan', {
-      body: `${item.name} jatuh tempo ${when} — ${formatIDR(amount)}.`,
+      body: `${item.name} jatuh tempo ${when}, ${formatIDR(amount)}.`,
     })
     map[item.id] = today
     sent += 1
