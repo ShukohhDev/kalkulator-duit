@@ -47,6 +47,14 @@ const setSelect = (selector: string, value: string) => {
   })
 }
 
+const pickDay = (groupId: string, day: number) => {
+  const button = container.querySelector(`#${groupId} [data-day="${day}"]`) as HTMLButtonElement | null
+  if (!button) throw new Error(`tanggal ${day} di ${groupId} tidak ditemukan`)
+  act(() => {
+    button.dispatchEvent(new MouseEvent('click', { bubbles: true }))
+  })
+}
+
 const click = (selector: string) => {
   const element = container.querySelector(selector) as HTMLElement | null
   if (!element) throw new Error(`elemen ${selector} tidak ditemukan`)
@@ -126,7 +134,7 @@ describe('alur aplikasi', () => {
 
     setValue('#bill-name', 'Listrik')
     setValue('#bill-amount', '150000')
-    setValue('#bill-due', String(soon))
+    pickDay('bill-due', soon)
     clickText('button', '+ Tambah tagihan')
 
     expect(container.textContent).toContain('tiap tgl')
@@ -140,7 +148,7 @@ describe('alur aplikasi', () => {
     setValue('#debt-name', 'Motor')
     setValue('#debt-total', '6000000')
     setValue('#debt-installment', '500000')
-    setValue('#debt-due', '10')
+    pickDay('debt-due', 10)
     clickText('button', '+ Tambah utang')
     expect(container.textContent).toContain('Terbayar')
     expect(container.textContent).toContain('6.000.000')
@@ -148,6 +156,29 @@ describe('alur aplikasi', () => {
     clickText('.ob-row button', 'Bayar angsuran')
     expect(container.textContent).toContain('500.000')
     expect(container.textContent).toContain('Menampilkan 2 dari 2 catatan')
+  })
+
+  it('menampilkan penanda kewajiban di kalender pengeluaran', () => {
+    click('.period-option')
+    setValue('#bill-name', 'Internet rumah')
+    setValue('#bill-amount', '150000')
+    pickDay('bill-due', 10)
+    clickText('button', '+ Tambah tagihan')
+
+    expect(container.querySelectorAll('.cal-dot-bill').length).toBeGreaterThan(0)
+    expect(container.querySelector('.cal-legend')?.textContent).toContain('Tagihan')
+    expect(container.querySelector('.cal-legend')?.textContent).toContain('Utang')
+
+    const dayCell = [...container.querySelectorAll('.cal-cell')].find((cell) => cell.textContent?.includes('10'))
+    expect(dayCell?.querySelector('.cal-dot-bill')).toBeTruthy()
+    expect(dayCell?.getAttribute('title')).toContain('Internet rumah')
+
+    act(() => {
+      dayCell!.dispatchEvent(new MouseEvent('click', { bubbles: true }))
+    })
+    const detail = container.querySelector('.cal-detail')
+    expect(detail?.textContent).toContain('Internet rumah')
+    expect(detail?.textContent).toContain('Tagihan')
   })
 
   it('mengelola dompet dan mengonversi total ke USD dengan kurs manual', () => {

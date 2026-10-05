@@ -5,6 +5,7 @@ import { formatIDR, todayISO } from '../lib/money'
 import { CICILAN_CATEGORY, TAGIHAN_CATEGORY } from '../lib/state'
 import { daysUntilDue, dueDateLabel, dueLabel, dueThisMonth, nowDate } from '../lib/obligations'
 import { uid } from '../lib/id'
+import { MiniCalendar } from './MiniCalendar'
 import { MoneyInput } from './MoneyInput'
 import { ProgressBar } from './ProgressBar'
 
@@ -142,18 +143,7 @@ export function ObligationsPanel({ state, update }: Props) {
           <label htmlFor="bill-amount">Nominal (Rp)</label>
           <MoneyInput id="bill-amount" value={billAmount} onValueChange={setBillAmount} />
         </div>
-        <div className="field">
-          <label htmlFor="bill-due">Tgl jatuh tempo (1-28)</label>
-          <input
-            id="bill-due"
-            className="input"
-            type="number"
-            min={1}
-            max={28}
-            value={billDay}
-            onChange={(e) => setBillDay(Math.min(28, Math.max(1, Number(e.target.value) || 1)))}
-          />
-        </div>
+        <MiniCalendar id="bill-due" value={billDay} onChange={setBillDay} />
         <button type="submit" className="btn" disabled={!billName.trim() || billAmount <= 0}>
           + Tambah tagihan
         </button>
@@ -213,18 +203,7 @@ export function ObligationsPanel({ state, update }: Props) {
           <label htmlFor="debt-installment">Angsuran / bulan (Rp)</label>
           <MoneyInput id="debt-installment" value={debtInstallment} onValueChange={setDebtInstallment} />
         </div>
-        <div className="field">
-          <label htmlFor="debt-due">Tgl jatuh tempo (1-28)</label>
-          <input
-            id="debt-due"
-            className="input"
-            type="number"
-            min={1}
-            max={28}
-            value={debtDay}
-            onChange={(e) => setDebtDay(Math.min(28, Math.max(1, Number(e.target.value) || 1)))}
-          />
-        </div>
+        <MiniCalendar id="debt-due" value={debtDay} onChange={setDebtDay} />
         <button
           type="submit"
           className="btn"

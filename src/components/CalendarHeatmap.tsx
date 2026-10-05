@@ -3,12 +3,19 @@ import { useMemo, useState } from 'react'
 import type { AppState } from '../types'
 import { expenseTotalsByDay, intensity, monthGrid } from '../lib/calendar'
 import { formatIDR, formatShortDate, monthLabel, toISO } from '../lib/money'
+import { daysUntilDue, dueLabel, dueThisMonth } from '../lib/obligations'
 
 interface Props {
   state: AppState
 }
 
 const DAYS = ['Sn', 'Sl', 'Sr', 'Km', 'Jm', 'Sb', 'Mg']
+
+interface DueMark {
+  kind: 'bill' | 'debt'
+  name: string
+  paid: boolean
+}
 
 export function CalendarHeatmap({ state }: Props) {
   const [today] = useState(() => new Date())
@@ -20,7 +27,24 @@ export function CalendarHeatmap({ state }: Props) {
   const rows = useMemo(() => monthGrid(year, month, totals), [year, month, totals])
   const max = useMemo(() => Math.max(0, ...totals.values()), [totals])
 
+  const dueMarks = useMemo(() => {
+    const map = new Map<number, DueMark[]>()
+    const push = (day: number, mark: DueMark) => {
+      const clamped = Math.min(28, Math.max(1, day))
+      map.set(clamped, [...(map.get(clamped) ?? []), mark])
+    }
+    for (const bill of state.bills) {
+      push(bill.dueDay, { kind: 'bill', name: bill.name, paid: dueThisMonth(bill.lastPaid, today) })
+    }
+    for (const debt of state.debts) {
+      push(debt.dueDay, { kind: 'debt', name: debt.name, paid: debt.paid >= debt.total })
+    }
+    return map
+  }, [state.bills, state.debts, today])
+
   const dayExpenses = selected ? state.expenses.filter((item) => item.date === selected) : []
+  const selectedDay = selected ? Number(selected.slice(8)) : 0
+  const dayMarks = selected && selectedDay <= 28 ? (dueMarks.get(selectedDay) ?? []) : []
 
   const shift = (delta: number) => {
     const next = new Date(year, month + delta, 1)
@@ -30,6 +54,9 @@ export function CalendarHeatmap({ state }: Props) {
   }
 
   const totalMonth = [...totals.values()].reduce((sum, value) => sum + value, 0)
+
+  const markText = (mark: DueMark, day: number) =>
+    `${mark.name} ${mark.paid ? 'lunas' : dueLabel(daysUntilDue(day, today))}`
 
   return (
     <section className="card">
@@ -60,6 +87,9 @@ export function CalendarHeatmap({ state }: Props) {
               if (!cell.iso) return <span key={cellIndex} className="cal-cell cal-empty" />
               const ratio = intensity(cell.total, max)
               const isToday = cell.iso === toISO(today)
+              const day = Number(cell.iso.slice(8))
+              const marks = day <= 28 ? (dueMarks.get(day) ?? []) : undefined
+              const markNote = marks?.map((mark) => markText(mark, day)).join(' · ')
               return (
                 <button
                   key={cellIndex}
@@ -67,10 +97,19 @@ export function CalendarHeatmap({ state }: Props) {
                   className={`cal-cell${isToday ? ' cal-today' : ''}${selected === cell.iso ? ' cal-selected' : ''}`}
                   style={{ '--heat': String(ratio) } as CSSProperties}
                   onClick={() => setSelected((prev) => (prev === cell.iso ? null : cell.iso))}
-                  title={cell.total > 0 ? `${formatShortDate(cell.iso)} · ${formatIDR(cell.total)}` : formatShortDate(cell.iso)}
+                  title={[cell.total > 0 ? `${formatShortDate(cell.iso)} · ${formatIDR(cell.total)}` : formatShortDate(cell.iso), markNote]
+                    .filter(Boolean)
+                    .join(' · ')}
                 >
-                  <span className="cal-day">{Number(cell.iso.slice(8))}</span>
+                  <span className="cal-day">{day}</span>
                   {cell.total > 0 && <span className="cal-total">{formatIDR(cell.total)}</span>}
+                  {marks && marks.length > 0 && (
+                    <span className="cal-dots">
+                      {marks.map((mark, markIndex) => (
+                        <span key={markIndex} className={`cal-dot cal-dot-${mark.kind}${mark.paid ? ' cal-dot-paid' : ''}`} />
+                      ))}
+                    </span>
+                  )}
                 </button>
               )
             })}
@@ -78,9 +117,36 @@ export function CalendarHeatmap({ state }: Props) {
         ))}
       </div>
 
+      <p className="cal-legend muted small">
+        <span className="legend-item">
+          <span className="cal-dot cal-dot-bill" /> Tagihan
+        </span>
+        <span className="legend-item">
+          <span className="cal-dot cal-dot-debt" /> Utang
+        </span>
+        <span className="legend-item">
+          <span className="cal-dot cal-dot-bill cal-dot-paid" /> Lunas bulan ini
+        </span>
+      </p>
+
       {selected && (
         <div className="cal-detail">
           <h3 className="section-title">{formatShortDate(selected)}</h3>
+          {dayMarks.length > 0 && (
+            <ul className="tx-list">
+              {dayMarks.map((mark, markIndex) => (
+                <li key={markIndex} className="tx">
+                  <span className={`cal-dot cal-dot-${mark.kind}${mark.paid ? ' cal-dot-paid' : ''}`} />
+                  <span className="tx-main">
+                    <strong>{mark.name}</strong>
+                    <span className="muted small">
+                      {mark.kind === 'bill' ? 'Tagihan' : 'Utang'} · {mark.paid ? 'lunas' : dueLabel(daysUntilDue(selectedDay, today))}
+                    </span>
+                  </span>
+                </li>
+              ))}
+            </ul>
+          )}
           {dayExpenses.length === 0 ? (
             <p className="muted small">Tidak ada pengeluaran di tanggal ini.</p>
           ) : (

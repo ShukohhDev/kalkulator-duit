@@ -1351,6 +1351,86 @@ select {
   padding-top: 6px;
 }
 
+.cal-dots {
+  display: flex;
+  gap: 3px;
+  margin-top: auto;
+}
+
+.cal-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  box-sizing: border-box;
+  flex: none;
+}
+
+.cal-dot-bill {
+  --dot: #f08c00;
+}
+
+.cal-dot-debt {
+  --dot: #7048e8;
+}
+
+.cal-dot {
+  background: var(--dot);
+  border: 2px solid #fff;
+}
+
+.cal-dot-paid {
+  background: #fff;
+  border-color: var(--dot);
+}
+
+.cal-legend {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  flex-wrap: wrap;
+  margin-top: 10px;
+}
+
+.legend-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.tx .cal-dot {
+  width: 10px;
+  height: 10px;
+}
+
+/* ---------- mini calendar (pilih tgl jatuh tempo) ---------- */
+
+.mini-cal {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 4px;
+}
+
+.mini-day {
+  border: 1px solid var(--border);
+  background: var(--surface);
+  color: var(--text);
+  border-radius: 8px;
+  font-size: 12px;
+  padding: 6px 0;
+  cursor: pointer;
+}
+
+.mini-day:hover {
+  border-color: var(--accent);
+}
+
+.mini-day-on {
+  background: var(--accent-soft);
+  border-color: var(--accent);
+  color: var(--accent);
+  font-weight: 700;
+}
+
 /* ---------- compare ---------- */
 
 .compare-grid {
