@@ -91,7 +91,7 @@ select {
 .section-nav {
   position: sticky;
   top: 0;
-  z-index: 40;
+  z-index: 60;
   display: flex;
   gap: 10px;
   overflow-x: auto;
@@ -130,11 +130,8 @@ select {
 }
 
 .nav-section {
-  display: flex;
-  flex-direction: column;
-  gap: 24px;
+  display: none;
   min-width: 0;
-  scroll-margin-top: 64px;
 }
 
 .save-state {
@@ -146,32 +143,65 @@ select {
   color: var(--ok);
 }
 
-.layout {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) 320px;
-  gap: 24px;
-  align-items: start;
-}
-
-.col {
+.front {
+  max-width: 680px;
+  margin: 24px auto 0;
+  padding: 0 16px;
   display: flex;
   flex-direction: column;
   gap: 24px;
   min-width: 0;
 }
 
-.col-side {
-  position: sticky;
-  top: 16px;
+.window-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(15, 17, 22, 0.55);
+  backdrop-filter: blur(3px);
+  z-index: 44;
+}
+
+.nav-section-window {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  position: relative;
+  z-index: 50;
+  width: min(960px, 100%);
+  margin: 4px auto 8px;
+  max-height: min(86vh, 1040px);
+  overflow-y: auto;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 24px;
+  box-shadow: var(--shadow);
+  padding: 24px;
+  min-width: 0;
+}
+
+.window-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.window-head h2 {
+  font-size: 20px;
+  font-weight: 700;
+  margin: 0;
+}
+
+.window-close {
+  line-height: 0;
+  padding: 8px;
 }
 
 @media (max-width: 900px) {
-  .layout {
-    grid-template-columns: 1fr;
-  }
-  .col-side {
-    position: static;
-    order: -1;
+  .nav-section-window {
+    padding: 16px;
+    max-height: 92vh;
+    border-radius: 18px;
   }
 }
 
@@ -1111,7 +1141,7 @@ select {
   position: fixed;
   right: 22px;
   bottom: 154px;
-  z-index: 40;
+  z-index: 55;
   width: min(280px, calc(100vw - 32px));
 }
 
@@ -1370,7 +1400,7 @@ select {
   display: grid;
   place-items: center;
   padding: 20px;
-  z-index: 50;
+  z-index: 65;
   backdrop-filter: blur(3px);
 }
 

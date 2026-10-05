@@ -274,8 +274,8 @@ describe('alur aplikasi', () => {
     expect(container.textContent).toContain('Cadangkan')
     expect(container.textContent).toContain('Pulihkan')
     expect(container.textContent).toContain('Excel')
-    expect(container.querySelector('.col-side section.card h2')?.textContent).toBe('Hari Ini')
-    expect(container.querySelector('#nav-data h2')?.textContent).toBe('Data & Cadangan')
+    expect(container.querySelector('#nav-beranda section.card h2')?.textContent).toBe('Hari Ini')
+    expect(container.querySelector('#nav-data section.card h2')?.textContent).toBe('Data & Cadangan')
 
     globalThis.URL.createObjectURL = vi.fn(() => 'blob:test') as unknown as typeof URL.createObjectURL
     globalThis.URL.revokeObjectURL = vi.fn()

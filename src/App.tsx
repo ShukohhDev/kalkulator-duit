@@ -56,6 +56,7 @@ export default function App() {
   const { state, update, replace, saved } = useAppState()
   const [pickerOpen, setPickerOpen] = useState(false)
   const [calcOpen, setCalcOpen] = useState(false)
+  const [openPanel, setOpenPanel] = useState<string | null>(null)
 
   const derived = useMemo(() => derive(state), [state])
   const insights = useMemo(() => buildInsights(state, derived), [state, derived])
@@ -77,9 +78,19 @@ export default function App() {
     return () => window.removeEventListener('keydown', onKeyDown)
   }, [calcOpen])
 
+  useEffect(() => {
+    if (!openPanel) return
+    const onKeyDown = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') setOpenPanel(null)
+    }
+    window.addEventListener('keydown', onKeyDown)
+    return () => window.removeEventListener('keydown', onKeyDown)
+  }, [openPanel])
+
   const pickMode = (mode: 'week' | 'month') => {
     update((s) => ({ ...s, mode }))
     setPickerOpen(false)
+    setOpenPanel((prev) => prev ?? 'nav-beranda')
   }
 
   const applyProfile = (profileId: ProfileId) => {
@@ -90,6 +101,33 @@ export default function App() {
   const resetAll = () => {
     clearState()
     replace(initialState())
+  }
+
+  const togglePanel = (id: string) => setOpenPanel((prev) => (prev === id ? null : id))
+
+  const sectionClass = (id: string) => `nav-section${openPanel === id ? ' nav-section-window' : ''}`
+
+  const windowHead = (id: string) => {
+    const label = NAV_ITEMS.find((item) => item.id === id)?.label ?? ''
+    const open = openPanel === id
+    return (
+      <header className="window-head">
+        <h2>{label}</h2>
+        {open && (
+          <button
+            type="button"
+            className="btn btn-ghost btn-sm window-close"
+            onClick={() => setOpenPanel(null)}
+            aria-label="Tutup jendela"
+            title="Tutup"
+          >
+            <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" aria-hidden="true">
+              <path d="M6 6l12 12M18 6L6 18" />
+            </svg>
+          </button>
+        )}
+      </header>
+    )
   }
 
   return (
@@ -108,52 +146,89 @@ export default function App() {
         </div>
       </header>
 
-      <SectionNav items={NAV_ITEMS} />
+      <SectionNav items={NAV_ITEMS} openId={openPanel} onOpen={togglePanel} />
 
-      <main className="layout">
-        <div className="col">
-          <div id="nav-beranda" className="nav-section">
-            <TotalAsetCard state={state} />
-            <AllowanceCard state={state} derived={derived} update={update} onChangePeriod={() => setPickerOpen(true)} />
-            <WalletCards state={state} derived={derived} />
-            <InsightsPanel insights={insights} />
-          </div>
-          <div id="nav-catat" className="nav-section">
-            <ExpensesPanel state={state} update={update} />
-            <IncomePanel state={state} update={update} />
-          </div>
-          <div id="nav-kewajiban" className="nav-section">
-            <ObligationsPanel state={state} update={update} />
-          </div>
-          <div id="nav-analisis" className="nav-section">
-            <CashflowChart state={state} derived={derived} />
-            <TrendPanel state={state} />
-            <AllocationDonut state={state} derived={derived} />
-            <CalendarHeatmap state={state} />
-            <MonthCompare state={state} derived={derived} />
-          </div>
-          <div id="nav-tabungan" className="nav-section">
-            <DompetPanel state={state} update={update} />
-            <SavingsPanel state={state} derived={derived} update={update} />
-            <WishlistPanel state={state} derived={derived} update={update} />
-          </div>
-          <div id="nav-laporan" className="nav-section">
-            <ReportCard state={state} />
-          </div>
-          <div id="nav-data" className="nav-section">
-            <DataControls
-              state={state}
-              saved={saved}
-              onImport={replace}
-              onReset={resetAll}
-            />
-          </div>
-        </div>
+      {!openPanel && (
+        <main className="front">
+          <TotalAsetCard state={state} />
+        </main>
+      )}
 
-        <aside className="col col-side">
-          <TodayCard state={state} derived={derived} />
-        </aside>
-      </main>
+      {openPanel && <div className="window-backdrop" onClick={() => setOpenPanel(null)} />}
+
+      <div
+        id="nav-beranda"
+        className={sectionClass('nav-beranda')}
+        role={openPanel === 'nav-beranda' ? 'dialog' : undefined}
+        aria-modal={openPanel === 'nav-beranda' ? 'true' : undefined}
+      >
+        {windowHead('nav-beranda')}
+        <TodayCard state={state} derived={derived} />
+        <AllowanceCard state={state} derived={derived} update={update} onChangePeriod={() => setPickerOpen(true)} />
+        <WalletCards state={state} derived={derived} />
+        <InsightsPanel insights={insights} />
+      </div>
+      <div
+        id="nav-catat"
+        className={sectionClass('nav-catat')}
+        role={openPanel === 'nav-catat' ? 'dialog' : undefined}
+        aria-modal={openPanel === 'nav-catat' ? 'true' : undefined}
+      >
+        {windowHead('nav-catat')}
+        <ExpensesPanel state={state} update={update} />
+        <IncomePanel state={state} update={update} />
+      </div>
+      <div
+        id="nav-kewajiban"
+        className={sectionClass('nav-kewajiban')}
+        role={openPanel === 'nav-kewajiban' ? 'dialog' : undefined}
+        aria-modal={openPanel === 'nav-kewajiban' ? 'true' : undefined}
+      >
+        {windowHead('nav-kewajiban')}
+        <ObligationsPanel state={state} update={update} />
+      </div>
+      <div
+        id="nav-analisis"
+        className={sectionClass('nav-analisis')}
+        role={openPanel === 'nav-analisis' ? 'dialog' : undefined}
+        aria-modal={openPanel === 'nav-analisis' ? 'true' : undefined}
+      >
+        {windowHead('nav-analisis')}
+        <CashflowChart state={state} derived={derived} />
+        <TrendPanel state={state} />
+        <AllocationDonut state={state} derived={derived} />
+        <CalendarHeatmap state={state} />
+        <MonthCompare state={state} derived={derived} />
+      </div>
+      <div
+        id="nav-tabungan"
+        className={sectionClass('nav-tabungan')}
+        role={openPanel === 'nav-tabungan' ? 'dialog' : undefined}
+        aria-modal={openPanel === 'nav-tabungan' ? 'true' : undefined}
+      >
+        {windowHead('nav-tabungan')}
+        <DompetPanel state={state} update={update} />
+        <SavingsPanel state={state} derived={derived} update={update} />
+        <WishlistPanel state={state} derived={derived} update={update} />
+      </div>
+      <div
+        id="nav-laporan"
+        className={sectionClass('nav-laporan')}
+        role={openPanel === 'nav-laporan' ? 'dialog' : undefined}
+        aria-modal={openPanel === 'nav-laporan' ? 'true' : undefined}
+      >
+        {windowHead('nav-laporan')}
+        <ReportCard state={state} />
+      </div>
+      <div
+        id="nav-data"
+        className={sectionClass('nav-data')}
+        role={openPanel === 'nav-data' ? 'dialog' : undefined}
+        aria-modal={openPanel === 'nav-data' ? 'true' : undefined}
+      >
+        {windowHead('nav-data')}
+        <DataControls state={state} saved={saved} onImport={replace} onReset={resetAll} />
+      </div>
 
       <footer className="footer muted small">
         Data tersimpan lokal di browser kamu. Bunga dihitung majemuk 8% per tahun (setara 0,64%/bulan).
