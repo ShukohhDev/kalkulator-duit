@@ -109,3 +109,17 @@ describe('dompet', () => {
     expect(empty.wallets).toEqual([])
   })
 })
+
+describe('bukti transaksi', () => {
+  it('receiptId lolos sanitasi dan nilai kosong dibuang', () => {
+    const state = sanitize({
+      version: 1,
+      expenses: [
+        { id: 'e1', date: '2026-10-05', categoryId: 'makan', note: 'nasi', amount: 10_000, receiptId: 'rcp-1' },
+        { id: 'e2', date: '2026-10-05', categoryId: 'makan', note: 'ayam', amount: 10_000, receiptId: '' },
+      ],
+    })
+    expect(state.expenses[0].receiptId).toBe('rcp-1')
+    expect(state.expenses[1].receiptId).toBeUndefined()
+  })
+})

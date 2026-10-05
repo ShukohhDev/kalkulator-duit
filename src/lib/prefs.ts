@@ -5,6 +5,7 @@ export type WalletCurrency = 'idr' | 'usd'
 export interface Prefs {
   view: CashflowView
   chartType: CashflowChartType
+  trendView: CashflowView
   walletCurrency: WalletCurrency
   usdRate: number
 }
@@ -15,7 +16,7 @@ const CHART_TYPES: CashflowChartType[] = ['bar', 'line', 'donut', 'category']
 const CURRENCIES: WalletCurrency[] = ['idr', 'usd']
 
 export function loadPrefs(): Prefs {
-  const fallback: Prefs = { view: 'day', chartType: 'bar', walletCurrency: 'idr', usdRate: 16_000 }
+  const fallback: Prefs = { view: 'day', chartType: 'bar', trendView: 'day', walletCurrency: 'idr', usdRate: 16_000 }
   try {
     const raw = localStorage.getItem(KEY)
     if (!raw) return fallback
@@ -26,6 +27,7 @@ export function loadPrefs(): Prefs {
       chartType: CHART_TYPES.includes(data.chartType as CashflowChartType)
         ? (data.chartType as CashflowChartType)
         : fallback.chartType,
+      trendView: VIEWS.includes(data.trendView as CashflowView) ? (data.trendView as CashflowView) : fallback.trendView,
       walletCurrency: CURRENCIES.includes(data.walletCurrency as WalletCurrency)
         ? (data.walletCurrency as WalletCurrency)
         : fallback.walletCurrency,

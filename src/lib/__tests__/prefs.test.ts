@@ -2,7 +2,7 @@
 import { beforeEach, describe, expect, it } from 'vitest'
 import { loadPrefs, savePrefs } from '../prefs'
 
-const DEFAULTS = { view: 'day', chartType: 'bar', walletCurrency: 'idr', usdRate: 16_000 }
+const DEFAULTS = { view: 'day', chartType: 'bar', trendView: 'day', walletCurrency: 'idr', usdRate: 16_000 }
 
 describe('preferensi grafik', () => {
   beforeEach(() => {

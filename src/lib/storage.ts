@@ -112,6 +112,7 @@ function sanitizeExpenses(value: unknown): Expense[] {
       amount: Math.max(0, num(item.amount)),
       goalId: typeof item.goalId === 'string' && item.goalId !== '' ? item.goalId : undefined,
       wishlistId: typeof item.wishlistId === 'string' && item.wishlistId !== '' ? item.wishlistId : undefined,
+      receiptId: typeof item.receiptId === 'string' && item.receiptId !== '' ? item.receiptId : undefined,
     }))
     .filter((item) => item.date !== '')
 }

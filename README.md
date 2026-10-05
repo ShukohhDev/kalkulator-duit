@@ -15,6 +15,8 @@ Semua data disimpan di `localStorage` browser — tidak ada server, tidak ada da
 - **Preset kategori**: tiga preset bawaan (Anak Kos, Mahasiswa, Karyawan) dan simpan kategori sendiri jadi preset.
 - **Pemasukan lain**: ditambah, diubah, dan dihapus — uang jajan harian otomatis tercatat sebagai pemasukan.
 - **Grafik kas**: harian, mingguan, bulanan, tahunan dengan **jenis grafik pilihan: batang, garis, donut rekap (pemasukan vs pengeluaran), atau donut per kategori** — pilihannya diingat di browser; donut alokasi vs realisasi; perbandingan bulan ini vs bulan lalu; kalender heatmap.
+- **Tren per kategori**: grafik garis pengeluaran satu kategori (pilih kategori + rentang harian/mingguan/bulanan/tahunan), preferensi rentang diingat di browser.
+- **Bukti transaksi**: lampirkan foto struk saat mencatat (diubah dulu jadi JPEG maksimal 1024px, disimpan di IndexedDB browser), lihat lewat tombol **Bukti**, dan ikut terhapus saat catatan dihapus.
 - **Kewajiban**: tagihan rutin (listrik, internet, sewa) dan utang berjalan dengan angsuran per bulan — tombol bayar ikut **tercatat sebagai pengeluaran kategori "Tagihan" / "Cicilan"**, badge jatuh tempo (H-x, lunas bulan ini), insight pengingat jatuh tempo ≤7 hari, dan **notifikasi browser sekali sehari per tagihan** setelah izin diberikan.
 - **Dompet & e-wallet**: pencatatan aset (rekening, e-wallet, tunai) dengan saldo yang bisa diedit; **total aset bisa ditampilkan Rp atau USD** lewat toggle, kurs manual (1 USD = Rp ...) disimpan di prefs browser.
 - **Target tabungan**: bunga majemuk 8%/tahun (≈0,64%/bulan), beberapa target bisa **aktif diparalel**, rekomendasi setoran dihitung per target.

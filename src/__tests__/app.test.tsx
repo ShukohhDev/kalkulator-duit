@@ -4,11 +4,18 @@ import { act } from 'react'
 import { createRoot, type Root } from 'react-dom/client'
 import App from '../App'
 import { formatIDR } from '../lib/money'
+import { saveReceipt } from '../lib/receipts'
 
 vi.mock('react-chartjs-2', () => ({
   Bar: () => null,
   Doughnut: () => null,
   Line: () => null,
+}))
+
+vi.mock('../lib/receipts', () => ({
+  saveReceipt: vi.fn(async () => 'rcp-mock'),
+  getReceipt: vi.fn(async () => null),
+  deleteReceipt: vi.fn(async () => undefined),
 }))
 
 declare global {
@@ -162,6 +169,38 @@ describe('alur aplikasi', () => {
 
     clickText('.ob-row .btn-danger', 'Hapus')
     expect(container.querySelectorAll('.ob-row')).toHaveLength(3)
+  })
+
+  it('melampirkan bukti pada pengeluaran lalu menampilkan tombol lihat bukti', async () => {
+    click('.period-option')
+
+    setValue('#exp-amount', '25000')
+    const input = container.querySelector('#exp-receipt') as HTMLInputElement
+    const file = new File(['bukti'], 'bukti.png', { type: 'image/png' })
+    Object.defineProperty(input, 'files', { value: [file], configurable: true })
+    act(() => {
+      input.dispatchEvent(new Event('change', { bubbles: true }))
+    })
+    await act(async () => {})
+    expect(saveReceipt).toHaveBeenCalledWith(file)
+    expect(container.textContent).toContain('Bukti terlampir')
+
+    clickText('button', 'Catat pengeluaran')
+    expect(container.textContent).toContain('Menampilkan 1 dari 1 catatan')
+    expect([...container.querySelectorAll('.tx-actions button')].some((b) => b.textContent === 'Bukti')).toBe(true)
+  })
+
+  it('menampilkan tren per kategori dengan pesan kosong lalu grafik', () => {
+    click('.period-option')
+    expect(container.textContent).toContain('Tren per Kategori')
+    expect(container.textContent).toContain('Belum ada pengeluaran pada kategori ini.')
+
+    setValue('#exp-amount', '15000')
+    clickText('button', 'Catat pengeluaran')
+    expect(container.querySelector('.chart-box')).not.toBeNull()
+
+    setSelect('[aria-label="Kategori tren"]', 'transport')
+    expect(container.textContent).toContain('Belum ada pengeluaran pada kategori ini.')
   })
 
   it('membuka kalkulator lewat tombol melayang lalu menutup dengan Esc dan setelah Pakai angka', () => {

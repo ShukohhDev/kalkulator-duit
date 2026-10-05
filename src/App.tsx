@@ -24,6 +24,7 @@ import { ReportCard } from './components/ReportCard'
 import { SavingsPanel } from './components/SavingsPanel'
 import { SectionNav, type NavItem } from './components/SectionNav'
 import { TodayCard } from './components/TodayCard'
+import { TrendPanel } from './components/TrendPanel'
 import { WalletCards } from './components/WalletCards'
 import { WishlistPanel } from './components/WishlistPanel'
 
@@ -125,6 +126,7 @@ export default function App() {
           </div>
           <div id="nav-analisis" className="nav-section">
             <CashflowChart state={state} derived={derived} />
+            <TrendPanel state={state} />
             <AllocationDonut state={state} derived={derived} />
             <CalendarHeatmap state={state} />
             <MonthCompare state={state} derived={derived} />

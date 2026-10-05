@@ -1518,6 +1518,26 @@ select {
   width: 150px;
 }
 
+/* ---------- bukti transaksi ---------- */
+
+.receipt-overlay {
+  grid-auto-rows: min-content;
+  gap: 12px;
+  align-content: center;
+}
+
+.receipt-img {
+  display: block;
+  max-width: min(92vw, 640px);
+  max-height: 74vh;
+  border-radius: 16px;
+  box-shadow: 0 18px 50px rgba(0, 0, 0, 0.4);
+}
+
+.receipt-close {
+  justify-self: center;
+}
+
 .profile-label {
   font-size: 13px;
   font-weight: 600;

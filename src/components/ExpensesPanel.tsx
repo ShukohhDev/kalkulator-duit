@@ -3,9 +3,11 @@ import type { AppState, Category, Expense } from '../types'
 import type { Updater } from '../hooks/useAppState'
 import { CATEGORY_COLORS, SAVINGS_CATEGORY, primaryGoal } from '../lib/state'
 import { BUILTIN_PRESETS, applyPreset, savePreset } from '../lib/presets'
+import { deleteReceipt, saveReceipt } from '../lib/receipts'
 import { formatIDR, formatShortDate, monthKey, monthLabel, todayISO } from '../lib/money'
 import { uid } from '../lib/id'
 import { MoneyInput } from './MoneyInput'
+import { ReceiptView } from './ReceiptView'
 
 interface Props {
   state: AppState
@@ -21,6 +23,8 @@ export function ExpensesPanel({ state, update }: Props) {
   const [amount, setAmount] = useState(0)
   const [goalTarget, setGoalTarget] = useState('auto')
   const [editingId, setEditingId] = useState<string | null>(null)
+  const [receiptId, setReceiptId] = useState<string | null>(null)
+  const [receiptError, setReceiptError] = useState('')
 
   const [query, setQuery] = useState('')
   const [filterCategory, setFilterCategory] = useState('all')
@@ -66,6 +70,8 @@ export function ExpensesPanel({ state, update }: Props) {
     setAmount(0)
     setGoalTarget('auto')
     setEditingId(null)
+    setReceiptId(null)
+    setReceiptError('')
   }
 
   const resolveTarget = (): { goalId?: string; wishlistId?: string } => {
@@ -81,14 +87,27 @@ export function ExpensesPanel({ state, update }: Props) {
     const { goalId, wishlistId } = resolveTarget()
 
     if (editingId) {
+      const previous = state.expenses.find((item) => item.id === editingId)
       update((s) => ({
         ...s,
         expenses: s.expenses.map((item) =>
-          item.id === editingId ? { ...item, date, categoryId, note, amount, goalId, wishlistId } : item,
+          item.id === editingId
+            ? { ...item, date, categoryId, note, amount, goalId, wishlistId, receiptId: receiptId ?? undefined }
+            : item,
         ),
       }))
+      if (previous?.receiptId && previous.receiptId !== receiptId) void deleteReceipt(previous.receiptId)
     } else {
-      const expense: Expense = { id: uid('exp'), date, categoryId, note: note.trim(), amount, goalId, wishlistId }
+      const expense: Expense = {
+        id: uid('exp'),
+        date,
+        categoryId,
+        note: note.trim(),
+        amount,
+        goalId,
+        wishlistId,
+        receiptId: receiptId ?? undefined,
+      }
       update((s) => ({ ...s, expenses: [expense, ...s.expenses] }))
     }
     resetForm()
@@ -101,11 +120,15 @@ export function ExpensesPanel({ state, update }: Props) {
     setNote(expense.note)
     setAmount(expense.amount)
     setGoalTarget(expense.wishlistId ? `wish:${expense.wishlistId}` : (expense.goalId ?? 'auto'))
+    setReceiptId(expense.receiptId ?? null)
+    setReceiptError('')
     window.scrollTo({ top: 0, behavior: 'smooth' })
   }
 
   const remove = (id: string) => {
+    const target = state.expenses.find((item) => item.id === id)
     update((s) => ({ ...s, expenses: s.expenses.filter((item) => item.id !== id) }))
+    if (target?.receiptId) void deleteReceipt(target.receiptId)
     if (editingId === id) resetForm()
   }
 
@@ -254,6 +277,44 @@ export function ExpensesPanel({ state, update }: Props) {
           </div>
         </div>
 
+        <div className="field">
+          <label htmlFor="exp-receipt">Bukti (opsional)</label>
+          <input
+            id="exp-receipt"
+            className="input"
+            type="file"
+            accept="image/*"
+            onChange={(e) => {
+              const file = e.target.files?.[0]
+              e.target.value = ''
+              if (!file) return
+              setReceiptError('')
+              saveReceipt(file)
+                .then((id) => setReceiptId(id))
+                .catch(() => setReceiptError('Gagal menyimpan bukti di browser.'))
+            }}
+          />
+          {receiptId && (
+            <div className="inline-form">
+              <span className="chip">Bukti terlampir</span>
+              <button
+                type="button"
+                className="btn btn-ghost btn-sm"
+                onClick={() => {
+                  const previous = editingId
+                    ? state.expenses.find((item) => item.id === editingId)?.receiptId
+                    : undefined
+                  if (previous && previous !== receiptId) void deleteReceipt(previous)
+                  setReceiptId(null)
+                }}
+              >
+                Lepas
+              </button>
+            </div>
+          )}
+          {receiptError && <span className="text-danger small">{receiptError}</span>}
+        </div>
+
         <div className="form-actions">
           <button type="submit" className="btn" disabled={amount <= 0}>
             {editingId ? 'Simpan perubahan' : 'Catat pengeluaran'}
@@ -314,6 +375,7 @@ export function ExpensesPanel({ state, update }: Props) {
               </span>
               <span className="tx-amount">−{formatIDR(item.amount)}</span>
               <span className="tx-actions">
+                {item.receiptId && <ReceiptView id={item.receiptId} />}
                 <button type="button" className="btn btn-ghost btn-sm" onClick={() => startEdit(item)}>
                   Ubah
                 </button>

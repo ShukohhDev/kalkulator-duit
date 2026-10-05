@@ -20,6 +20,7 @@ export interface Expense {
   amount: number
   goalId?: string
   wishlistId?: string
+  receiptId?: string
 }
 
 export interface Income {
