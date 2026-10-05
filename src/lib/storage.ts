@@ -1,5 +1,5 @@
-import type { AppState, Category, CategoryPreset, Expense, Goal, Income, PeriodMode, WishlistItem } from '../types'
-import { initialState, defaultCategories, PULSA_CATEGORY } from './state'
+import type { AppState, Bill, Category, CategoryPreset, Debt, Expense, Goal, Income, PeriodMode, WishlistItem } from '../types'
+import { initialState, defaultCategories, PULSA_CATEGORY, CICILAN_CATEGORY, TAGIHAN_CATEGORY } from './state'
 import { MAX_USER_PRESETS } from './presets'
 import { isProfileId } from './profiles'
 
@@ -44,6 +44,16 @@ function normalizeRatios(categories: Category[]): Category[] {
 
 // data lama (4 kategori, "Transport & Pulsa" 20%) dipecah: transport 3/4, pulsa 1/4 — jumlah tetap 100%
 function migrateCategories(categories: Category[]): Category[] {
+  const migrated = migratePulsa(categories)
+  const missing = defaultCategories().filter(
+    (category) =>
+      (category.id === CICILAN_CATEGORY || category.id === TAGIHAN_CATEGORY) &&
+      !migrated.some((existing) => existing.id === category.id),
+  )
+  return missing.length > 0 ? [...migrated, ...missing] : migrated
+}
+
+function migratePulsa(categories: Category[]): Category[] {
   if (categories.some((category) => category.id === PULSA_CATEGORY)) return categories
   const pulsa = defaultCategories().find((category) => category.id === PULSA_CATEGORY)
   if (!pulsa) return categories
@@ -118,6 +128,36 @@ function sanitizeWishlist(value: unknown): WishlistItem[] {
     }))
 }
 
+function sanitizeDebts(value: unknown): Debt[] {
+  if (!Array.isArray(value)) return []
+  return value
+    .filter((item): item is Record<string, unknown> => !!item && typeof item === 'object')
+    .map((item, index) => ({
+      id: str(item.id, `debt-${index}`),
+      name: str(item.name, 'Utang').trim() || 'Utang',
+      total: Math.max(0, num(item.total)),
+      paid: Math.max(0, num(item.paid)),
+      installment: Math.max(0, num(item.installment)),
+      dueDay: Math.min(28, Math.max(1, Math.round(num(item.dueDay, 1)))),
+    }))
+    .filter((item) => item.total > 0 && item.installment > 0)
+}
+
+function sanitizeBills(value: unknown): Bill[] {
+  if (!Array.isArray(value)) return []
+  return value
+    .filter((item): item is Record<string, unknown> => !!item && typeof item === 'object')
+    .map((item, index) => ({
+      id: str(item.id, `bill-${index}`),
+      name: str(item.name, 'Tagihan').trim() || 'Tagihan',
+      amount: Math.max(0, num(item.amount)),
+      dueDay: Math.min(28, Math.max(1, Math.round(num(item.dueDay, 1)))),
+      lastPaid:
+        typeof item.lastPaid === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(item.lastPaid) ? item.lastPaid : undefined,
+    }))
+    .filter((item) => item.amount > 0)
+}
+
 function sanitizeIncomes(value: unknown): Income[] {
   if (!Array.isArray(value)) return []
   return value
@@ -165,6 +205,8 @@ export function sanitize(raw: unknown): AppState {
     incomes: sanitizeIncomes(data.incomes),
     goals: sanitizeGoals(data.goals),
     wishlist: sanitizeWishlist(data.wishlist),
+    debts: sanitizeDebts(data.debts),
+    bills: sanitizeBills(data.bills),
     currentAge: Math.max(1, num(data.currentAge, base.currentAge)),
     theme: data.theme === 'dark' ? 'dark' : 'light',
   }

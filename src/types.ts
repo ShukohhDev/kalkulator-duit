@@ -48,6 +48,23 @@ export interface WishlistItem {
   saved: number
 }
 
+export interface Debt {
+  id: string
+  name: string
+  total: number
+  paid: number
+  installment: number
+  dueDay: number
+}
+
+export interface Bill {
+  id: string
+  name: string
+  amount: number
+  dueDay: number
+  lastPaid?: string
+}
+
 export interface CategoryPreset {
   id: string
   name: string
@@ -65,6 +82,8 @@ export interface AppState {
   incomes: Income[]
   goals: Goal[]
   wishlist: WishlistItem[]
+  debts: Debt[]
+  bills: Bill[]
   currentAge: number
   theme: Theme
 }

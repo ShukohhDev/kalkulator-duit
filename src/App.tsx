@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from 'react'
 import { useAppState } from './hooks/useAppState'
 import { derive } from './lib/derive'
 import { buildInsights } from './lib/insights'
+import { notifyDue } from './lib/obligations'
 import { applyProfile as applyProfileToCategories, findProfile } from './lib/profiles'
 import { initialState } from './lib/state'
 import { clearState } from './lib/storage'
@@ -16,6 +17,7 @@ import { ExpensesPanel } from './components/ExpensesPanel'
 import { IncomePanel } from './components/IncomePanel'
 import { InsightsPanel } from './components/InsightsPanel'
 import { MonthCompare } from './components/MonthCompare'
+import { ObligationsPanel } from './components/ObligationsPanel'
 import { PeriodPicker } from './components/PeriodPicker'
 import { ReportCard } from './components/ReportCard'
 import { SavingsPanel } from './components/SavingsPanel'
@@ -40,6 +42,7 @@ const MOON_ICON = (
 const NAV_ITEMS: NavItem[] = [
   { id: 'nav-beranda', label: 'Beranda' },
   { id: 'nav-catat', label: 'Catat' },
+  { id: 'nav-kewajiban', label: 'Kewajiban' },
   { id: 'nav-analisis', label: 'Analisis' },
   { id: 'nav-tabungan', label: 'Tabungan' },
   { id: 'nav-laporan', label: 'Laporan' },
@@ -57,6 +60,10 @@ export default function App() {
   useEffect(() => {
     document.documentElement.dataset.theme = state.theme
   }, [state.theme])
+
+  useEffect(() => {
+    notifyDue(state)
+  }, [state])
 
   useEffect(() => {
     if (!calcOpen) return
@@ -111,6 +118,9 @@ export default function App() {
           <div id="nav-catat" className="nav-section">
             <ExpensesPanel state={state} update={update} />
             <IncomePanel state={state} update={update} />
+          </div>
+          <div id="nav-kewajiban" className="nav-section">
+            <ObligationsPanel state={state} update={update} />
           </div>
           <div id="nav-analisis" className="nav-section">
             <CashflowChart state={state} derived={derived} />

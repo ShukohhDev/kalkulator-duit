@@ -113,6 +113,36 @@ describe('alur aplikasi', () => {
     expect(container.textContent).toContain('105.000')
   })
 
+  it('menambah tagihan dan utang lewat Kewajiban, lalu membayarnya tercatat sebagai pengeluaran', () => {
+    click('.period-option')
+    const soon = Math.min(28, new Date().getDate() + 1)
+
+    setValue('#bill-name', 'Listrik')
+    setValue('#bill-amount', '150000')
+    setValue('#bill-due', String(soon))
+    clickText('button', '+ Tambah tagihan')
+
+    expect(container.textContent).toContain('tiap tgl')
+    expect(container.querySelector('.insight-list')?.textContent).toContain('Listrik')
+    expect(container.querySelector('.insight-list')?.textContent).toMatch(/jatuh tempo|H-\d/)
+
+    clickText('.ob-row button', 'Bayar')
+    expect(container.textContent).toContain('Lunas bulan ini')
+    expect(container.textContent).toContain('Menampilkan 1 dari 1 catatan')
+
+    setValue('#debt-name', 'Motor')
+    setValue('#debt-total', '6000000')
+    setValue('#debt-installment', '500000')
+    setValue('#debt-due', '10')
+    clickText('button', '+ Tambah utang')
+    expect(container.textContent).toContain('Terbayar')
+    expect(container.textContent).toContain('6.000.000')
+
+    clickText('.ob-row button', 'Bayar angsuran')
+    expect(container.textContent).toContain('500.000')
+    expect(container.textContent).toContain('Menampilkan 2 dari 2 catatan')
+  })
+
   it('membuka kalkulator lewat tombol melayang lalu menutup dengan Esc dan setelah Pakai angka', () => {
     click('.period-option')
     expect(container.querySelector('.calc-pop')).toBeNull()

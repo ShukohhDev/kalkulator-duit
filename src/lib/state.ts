@@ -13,6 +13,8 @@ export const CATEGORY_COLORS = [
 
 export const SAVINGS_CATEGORY = 'tabungan'
 export const PULSA_CATEGORY = 'pulsa'
+export const CICILAN_CATEGORY = 'cicilan'
+export const TAGIHAN_CATEGORY = 'tagihan'
 
 export function effectiveSaved(goal: Goal, savingsByGoal: Record<string, number>): number {
   return goal.saved + (savingsByGoal[goal.id] ?? 0)
@@ -25,6 +27,8 @@ export function defaultCategories(): Category[] {
     { id: PULSA_CATEGORY, name: 'Pulsa & Kuota', ratio: 0.05, builtin: true, color: '#0c8599' },
     { id: 'nongkrong', name: 'Nongkrong / Ngopi', ratio: 0.1, builtin: true, color: '#9c36b5' },
     { id: SAVINGS_CATEGORY, name: 'Ditabung / Investasi', ratio: 0.2, builtin: true, color: '#2f9e44' },
+    { id: CICILAN_CATEGORY, name: 'Cicilan', ratio: 0, builtin: true, color: '#5f3dc4' },
+    { id: TAGIHAN_CATEGORY, name: 'Tagihan', ratio: 0, builtin: true, color: '#d6336c' },
   ]
 }
 
@@ -48,6 +52,8 @@ export function initialState(): AppState {
     incomes: [],
     goals: [],
     wishlist: [],
+    debts: [],
+    bills: [],
     currentAge: 17,
     theme: 'light',
   }

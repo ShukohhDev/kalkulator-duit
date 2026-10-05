@@ -6,7 +6,7 @@ Semua data disimpan di `localStorage` browser — tidak ada server, tidak ada da
 
 ## Fitur
 
-- **Navigasi panel**: chip sticky di atas — Beranda, Catat, Analisis, Tabungan, Laporan, Data — scroll mulus dan chip aktif otomatis mengikuti panel yang terlihat (di layar kecil chip bisa digeser, kartu "Hari Ini" naik ke atas).
+- **Navigasi panel**: chip sticky di atas — Beranda, Catat, Kewajiban, Analisis, Tabungan, Laporan, Data — scroll mulus dan chip aktif otomatis mengikuti panel yang terlihat (di layar kecil chip bisa digeser, kartu "Hari Ini" naik ke atas).
 - **Periode** 1 minggu atau 1 bulan, dengan uang jajan yang **dibagi rata per hari** untuk grafik dan sisa uang.
 - **Alokasi 50/15/5/10/20**: makan 50%, transport/bensin 15%, pulsa/kuota 5%, nongkrong 10%, tabungan 20% — rasionya **bisa diubah dari UI** (jumlah wajib tepat 100%, ada tombol reset default) dan kategori bisa ditambah sendiri.
 - **4 profil alokasi**: Standar, Anak Kos, Mahasiswa, Karyawan — pilih lewat chip di pemilih periode (ada konfirmasi), rasionya tetap bebas diubah dan kategori tetap bisa ditambah; data transaksi tidak ikut berubah.
@@ -15,6 +15,7 @@ Semua data disimpan di `localStorage` browser — tidak ada server, tidak ada da
 - **Preset kategori**: tiga preset bawaan (Anak Kos, Mahasiswa, Karyawan) dan simpan kategori sendiri jadi preset.
 - **Pemasukan lain**: ditambah, diubah, dan dihapus — uang jajan harian otomatis tercatat sebagai pemasukan.
 - **Grafik kas**: harian, mingguan, bulanan, tahunan dengan **jenis grafik pilihan: batang, garis, donut rekap (pemasukan vs pengeluaran), atau donut per kategori** — pilihannya diingat di browser; donut alokasi vs realisasi; perbandingan bulan ini vs bulan lalu; kalender heatmap.
+- **Kewajiban**: tagihan rutin (listrik, internet, sewa) dan utang berjalan dengan angsuran per bulan — tombol bayar ikut **tercatat sebagai pengeluaran kategori "Tagihan" / "Cicilan"**, badge jatuh tempo (H-x, lunas bulan ini), insight pengingat jatuh tempo ≤7 hari, dan **notifikasi browser sekali sehari per tagihan** setelah izin diberikan.
 - **Target tabungan**: bunga majemuk 8%/tahun (≈0,64%/bulan), beberapa target bisa **aktif diparalel**, rekomendasi setoran dihitung per target.
 - **Auto-sync tabungan**: pengeluaran kategori "Ditabung / Investasi" bisa ditujukan ke target tertentu, dan saldonya ikut terhitung di progres target.
 - **Wishlist / Incaran Beli**: daftar barang yang ingin dibeli (harga + saldo awal), **tanpa bunga/tanpa umur target** — progres = saldo awal + setoran lewat tombol **Setor** (tercatat sebagai pengeluaran "Ditabung" berhari ini) atau lewat select **Masukkan ke** di form pengeluaran.

@@ -1,6 +1,7 @@
 import type { AppState } from '../types'
 import type { Derived } from './derive'
 import { formatIDR } from './money'
+import { dueLabel, upcomingDue } from './obligations'
 import { activeGoals, effectiveSaved } from './state'
 import { ageAfter, monthsToTarget, requiredDeposit } from './savings'
 
@@ -14,6 +15,15 @@ const MAX_INSIGHTS = 5
 
 export function buildInsights(state: AppState, derived: Derived): Insight[] {
   const out: Insight[] = []
+
+  const due = upcomingDue(state)
+  if (due) {
+    out.push({
+      id: `due-${due.id}`,
+      tone: 'warn',
+      text: `${due.name} ${dueLabel(due.days)} — ${formatIDR(due.amount)}.`,
+    })
+  }
 
   if (state.expenses.length === 0) {
     out.push({
