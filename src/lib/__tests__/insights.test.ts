@@ -45,6 +45,15 @@ describe('buildInsights', () => {
     expect(result.find((item) => item.id === 'over-nongkrong')?.tone).toBe('warn')
   })
 
+  it('kategori mendekati 80% alokasi → peringatan hampir batas', () => {
+    const state = base()
+    state.expenses = [expense('2026-10-06', 'makan', 300_000)]
+    const result = buildInsights(state, derive(state, now))
+    const near = result.find((item) => item.id === 'near-makan')
+    expect(near?.tone).toBe('warn')
+    expect(near?.text).toContain('hampir mencapai batas')
+  })
+
   it('setoran kurang → sarankan setoran bulanan', () => {
     const state = base()
     state.currentAge = 17

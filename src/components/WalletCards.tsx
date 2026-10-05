@@ -38,6 +38,9 @@ export function WalletCards({ state, derived }: Props) {
               </p>
               {!free && <ProgressBar value={spent} max={allocated} />}
               {over && <span className="badge badge-danger">Melebihi alokasi {Math.round((spent / allocated) * 100)}%</span>}
+              {!over && spent >= allocated * 0.8 && (
+                <span className="badge badge-warn">Hampir mencapai batas ({Math.round((spent / allocated) * 100)}%)</span>
+              )}
             </article>
           )
         })}

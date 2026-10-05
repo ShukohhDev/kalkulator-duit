@@ -51,6 +51,23 @@ export function buildInsights(state: AppState, derived: Derived): Insight[] {
     })
   }
 
+  const nearLimit = state.categories
+    .map((category) => {
+      const alloc = derived.allocationByCategory[category.id] ?? 0
+      const spent = derived.spentByCategory[category.id] ?? 0
+      return { category, alloc, spent, pct: alloc > 0 ? Math.round((spent / alloc) * 100) : 0 }
+    })
+    .filter((item) => item.alloc > 0 && item.spent <= item.alloc && item.spent >= item.alloc * 0.8)
+    .sort((a, b) => b.pct - a.pct)
+
+  for (const item of nearLimit.slice(0, 2)) {
+    out.push({
+      id: `near-${item.category.id}`,
+      tone: 'warn',
+      text: `${item.category.name} sudah terpakai ${item.pct}% dari alokasi, hampir mencapai batas. Sisa ${formatIDR(item.alloc - item.spent)}.`,
+    })
+  }
+
   if (derived.period && derived.elapsedDays >= 1 && state.allowance > 0) {
     const pace = derived.spentInPeriod / derived.elapsedDays
     const projected = pace * derived.period.totalDays

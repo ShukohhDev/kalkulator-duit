@@ -737,6 +737,11 @@ select {
   color: var(--danger);
 }
 
+.badge-warn {
+  background: var(--warn-soft);
+  color: var(--warn);
+}
+
 /* ---------- insights ---------- */
 
 .insight-list {
