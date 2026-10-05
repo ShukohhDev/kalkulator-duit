@@ -89,26 +89,26 @@ describe('alur aplikasi', () => {
     expect(container.textContent).toContain('1 Bulan')
   })
 
-  it('memilih 1 minggu lalu menghitung alokasi 50/15/5/10/20', () => {
+  it('memilih 1 minggu lalu menghitung alokasi profil tinggal di rumah', () => {
     click('.period-option')
     setValue('#allowance', '700000')
 
     expect(container.textContent).toContain('Hasil alokasi')
     expect(container.textContent).toContain('350.000')
-    expect(container.textContent).toContain('105.000')
-    expect(container.textContent).toContain('35.000')
     expect(container.textContent).toContain('70.000')
+    expect(container.textContent).toContain('35.000')
+    expect(container.textContent).toContain('140.000')
     expect(container.textContent).toContain('Boleh belanja hari ini')
   })
 
   it('mengganti profil alokasi dari chip di pemilih periode', () => {
     click('.period-option')
     clickText('button', 'Periode: 1 Minggu')
-    expect(container.querySelectorAll('.profile-chip')).toHaveLength(4)
-    expect(container.querySelector('.profile-chip-on')?.textContent).toBe('Standar')
+    expect(container.querySelectorAll('.profile-chip')).toHaveLength(2)
+    expect(container.querySelector('.profile-chip-on')?.textContent).toBe('Tinggal di Rumah')
 
-    clickText('.profile-chip', 'Anak Kos')
-    expect(container.querySelector('.profile-chip-on')?.textContent).toBe('Anak Kos')
+    clickText('.profile-chip', 'Tinggal di Kos')
+    expect(container.querySelector('.profile-chip-on')?.textContent).toBe('Tinggal di Kos')
     clickText('button', 'Batal')
 
     const options = [...container.querySelectorAll('#exp-cat option')].map((option) => option.textContent)
@@ -304,26 +304,28 @@ describe('alur aplikasi', () => {
     expect([...container.querySelectorAll('button')].some((b) => b.textContent?.includes('Catat sekarang'))).toBe(false)
   })
 
-  it('mengubah rasio alokasi lewat form dengan validasi jumlah 100%', () => {
+  it('mengubah alokasi lewat form nominal dengan persen otomatis dan validasi total', () => {
     click('.period-option')
     setValue('#allowance', '700000')
 
-    clickText('button', 'Ubah rasio alokasi')
+    clickText('button', 'Ubah alokasi')
     expect(container.querySelector('.ratio-edit')).not.toBeNull()
 
-    setValue('[aria-label="Persen Makan & Minum"]', '60')
-    expect(container.querySelector('.ratio-sum')?.textContent).toContain('Jumlah 110%')
+    setValue('[aria-label="Alokasi Makan & Minum"]', '420000')
+    expect(container.querySelector('.ratio-sum')?.textContent).toContain('lebih')
+    expect(container.querySelector('.ratio-sum')?.textContent).toContain('770.000')
 
     const simpan = [...container.querySelectorAll('.ratio-edit button')].find((b) =>
-      b.textContent?.includes('Simpan rasio'),
+      b.textContent?.includes('Simpan alokasi'),
     ) as HTMLButtonElement
     expect(simpan.disabled).toBe(true)
 
-    setValue('[aria-label="Persen Transport / Bensin"]', '5')
-    expect(container.querySelector('.ratio-sum')?.textContent).toContain('Jumlah 100%')
+    setValue('[aria-label="Alokasi Transport / Bensin"]', '0')
+    expect(container.querySelector('.ratio-sum')?.textContent).toContain('pas, siap disimpan')
+    expect(container.querySelector('.ratio-edit')?.textContent).toContain('60%')
     expect(simpan.disabled).toBe(false)
 
-    clickText('.ratio-edit button', 'Simpan rasio')
+    clickText('.ratio-edit button', 'Simpan alokasi')
     expect(container.querySelector('.ratio-edit')).toBeNull()
 
     expect(container.textContent).toContain('420.000')

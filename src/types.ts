@@ -2,7 +2,7 @@ export type PeriodMode = 'week' | 'month'
 
 export type Theme = 'light' | 'dark'
 
-export type ProfileId = 'standar' | 'anak-kos' | 'mahasiswa' | 'karyawan'
+export type ProfileId = 'tinggal-rumah' | 'tinggal-kos'
 
 export interface Category {
   id: string

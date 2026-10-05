@@ -22,32 +22,46 @@ export function AllowanceCard({ state, derived, update, onChangePeriod }: Props)
   const [editingRatios, setEditingRatios] = useState(false)
   const [draft, setDraft] = useState<Record<string, string>>({})
 
-  const percentOf = (categoryId: string) => {
+  const amountOf = (categoryId: string) => {
     const value = Number(draft[categoryId])
-    return Number.isFinite(value) ? Math.min(100, Math.max(0, value)) : 0
+    return Number.isFinite(value) ? Math.max(0, Math.round(value)) : 0
   }
-  const percentTotal = state.categories.reduce((sum, category) => sum + percentOf(category.id), 0)
-  const sumOk = Math.abs(percentTotal - 100) < 0.01
+  const amountTotal = state.categories.reduce((sum, category) => sum + amountOf(category.id), 0)
+  const diff = state.allowance - amountTotal
+  const sumOk = diff === 0
+  const pctLabel = (amount: number) => {
+    const pct = state.allowance > 0 ? (amount / state.allowance) * 100 : 0
+    return `${Number(pct.toFixed(1))}%`.replace('.', ',')
+  }
 
   const openRatioEdit = () => {
-    setDraft(Object.fromEntries(state.categories.map((category) => [category.id, String(Math.round(category.ratio * 100))])))
+    setDraft(
+      Object.fromEntries(
+        state.categories.map((category) => [category.id, String(Math.round(category.ratio * state.allowance))]),
+      ),
+    )
     setEditingRatios(true)
   }
 
   const saveRatios = () => {
-    if (!sumOk) return
+    if (!sumOk || state.allowance <= 0) return
     update((s) => ({
       ...s,
-      categories: s.categories.map((category) => ({ ...category, ratio: percentOf(category.id) / 100 })),
+      categories: s.categories.map((category) => ({ ...category, ratio: amountOf(category.id) / state.allowance })),
     }))
     setEditingRatios(false)
   }
 
   const resetRatios = () => {
-    const defaults = new Map(defaultCategories().map((category) => [category.id, Math.round(category.ratio * 100)]))
+    const defaults = new Map(
+      defaultCategories().map((category) => [category.id, Math.round(category.ratio * state.allowance)]),
+    )
     setDraft(
       Object.fromEntries(
-        state.categories.map((category) => [category.id, String(defaults.get(category.id) ?? Math.round(category.ratio * 100))]),
+        state.categories.map((category) => [
+          category.id,
+          String(defaults.get(category.id) ?? Math.round(category.ratio * state.allowance)),
+        ]),
       ),
     )
   }
@@ -105,13 +119,16 @@ export function AllowanceCard({ state, derived, update, onChangePeriod }: Props)
 
           {!editingRatios && (
             <button type="button" className="btn btn-ghost btn-sm" onClick={openRatioEdit}>
-              Ubah rasio alokasi
+              Ubah alokasi
             </button>
           )}
 
           {editingRatios && (
             <div className="ratio-edit">
-              <p className="muted small">Bagian tiap posisi dari total 100% uang jajan {LABEL[mode].toLowerCase()}.</p>
+              <p className="muted small">
+                Isi nominal kebutuhanmu per kategori untuk {LABEL[mode].toLowerCase()}; persen dihitung otomatis dari
+                uang jajan.
+              </p>
               <div className="ratio-grid">
                 {state.categories.map((category) => (
                   <label key={category.id} className="ratio-field">
@@ -123,23 +140,27 @@ export function AllowanceCard({ state, derived, update, onChangePeriod }: Props)
                       className="input ratio-input"
                       type="number"
                       min={0}
-                      max={100}
-                      step={1}
+                      step={1000}
                       inputMode="numeric"
                       value={draft[category.id] ?? '0'}
-                      aria-label={`Persen ${category.name}`}
+                      aria-label={`Alokasi ${category.name}`}
                       onChange={(event) => setDraft((prev) => ({ ...prev, [category.id]: event.target.value }))}
                     />
-                    <span className="ratio-unit">%</span>
+                    <span className="ratio-unit">{pctLabel(amountOf(category.id))}</span>
                   </label>
                 ))}
               </div>
               <p className={`ratio-sum ${sumOk ? 'muted small' : 'text-danger small'}`}>
-                Jumlah {percentTotal}% {sumOk ? ', pas, siap disimpan' : ', harus tepat 100% sebelum disimpan'}
+                Jumlah {formatIDR(amountTotal)}
+                {sumOk
+                  ? ', pas, siap disimpan'
+                  : diff > 0
+                    ? `, kurang ${formatIDR(diff)} dari uang jajan`
+                    : `, lebih ${formatIDR(-diff)} dari uang jajan`}
               </p>
               <div className="btn-row">
                 <button type="button" className="btn btn-sm" disabled={!sumOk} onClick={saveRatios}>
-                  Simpan rasio
+                  Simpan alokasi
                 </button>
                 <button type="button" className="btn btn-ghost btn-sm" onClick={resetRatios}>
                   Reset ke default

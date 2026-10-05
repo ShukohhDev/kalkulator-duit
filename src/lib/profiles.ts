@@ -10,19 +10,20 @@ export interface ProfileDef {
 
 export const PROFILES: ProfileDef[] = [
   {
-    id: 'standar',
-    label: 'Standar',
+    id: 'tinggal-rumah',
+    label: 'Tinggal di Rumah',
     ratios: [
       { name: 'Makan & Minum', ratio: 0.5 },
-      { name: 'Transport / Bensin', ratio: 0.15 },
+      { name: 'Transport / Bensin', ratio: 0.1 },
       { name: 'Pulsa & Kuota', ratio: 0.05 },
       { name: 'Nongkrong / Ngopi', ratio: 0.1 },
+      { name: 'Kebutuhan Rumah', ratio: 0.05 },
       { name: 'Ditabung / Investasi', ratio: 0.2 },
     ],
   },
   {
-    id: 'anak-kos',
-    label: 'Anak Kos',
+    id: 'tinggal-kos',
+    label: 'Tinggal di Kos',
     ratios: [
       { name: 'Makan & Minum', ratio: 0.45 },
       { name: 'Laundry & Setrika', ratio: 0.1 },
@@ -33,31 +34,6 @@ export const PROFILES: ProfileDef[] = [
       { name: 'Ditabung / Investasi', ratio: 0.15 },
     ],
   },
-  {
-    id: 'mahasiswa',
-    label: 'Mahasiswa',
-    ratios: [
-      { name: 'Makan & Minum', ratio: 0.45 },
-      { name: 'Transport / Bensin', ratio: 0.1 },
-      { name: 'Buku & ATK', ratio: 0.1 },
-      { name: 'Nongkrong / Ngopi', ratio: 0.1 },
-      { name: 'Pulsa & Kuota', ratio: 0.1 },
-      { name: 'Ditabung / Investasi', ratio: 0.15 },
-    ],
-  },
-  {
-    id: 'karyawan',
-    label: 'Karyawan',
-    ratios: [
-      { name: 'Makan & Minum', ratio: 0.4 },
-      { name: 'Transport / Bensin', ratio: 0.15 },
-      { name: 'Makan Siang', ratio: 0.15 },
-      { name: 'Pulsa & Kuota', ratio: 0.05 },
-      { name: 'Nongkrong / Ngopi', ratio: 0.1 },
-      { name: 'Kopi Kantor', ratio: 0.05 },
-      { name: 'Ditabung / Investasi', ratio: 0.1 },
-    ],
-  },
 ]
 
 export function isProfileId(value: unknown): value is ProfileId {
@@ -66,6 +42,19 @@ export function isProfileId(value: unknown): value is ProfileId {
 
 export function findProfile(id: ProfileId): ProfileDef {
   return PROFILES.find((profile) => profile.id === id) ?? PROFILES[0]!
+}
+
+const LEGACY_PROFILE_IDS: Record<string, ProfileId> = {
+  'anak-kos': 'tinggal-kos',
+  standar: 'tinggal-rumah',
+  mahasiswa: 'tinggal-rumah',
+  karyawan: 'tinggal-rumah',
+}
+
+export function migrateProfileId(value: unknown): ProfileId {
+  if (isProfileId(value)) return value
+  if (typeof value === 'string' && value in LEGACY_PROFILE_IDS) return LEGACY_PROFILE_IDS[value]!
+  return 'tinggal-rumah'
 }
 
 export function applyProfile(current: Category[], profile: ProfileDef): Category[] {

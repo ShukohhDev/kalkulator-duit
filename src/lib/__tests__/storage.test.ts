@@ -59,7 +59,7 @@ describe('migrasi kategori lama ke 5 kategori', () => {
 
   it('data baru (sudah ada pulsa) tidak dimigrasi ulang dan idempoten', () => {
     const fresh = sanitize({ version: 1 })
-    expect(fresh.categories).toHaveLength(7) // 5 alokasi + cicilan + tagihan (rasio 0)
+    expect(fresh.categories).toHaveLength(8) // 6 alokasi + cicilan + tagihan (rasio 0)
     expect(fresh.categories.find((category) => category.id === 'pulsa')?.ratio).toBe(0.05)
     expect(fresh.categories.filter((category) => category.ratio === 0).map((category) => category.id)).toEqual([
       'cicilan',
@@ -90,10 +90,12 @@ describe('wishlist', () => {
 })
 
 describe('profil alokasi', () => {
-  it('data lama tanpa profil menjadi standar dan nilai asing dinormalisasi', () => {
-    expect(sanitize({ version: 1 }).profile).toBe('standar')
-    expect(sanitize({ version: 1, profile: 'anak-kos' }).profile).toBe('anak-kos')
-    expect(sanitize({ version: 1, profile: 'kos' }).profile).toBe('standar')
+  it('data lama tanpa profil menjadi tinggal-rumah dan nilai asing dinormalisasi', () => {
+    expect(sanitize({ version: 1 }).profile).toBe('tinggal-rumah')
+    expect(sanitize({ version: 1, profile: 'anak-kos' }).profile).toBe('tinggal-kos')
+    expect(sanitize({ version: 1, profile: 'mahasiswa' }).profile).toBe('tinggal-rumah')
+    expect(sanitize({ version: 1, profile: 'kos' }).profile).toBe('tinggal-rumah')
+    expect(sanitize({ version: 1, profile: 'tinggal-kos' }).profile).toBe('tinggal-kos')
   })
 })
 

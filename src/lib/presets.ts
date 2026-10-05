@@ -14,40 +14,36 @@ const extra = (id: string, name: string, colorIndex: number): Category => ({
 
 export const BUILTIN_PRESETS: CategoryPreset[] = [
   {
+    id: 'preset-rumah',
+    name: 'Tinggal di Rumah',
+    categories: [
+      extra('rmh-belanja', 'Belanja Bulanan', 0),
+      extra('rmh-listrik', 'Listrik / Air', 5),
+      extra('rmh-perawatan', 'Perawatan Rumah', 2),
+      extra('rmh-keluarga', 'Jajan Keluarga', 4),
+    ],
+  },
+  {
     id: 'preset-kos',
-    name: 'Anak Kos',
+    name: 'Tinggal di Kos',
     categories: [
       extra('kos-laundry', 'Laundry & Setrika', 1),
       extra('kos-air', 'Air Galón', 5),
-      extra('kos-internet', 'Internet / WiFi', 3),
       extra('kos-jajan', 'Jajan Malam', 4),
-    ],
-  },
-  {
-    id: 'preset-mahasiswa',
-    name: 'Mahasiswa',
-    categories: [
-      extra('mhs-buku', 'Buku & ATK', 2),
-      extra('mhs-print', 'Print & Fotokopi', 6),
-      extra('mhs-ongkos', 'Ongkos Bolak-balik', 3),
-      extra('mhs-snack', 'Jajan Kampus', 4),
-    ],
-  },
-  {
-    id: 'preset-karyawan',
-    name: 'Karyawan',
-    categories: [
-      extra('kwn-makan', 'Makan Siang', 0),
-      extra('kwn-kopi', 'Kopi Kantor', 7),
-      extra('kwn-bensin', 'Bensin / Tol', 5),
-      extra('kwn-data', 'Paket Data', 1),
+      extra('kos-kebersihan', 'Kebersihan Kamar', 3),
     ],
   },
 ]
 
 export function applyPreset(current: Category[], preset: CategoryPreset): Category[] {
-  const existing = new Set(current.map((category) => category.id))
-  return [...current, ...preset.categories.filter((category) => !existing.has(category.id))]
+  const existingIds = new Set(current.map((category) => category.id))
+  const existingNames = new Set(current.map((category) => category.name.trim().toLowerCase()))
+  return [
+    ...current,
+    ...preset.categories.filter(
+      (category) => !existingIds.has(category.id) && !existingNames.has(category.name.trim().toLowerCase()),
+    ),
+  ]
 }
 
 export function savePreset(
