@@ -9,7 +9,6 @@ import { AllocationDonut } from './components/AllocationDonut'
 import { CalendarHeatmap } from './components/CalendarHeatmap'
 import { Calculator } from './components/Calculator'
 import { CashflowChart } from './components/CashflowChart'
-import { DailyAllocation } from './components/DailyAllocation'
 import { DataControls } from './components/DataControls'
 import { ExpensesPanel } from './components/ExpensesPanel'
 import { IncomePanel } from './components/IncomePanel'
@@ -18,6 +17,7 @@ import { MonthCompare } from './components/MonthCompare'
 import { PeriodPicker } from './components/PeriodPicker'
 import { ReportCard } from './components/ReportCard'
 import { SavingsPanel } from './components/SavingsPanel'
+import { SectionNav, type NavItem } from './components/SectionNav'
 import { TodayCard } from './components/TodayCard'
 import { WalletCards } from './components/WalletCards'
 import { WishlistPanel } from './components/WishlistPanel'
@@ -34,6 +34,15 @@ const MOON_ICON = (
     <path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z" />
   </svg>
 )
+
+const NAV_ITEMS: NavItem[] = [
+  { id: 'nav-beranda', label: 'Beranda' },
+  { id: 'nav-catat', label: 'Catat' },
+  { id: 'nav-analisis', label: 'Analisis' },
+  { id: 'nav-tabungan', label: 'Tabungan' },
+  { id: 'nav-laporan', label: 'Laporan' },
+  { id: 'nav-data', label: 'Data' },
+]
 
 export default function App() {
   const { state, update, replace, saved } = useAppState()
@@ -83,27 +92,40 @@ export default function App() {
         </div>
       </header>
 
+      <SectionNav items={NAV_ITEMS} />
+
       <main className="layout">
         <div className="col">
-          <AllowanceCard state={state} derived={derived} update={update} onChangePeriod={() => setPickerOpen(true)} />
-          <DailyAllocation state={state} derived={derived} />
-          <WalletCards state={state} derived={derived} />
-          <InsightsPanel insights={insights} />
-          <ExpensesPanel state={state} update={update} />
-          <IncomePanel state={state} update={update} />
-          <CashflowChart state={state} derived={derived} />
-          <AllocationDonut state={state} derived={derived} />
-          <CalendarHeatmap state={state} />
-          <SavingsPanel state={state} derived={derived} update={update} />
-          <WishlistPanel state={state} derived={derived} update={update} />
-          <MonthCompare state={state} derived={derived} />
-          <ReportCard state={state} />
-          <DataControls
-            state={state}
-            saved={saved}
-            onImport={replace}
-            onReset={resetAll}
-          />
+          <div id="nav-beranda" className="nav-section">
+            <AllowanceCard state={state} derived={derived} update={update} onChangePeriod={() => setPickerOpen(true)} />
+            <WalletCards state={state} derived={derived} />
+            <InsightsPanel insights={insights} />
+          </div>
+          <div id="nav-catat" className="nav-section">
+            <ExpensesPanel state={state} update={update} />
+            <IncomePanel state={state} update={update} />
+          </div>
+          <div id="nav-analisis" className="nav-section">
+            <CashflowChart state={state} derived={derived} />
+            <AllocationDonut state={state} derived={derived} />
+            <CalendarHeatmap state={state} />
+            <MonthCompare state={state} derived={derived} />
+          </div>
+          <div id="nav-tabungan" className="nav-section">
+            <SavingsPanel state={state} derived={derived} update={update} />
+            <WishlistPanel state={state} derived={derived} update={update} />
+          </div>
+          <div id="nav-laporan" className="nav-section">
+            <ReportCard state={state} />
+          </div>
+          <div id="nav-data" className="nav-section">
+            <DataControls
+              state={state}
+              saved={saved}
+              onImport={replace}
+              onReset={resetAll}
+            />
+          </div>
         </div>
 
         <aside className="col col-side">

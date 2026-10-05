@@ -84,6 +84,57 @@ select {
   gap: 10px;
 }
 
+/* ---------- navigasi panel ---------- */
+
+.section-nav {
+  position: sticky;
+  top: 0;
+  z-index: 40;
+  display: flex;
+  gap: 8px;
+  overflow-x: auto;
+  padding: 8px 0;
+  margin-bottom: 8px;
+  background: var(--bg);
+  scrollbar-width: none;
+}
+
+.section-nav::-webkit-scrollbar {
+  display: none;
+}
+
+.nav-chip {
+  border: 1px solid var(--border);
+  background: var(--surface);
+  color: var(--muted);
+  border-radius: 999px;
+  padding: 7px 14px;
+  font-size: 13.5px;
+  white-space: nowrap;
+  cursor: pointer;
+  transition: border-color 0.15s ease, color 0.15s ease, background 0.15s ease;
+}
+
+.nav-chip:hover {
+  border-color: var(--accent);
+  color: var(--text);
+}
+
+.nav-chip-on {
+  background: var(--accent-soft);
+  border-color: var(--accent);
+  color: var(--accent);
+  font-weight: 600;
+}
+
+.nav-section {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  min-width: 0;
+  scroll-margin-top: 64px;
+}
+
 .save-state {
   font-size: 12px;
   color: var(--muted);
@@ -118,6 +169,7 @@ select {
   }
   .col-side {
     position: static;
+    order: -1;
   }
 }
 

@@ -92,11 +92,6 @@ describe('alur aplikasi', () => {
     expect(container.textContent).toContain('35.000')
     expect(container.textContent).toContain('70.000')
     expect(container.textContent).toContain('Boleh belanja hari ini')
-
-    expect(container.textContent).toContain('Saran Pengeluaran per Hari')
-    expect(container.textContent).toContain('50.000')
-    expect(container.textContent).toContain('15.000')
-    expect(container.textContent).toContain('/ hari')
   })
 
   it('membuka kalkulator lewat tombol melayang lalu menutup dengan Esc dan setelah Pakai angka', () => {
@@ -171,7 +166,7 @@ describe('alur aplikasi', () => {
     expect(container.textContent).toContain('Pulihkan')
     expect(container.textContent).toContain('Excel')
     expect(container.querySelector('.col-side section.card h2')?.textContent).toBe('Hari Ini')
-    expect(container.querySelector('.col > section:last-child h2')?.textContent).toBe('Data & Cadangan')
+    expect(container.querySelector('#nav-data h2')?.textContent).toBe('Data & Cadangan')
 
     globalThis.URL.createObjectURL = vi.fn(() => 'blob:test') as unknown as typeof URL.createObjectURL
     globalThis.URL.revokeObjectURL = vi.fn()
@@ -223,7 +218,7 @@ describe('alur aplikasi', () => {
     expect(container.querySelector('.ratio-edit')).toBeNull()
 
     expect(container.textContent).toContain('420.000')
-    expect(container.textContent).toContain('60.000')
+    expect(container.textContent).toContain('140.000')
   })
 
   it('mencatat pengeluaran besar dan memicu insight', () => {

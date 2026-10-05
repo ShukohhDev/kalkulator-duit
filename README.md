@@ -6,9 +6,9 @@ Semua data disimpan di `localStorage` browser — tidak ada server, tidak ada da
 
 ## Fitur
 
+- **Navigasi panel**: chip sticky di atas — Beranda, Catat, Analisis, Tabungan, Laporan, Data — scroll mulus dan chip aktif otomatis mengikuti panel yang terlihat (di layar kecil chip bisa digeser, kartu "Hari Ini" naik ke atas).
 - **Periode** 1 minggu atau 1 bulan, dengan uang jajan yang **dibagi rata per hari** untuk grafik dan sisa uang.
 - **Alokasi 50/15/5/10/20**: makan 50%, transport/bensin 15%, pulsa/kuota 5%, nongkrong 10%, tabungan 20% — rasionya **bisa diubah dari UI** (jumlah wajib tepat 100%, ada tombol reset default) dan kategori bisa ditambah sendiri.
-- **Saran Pengeluaran per Hari**: posisi boleh keluar berapa tiap hari per kategori (uang jajan dibagi rata × rasio), tampil tepat di bawah kartu Uang Jajan.
 - **Kalkulator** lewat **tombol melayang** di pojok kanan bawah: tekan untuk buka, tekan lagi/Esc untuk menutup, dan "Pakai angka" otomatis memakai hasilnya sebagai uang jajan lalu menutup panel. **Tema terang/gelap** juga lewat tombol melayang kedua di atasnya.
 - **Pengeluaran**: filter kategori/bulan, pencarian, urut tanggal/nominal, edit & hapus catatan.
 - **Preset kategori**: tiga preset bawaan (Anak Kos, Mahasiswa, Karyawan) dan simpan kategori sendiri jadi preset.
@@ -20,7 +20,7 @@ Semua data disimpan di `localStorage` browser — tidak ada server, tidak ada da
 - **Laporan bulanan**: ringkasan pemasukan/pengeluaran, rincian per kategori, progres target, dan 5 pengeluaran terbesar — tombol **Cetak / Simpan PDF** memakai dialog cetak browser.
 - **Hari Ini**: status harian — tanggal, hari ke-n periode, realisasi vs rencana hari ini (progress bar), dan tombol catat cepat yang hilang otomatis setelah mencatat.
 - **Insight otomatis**: kategori yang melebihi alokasi, proyeksi uang habis, kekurangan setoran target.
-- **Data**: ekspor/impor JSON, **ekspor CSV** (pengeluaran + pemasukan, pemisah `;` + BOM UTF-8 agar rapi di Excel), reset data.
+- **Data**: ekspor/impor JSON, **ekspor Excel `.xlsx`** (3 sheet: Transaksi, Ringkasan Kategori, Ringkasan Bulan; header tebal, lebar kolom, baris beku, format Rp), reset data.
 - **PWA**: bisa dipasang di home screen dan dibuka **offline** setelah kunjungan pertama.
 
 ## Perintah
@@ -48,7 +48,7 @@ npm run preview    # sajian lokal hasil build
 src/
   components/     kartu UI (AllowanceCard, ExpensesPanel, SavingsPanel, ReportCard, …)
   hooks/          useAppState — state + sinkronisasi localStorage
-  lib/            logika murni (alokasi, derive, savings, report, presets, csv, prefs, …)
+  lib/            logika murni (alokasi, derive, savings, report, presets, xlsx, prefs, …)
   __tests__/      smoke test aplikasi (jsdom)
 public/
   sw.js           service worker (cache-first aset, network-first navigasi)

@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState, type ReactNode } from 'react'
 import type { AppState } from '../types'
-import { buildCsv } from '../lib/csv'
+import { exportXlsx } from '../lib/xlsx'
 import { sanitize } from '../lib/storage'
 
 interface Props {
@@ -97,12 +97,13 @@ export function DataControls({ state, saved, onImport, onReset }: Props) {
     setToast({ text: 'Cadangan tersimpan (.json).' })
   }
 
-  const exportCsv = () => {
-    download(
-      `kalkulator-duitmu-${new Date().toISOString().slice(0, 10)}.csv`,
-      new Blob([buildCsv(state)], { type: 'text/csv;charset=utf-8' }),
-    )
-    setToast({ text: 'File transaksi siap dibuka di Excel/Sheets.' })
+  const exportExcel = async () => {
+    try {
+      await exportXlsx(state)
+      setToast({ text: 'File Excel siap diunduh (.xlsx).' })
+    } catch {
+      setToast({ text: 'Gagal membuat file Excel.', error: true })
+    }
   }
 
   const importFile = (file: File) => {
@@ -113,7 +114,7 @@ export function DataControls({ state, saved, onImport, onReset }: Props) {
         onImport(parsed)
         setToast({ text: 'Data dipulihkan dari cadangan.' })
       } catch {
-        setToast({ text: 'File tidak valid — pilih file cadangan .json.', error: true })
+        setToast({ text: 'File tidak valid, pilih file cadangan .json.', error: true })
       }
     }
     reader.readAsText(file)
@@ -149,8 +150,8 @@ export function DataControls({ state, saved, onImport, onReset }: Props) {
         <DataAction
           icon={<SheetIcon />}
           title="Excel"
-          desc="Ekspor transaksi (.csv)"
-          onClick={exportCsv}
+          desc="Ekspor transaksi (.xlsx)"
+          onClick={exportExcel}
         />
         <DataAction
           icon={<TrashIcon />}
