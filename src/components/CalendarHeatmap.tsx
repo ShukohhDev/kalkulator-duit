@@ -1,23 +1,23 @@
 import type { CSSProperties } from 'react'
 import { useMemo, useState } from 'react'
-import type { AppState } from '../types'
+import type { AppState, Bill, Debt } from '../types'
+import type { Updater } from '../hooks/useAppState'
 import { expenseTotalsByDay, intensity, monthGrid } from '../lib/calendar'
 import { formatIDR, formatShortDate, monthLabel, toISO } from '../lib/money'
-import { daysUntilDue, dueLabel, dueThisMonth } from '../lib/obligations'
+import { daysUntilDue, dueLabel, dueThisMonth, markBillPaid, markDebtPaid } from '../lib/obligations'
 
 interface Props {
   state: AppState
+  update: Updater
 }
 
 const DAYS = ['Sn', 'Sl', 'Sr', 'Km', 'Jm', 'Sb', 'Mg']
 
-interface DueMark {
-  kind: 'bill' | 'debt'
-  name: string
-  paid: boolean
-}
+type DueMark =
+  | { kind: 'bill'; name: string; paid: boolean; item: Bill }
+  | { kind: 'debt'; name: string; paid: boolean; item: Debt }
 
-export function CalendarHeatmap({ state }: Props) {
+export function CalendarHeatmap({ state, update }: Props) {
   const [today] = useState(() => new Date())
   const [year, setYear] = useState(today.getFullYear())
   const [month, setMonth] = useState(today.getMonth())
@@ -34,10 +34,10 @@ export function CalendarHeatmap({ state }: Props) {
       map.set(clamped, [...(map.get(clamped) ?? []), mark])
     }
     for (const bill of state.bills) {
-      push(bill.dueDay, { kind: 'bill', name: bill.name, paid: dueThisMonth(bill.lastPaid, today) })
+      push(bill.dueDay, { kind: 'bill', name: bill.name, paid: dueThisMonth(bill.lastPaid, today), item: bill })
     }
     for (const debt of state.debts) {
-      push(debt.dueDay, { kind: 'debt', name: debt.name, paid: debt.paid >= debt.total })
+      push(debt.dueDay, { kind: 'debt', name: debt.name, paid: debt.paid >= debt.total, item: debt })
     }
     return map
   }, [state.bills, state.debts, today])
@@ -57,6 +57,11 @@ export function CalendarHeatmap({ state }: Props) {
 
   const markText = (mark: DueMark, day: number) =>
     `${mark.name} ${mark.paid ? 'lunas' : dueLabel(daysUntilDue(day, today))}`
+
+  const payMark = (mark: DueMark) => {
+    if (mark.kind === 'bill') update((s) => markBillPaid(s, mark.item))
+    else update((s) => markDebtPaid(s, mark.item))
+  }
 
   return (
     <section className="card">
@@ -143,6 +148,13 @@ export function CalendarHeatmap({ state }: Props) {
                       {mark.kind === 'bill' ? 'Tagihan' : 'Utang'} · {mark.paid ? 'lunas' : dueLabel(daysUntilDue(selectedDay, today))}
                     </span>
                   </span>
+                  {!mark.paid && (
+                    <span className="tx-actions">
+                      <button type="button" className="btn btn-sm" onClick={() => payMark(mark)}>
+                        {mark.kind === 'bill' ? 'Tandai lunas' : 'Bayar angsuran'}
+                      </button>
+                    </span>
+                  )}
                 </li>
               ))}
             </ul>

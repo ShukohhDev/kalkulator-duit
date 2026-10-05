@@ -176,9 +176,15 @@ describe('alur aplikasi', () => {
     act(() => {
       dayCell!.dispatchEvent(new MouseEvent('click', { bubbles: true }))
     })
-    const detail = container.querySelector('.cal-detail')
-    expect(detail?.textContent).toContain('Internet rumah')
-    expect(detail?.textContent).toContain('Tagihan')
+    const detail = container.querySelector('.cal-detail')!
+    expect(detail.textContent).toContain('Internet rumah')
+    expect(detail.textContent).toContain('Tagihan')
+
+    clickText('.cal-detail button', 'Tandai lunas')
+    expect(container.querySelector('.cal-detail')?.textContent).toContain('lunas')
+    expect(container.querySelector('.cal-dot-bill.cal-dot-paid')).toBeTruthy()
+    expect(container.querySelector('.cal-cell .cal-dot-bill:not(.cal-dot-paid)')).toBeNull()
+    expect(container.textContent).toContain('Lunas bulan ini')
   })
 
   it('mengelola dompet dan mengonversi total ke USD dengan kurs manual', () => {

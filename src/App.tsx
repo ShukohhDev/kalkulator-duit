@@ -197,7 +197,7 @@ export default function App() {
         <CashflowChart state={state} derived={derived} />
         <TrendPanel state={state} />
         <AllocationDonut state={state} derived={derived} />
-        <CalendarHeatmap state={state} />
+        <CalendarHeatmap state={state} update={update} />
         <MonthCompare state={state} derived={derived} />
       </div>
       <div

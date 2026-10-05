@@ -1,9 +1,16 @@
 import { useState, type FormEvent } from 'react'
 import type { AppState, Bill, Debt } from '../types'
 import type { Updater } from '../hooks/useAppState'
-import { formatIDR, todayISO } from '../lib/money'
-import { CICILAN_CATEGORY, TAGIHAN_CATEGORY } from '../lib/state'
-import { daysUntilDue, dueDateLabel, dueLabel, dueThisMonth, nowDate } from '../lib/obligations'
+import { formatIDR } from '../lib/money'
+import {
+  daysUntilDue,
+  dueDateLabel,
+  dueLabel,
+  dueThisMonth,
+  markBillPaid,
+  markDebtPaid,
+  nowDate,
+} from '../lib/obligations'
 import { uid } from '../lib/id'
 import { MiniCalendar } from './MiniCalendar'
 import { MoneyInput } from './MoneyInput'
@@ -39,17 +46,7 @@ export function ObligationsPanel({ state, update }: Props) {
     }
   }
 
-  const payBill = (bill: Bill) => {
-    const date = todayISO()
-    update((s) => ({
-      ...s,
-      bills: s.bills.map((item) => (item.id === bill.id ? { ...item, lastPaid: date } : item)),
-      expenses: [
-        { id: uid('exp'), date, categoryId: TAGIHAN_CATEGORY, note: bill.name, amount: bill.amount },
-        ...s.expenses,
-      ],
-    }))
-  }
+  const payBill = (bill: Bill) => update((s) => markBillPaid(s, bill))
 
   const removeBill = (id: string) => {
     update((s) => ({ ...s, bills: s.bills.filter((item) => item.id !== id) }))
@@ -71,19 +68,7 @@ export function ObligationsPanel({ state, update }: Props) {
     setDebtInstallment(0)
   }
 
-  const payDebt = (debt: Debt) => {
-    const remaining = Math.max(0, debt.total - debt.paid)
-    const amount = Math.min(debt.installment, remaining)
-    if (amount <= 0) return
-    update((s) => ({
-      ...s,
-      debts: s.debts.map((item) => (item.id === debt.id ? { ...item, paid: item.paid + amount } : item)),
-      expenses: [
-        { id: uid('exp'), date: todayISO(), categoryId: CICILAN_CATEGORY, note: debt.name, amount },
-        ...s.expenses,
-      ],
-    }))
-  }
+  const payDebt = (debt: Debt) => update((s) => markDebtPaid(s, debt))
 
   const removeDebt = (id: string) => {
     update((s) => ({ ...s, debts: s.debts.filter((item) => item.id !== id) }))

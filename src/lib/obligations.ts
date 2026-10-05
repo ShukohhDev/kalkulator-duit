@@ -1,5 +1,7 @@
-import type { AppState } from '../types'
-import { formatIDR, toISO } from './money'
+import type { AppState, Bill, Debt } from '../types'
+import { formatIDR, toISO, todayISO } from './money'
+import { uid } from './id'
+import { CICILAN_CATEGORY, TAGIHAN_CATEGORY } from './state'
 
 const REMIND_KEY = 'kalkulator-duitmu:remind'
 const REMIND_WINDOW = 7
@@ -21,6 +23,32 @@ export function daysUntilDue(dueDay: number, now: Date): number {
 
 export function dueThisMonth(lastPaid: string | undefined, now: Date): boolean {
   return typeof lastPaid === 'string' && lastPaid.slice(0, 7) === toISO(now).slice(0, 7)
+}
+
+export function markBillPaid(s: AppState, bill: Bill): AppState {
+  const date = todayISO()
+  return {
+    ...s,
+    bills: s.bills.map((item) => (item.id === bill.id ? { ...item, lastPaid: date } : item)),
+    expenses: [
+      { id: uid('exp'), date, categoryId: TAGIHAN_CATEGORY, note: bill.name, amount: bill.amount },
+      ...s.expenses,
+    ],
+  }
+}
+
+export function markDebtPaid(s: AppState, debt: Debt): AppState {
+  const remaining = Math.max(0, debt.total - debt.paid)
+  const amount = Math.min(debt.installment, remaining)
+  if (amount <= 0) return s
+  return {
+    ...s,
+    debts: s.debts.map((item) => (item.id === debt.id ? { ...item, paid: item.paid + amount } : item)),
+    expenses: [
+      { id: uid('exp'), date: todayISO(), categoryId: CICILAN_CATEGORY, note: debt.name, amount },
+      ...s.expenses,
+    ],
+  }
 }
 
 export interface UpcomingDue {
