@@ -367,7 +367,7 @@ describe('alur aplikasi', () => {
 
   it('menambah lalu mengedit pemasukan', () => {
     click('.period-option')
-    setValue('#inc-source', 'pemasukan uji coba')
+    setSelect('#inc-source', 'Transfer')
     setValue('#inc-amount', '50000')
     const form = container.querySelector('#inc-source')!.closest('form') as HTMLFormElement
     act(() => {
@@ -375,19 +375,21 @@ describe('alur aplikasi', () => {
     })
 
     const incomeItem = [...container.querySelectorAll('.tx')].find((li) => li.querySelector('.tx-in'))!
+    expect(incomeItem.textContent).toContain('Transfer')
     const editButton = [...incomeItem.querySelectorAll('button')].find((b) => b.textContent === 'Ubah')!
     act(() => {
       editButton.dispatchEvent(new MouseEvent('click', { bubbles: true }))
     })
 
-    setValue('#inc-source', 'thr')
+    setSelect('#inc-source', 'Uang Lembaran')
     setValue('#inc-amount', '75000')
     act(() => {
       form.dispatchEvent(new Event('submit', { bubbles: true, cancelable: true }))
     })
 
-    expect(container.textContent).toContain('thr')
-    expect(container.textContent).not.toContain('pemasukan uji coba')
+    const listText = container.querySelector('#inc-source')!.closest('section')!.querySelector('.tx-list')!.textContent
+    expect(listText).toContain('Uang Lembaran')
+    expect(listText).not.toContain('Transfer')
   })
 
   it('pengeluaran kategori tabungan menambah saldo target yang dipilih', () => {

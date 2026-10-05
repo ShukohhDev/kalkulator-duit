@@ -11,9 +11,11 @@ interface Props {
   update: Updater
 }
 
+const SOURCES = ['Uang Lembaran', 'Transfer']
+
 export function IncomePanel({ state, update }: Props) {
   const [date, setDate] = useState(todayISO())
-  const [source, setSource] = useState('')
+  const [source, setSource] = useState(SOURCES[0])
   const [amount, setAmount] = useState(0)
   const [editingId, setEditingId] = useState<string | null>(null)
 
@@ -26,7 +28,7 @@ export function IncomePanel({ state, update }: Props) {
 
   const resetForm = () => {
     setDate(todayISO())
-    setSource('')
+    setSource(SOURCES[0])
     setAmount(0)
     setEditingId(null)
   }
@@ -34,7 +36,7 @@ export function IncomePanel({ state, update }: Props) {
   const submit = (event: FormEvent) => {
     event.preventDefault()
     if (amount <= 0) return
-    const label = source.trim() || 'Pemasukan lain'
+    const label = source.trim() || SOURCES[0]
 
     if (editingId) {
       update((s) => ({
@@ -80,13 +82,14 @@ export function IncomePanel({ state, update }: Props) {
         </div>
         <div className="field">
           <label htmlFor="inc-source">Sumber</label>
-          <input
-            id="inc-source"
-            className="input"
-            placeholder="mis. uang lebaran"
-            value={source}
-            onChange={(e) => setSource(e.target.value)}
-          />
+          <select id="inc-source" className="input" value={source} onChange={(e) => setSource(e.target.value)}>
+            {!SOURCES.includes(source) && <option value={source}>{source}</option>}
+            {SOURCES.map((item) => (
+              <option key={item} value={item}>
+                {item}
+              </option>
+            ))}
+          </select>
         </div>
         <div className="field">
           <label htmlFor="inc-amount">Nominal</label>
