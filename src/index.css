@@ -1033,97 +1033,28 @@ select {
 }
 
 
-/* ---------- streak ---------- */
+/* ---------- hari ini ---------- */
 
-.streak-row {
-  display: flex;
-  align-items: baseline;
-  gap: 8px;
-  margin-bottom: 10px;
-}
-
-.streak-number {
-  font-size: 34px;
-  font-weight: 700;
-  color: var(--warn);
-  line-height: 1;
-}
-
-.badge-row {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 6px;
-  margin-bottom: 8px;
-}
-
-.badge-chip {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  font-size: 12px;
-  padding: 4px 9px;
-  border-radius: 999px;
-  border: 1px solid var(--border);
-  color: var(--muted);
-  background: var(--surface-2);
-}
-
-.badge-chip-on {
-  color: var(--text);
-  border-color: var(--warn);
-  background: var(--warn-soft);
-}
-
-.badge-dot {
-  width: 7px;
-  height: 7px;
-  border-radius: 50%;
-  background: currentColor;
-}
-
-.streak-number.is-zero {
-  color: var(--muted);
-}
-
-.streak-flame {
-  color: var(--warn);
-  flex-shrink: 0;
-}
-
-.streak-number.is-zero + .streak-flame {
-  color: var(--muted);
-}
-
-.badge-next {
+.today-progress {
   display: flex;
   flex-direction: column;
-  gap: 7px;
-  background: var(--surface-2);
-  border: 1px solid var(--border);
-  border-radius: 12px;
-  padding: 10px 12px;
-  margin-bottom: 10px;
+  gap: 6px;
+  margin: 8px 0;
 }
 
-.badge-next-head {
+.today-head {
   display: flex;
   justify-content: space-between;
   align-items: baseline;
   gap: 8px;
+  font-size: 13.5px;
 }
 
-.badge-next-title {
+.today-ok {
+  color: var(--ok);
   font-size: 13.5px;
   font-weight: 600;
-}
-
-.badge-chip svg {
-  flex-shrink: 0;
-}
-
-.badge-progress {
-  font-size: 11px;
-  color: var(--muted);
+  margin: 6px 0 0;
 }
 
 .cta-log {

@@ -18,7 +18,7 @@ Semua data disimpan di `localStorage` browser — tidak ada server, tidak ada da
 - **Auto-sync tabungan**: pengeluaran kategori "Ditabung / Investasi" bisa ditujukan ke target tertentu, dan saldonya ikut terhitung di progres target.
 - **Wishlist / Incaran Beli**: daftar barang yang ingin dibeli (harga + saldo awal), **tanpa bunga/tanpa umur target** — progres = saldo awal + setoran lewat tombol **Setor** (tercatat sebagai pengeluaran "Ditabung" berhari ini) atau lewat select **Masukkan ke** di form pengeluaran.
 - **Laporan bulanan**: ringkasan pemasukan/pengeluaran, rincian per kategori, progres target, dan 5 pengeluaran terbesar — tombol **Cetak / Simpan PDF** memakai dialog cetak browser.
-- **Kebiasaan (streak) & badge**: 6 badge untuk konsistensi mencatat.
+- **Hari Ini**: status harian — tanggal, hari ke-n periode, realisasi vs rencana hari ini (progress bar), dan tombol catat cepat yang hilang otomatis setelah mencatat.
 - **Insight otomatis**: kategori yang melebihi alokasi, proyeksi uang habis, kekurangan setoran target.
 - **Data**: ekspor/impor JSON, **ekspor CSV** (pengeluaran + pemasukan, pemisah `;` + BOM UTF-8 agar rapi di Excel), reset data.
 - **PWA**: bisa dipasang di home screen dan dibuka **offline** setelah kunjungan pertama.

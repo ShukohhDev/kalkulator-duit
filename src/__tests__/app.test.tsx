@@ -178,12 +178,14 @@ describe('alur aplikasi', () => {
     expect(container.querySelector('.toast')?.textContent).toContain('Cadangan tersimpan')
   })
 
-  it('CTA kebiasaan membawa fokus ke form dan hilang setelah mencatat', () => {
+  it('kartu Hari Ini menampilkan status dan membawa fokus ke form', () => {
     click('.period-option')
-    expect(container.textContent).toContain('Menuju Langkah Pertama')
-    expect(container.textContent).toContain('0/1 catatan')
+    setValue('#allowance', '700000')
+    expect(container.textContent).toContain('Hari Ini')
+    expect(container.textContent).toContain('Hari ke-')
+    expect(container.textContent).toContain('Realisasi vs rencana hari ini')
 
-    clickText('button', 'Catat pengeluaran hari ini')
+    clickText('button', 'Catat sekarang')
     expect(document.activeElement?.id).toBe('exp-date')
 
     setValue('#exp-amount', '9000')
@@ -192,11 +194,8 @@ describe('alur aplikasi', () => {
       form.dispatchEvent(new Event('submit', { bubbles: true, cancelable: true }))
     })
 
-    expect(
-      [...container.querySelectorAll('button')].some((b) => b.textContent?.includes('Catat pengeluaran hari ini')),
-    ).toBe(false)
-    expect(container.textContent).toContain('1 dari 6 badge terbuka')
-    expect(container.textContent).toContain('1/7 hari')
+    expect(container.textContent).toContain('Sudah catat hari ini')
+    expect([...container.querySelectorAll('button')].some((b) => b.textContent?.includes('Catat sekarang'))).toBe(false)
   })
 
   it('mengubah rasio alokasi lewat form dengan validasi jumlah 100%', () => {
@@ -225,7 +224,7 @@ describe('alur aplikasi', () => {
     expect(container.textContent).toContain('60.000')
   })
 
-  it('mencatat pengeluaran dan membuka badge pertama', () => {
+  it('mencatat pengeluaran besar dan memicu insight', () => {
     click('.period-option')
     setValue('#allowance', '700000')
 
@@ -238,7 +237,6 @@ describe('alur aplikasi', () => {
     })
 
     expect(container.textContent).toContain('nasi goreng')
-    expect(container.textContent).toContain('Langkah Pertama')
     expect(container.textContent).toContain('Saran Otomatis')
   })
 

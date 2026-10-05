@@ -18,7 +18,7 @@ import { MonthCompare } from './components/MonthCompare'
 import { PeriodPicker } from './components/PeriodPicker'
 import { ReportCard } from './components/ReportCard'
 import { SavingsPanel } from './components/SavingsPanel'
-import { StreakBar } from './components/StreakBar'
+import { TodayCard } from './components/TodayCard'
 import { WalletCards } from './components/WalletCards'
 import { WishlistPanel } from './components/WishlistPanel'
 
@@ -101,7 +101,7 @@ export default function App() {
         </div>
 
         <aside className="col col-side">
-          <StreakBar state={state} savingsByGoal={derived.savingsByGoal} />
+          <TodayCard state={state} derived={derived} />
           <DataControls
             state={state}
             saved={saved}
