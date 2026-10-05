@@ -72,7 +72,7 @@ export function SavingsPanel({ state, derived, update }: Props) {
     <section className="card">
       <header className="card-head">
         <h2>Target Tabungan</h2>
-        <span className="muted small">bunga 8% per tahun</span>
+        <span className="muted small">bunga 8% per tahun, terpisah dari wishlist</span>
       </header>
 
       <div className="field field-inline">
