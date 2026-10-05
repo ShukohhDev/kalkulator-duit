@@ -167,14 +167,16 @@ describe('alur aplikasi', () => {
 
   it('menampilkan baris aksi data dan toast saat dicadangkan', () => {
     expect(container.textContent).toContain('Data & Cadangan')
-    expect(container.textContent).toContain('Cadangkan data')
-    expect(container.textContent).toContain('Pulihkan dari cadangan')
-    expect(container.textContent).toContain('Unduh untuk Excel')
+    expect(container.textContent).toContain('Cadangkan')
+    expect(container.textContent).toContain('Pulihkan')
+    expect(container.textContent).toContain('Excel')
+    expect(container.querySelector('.col-side section.card h2')?.textContent).toBe('Hari Ini')
+    expect(container.querySelector('.col > section:last-child h2')?.textContent).toBe('Data & Cadangan')
 
     globalThis.URL.createObjectURL = vi.fn(() => 'blob:test') as unknown as typeof URL.createObjectURL
     globalThis.URL.revokeObjectURL = vi.fn()
     click('.period-option')
-    clickText('button', 'Cadangkan data')
+    clickText('button', 'Cadangkan')
     expect(container.querySelector('.toast')?.textContent).toContain('Cadangan tersimpan')
   })
 

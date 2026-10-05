@@ -98,16 +98,16 @@ export default function App() {
           <WishlistPanel state={state} derived={derived} update={update} />
           <MonthCompare state={state} derived={derived} />
           <ReportCard state={state} />
-        </div>
-
-        <aside className="col col-side">
-          <TodayCard state={state} derived={derived} />
           <DataControls
             state={state}
             saved={saved}
             onImport={replace}
             onReset={resetAll}
           />
+        </div>
+
+        <aside className="col col-side">
+          <TodayCard state={state} derived={derived} />
         </aside>
       </main>
 

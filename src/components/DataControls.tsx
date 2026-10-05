@@ -136,26 +136,26 @@ export function DataControls({ state, saved, onImport, onReset }: Props) {
       <div className="data-list">
         <DataAction
           icon={<DownloadIcon />}
-          title="Cadangkan data"
-          desc="Unduh salinan semua data (.json) — untuk backup atau pindah ke HP lain"
+          title="Cadangkan"
+          desc="Simpan salinan (.json)"
           onClick={exportFile}
         />
         <DataAction
           icon={<UploadIcon />}
-          title="Pulihkan dari cadangan"
-          desc="Muat kembali data dari file cadangan (.json) sebelumnya"
+          title="Pulihkan"
+          desc="Buka file cadangan"
           onClick={() => fileRef.current?.click()}
         />
         <DataAction
           icon={<SheetIcon />}
-          title="Unduh untuk Excel"
-          desc="Daftar transaksi (.csv) yang bisa dibuka di Excel atau Google Sheets"
+          title="Excel"
+          desc="Ekspor transaksi (.csv)"
           onClick={exportCsv}
         />
         <DataAction
           icon={<TrashIcon />}
-          title="Hapus semua data"
-          desc="Kosongkan seluruh data di browser ini — permanen dan tidak bisa dibatalkan"
+          title="Hapus semua"
+          desc="Permanen"
           danger
           onClick={reset}
         />
@@ -172,8 +172,6 @@ export function DataControls({ state, saved, onImport, onReset }: Props) {
           event.target.value = ''
         }}
       />
-
-      <p className="muted small">Data disimpan di browser ini (localStorage), tidak dikirim ke mana pun.</p>
 
       {toast && (
         <div className={`toast${toast.error ? ' toast-error' : ''}`} role="status">
