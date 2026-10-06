@@ -128,30 +128,7 @@ export default function App() {
     setQuick((prev) => (prev === mode ? null : mode))
   }
 
-  const sectionClass = (id: string) => `nav-section${openPanel === id ? ' nav-section-window' : ''}`
-
-  const windowHead = (id: string) => {
-    const label = NAV_ITEMS.find((item) => item.id === id)?.label ?? ''
-    const open = openPanel === id
-    return (
-      <header className="window-head">
-        <h2>{label}</h2>
-        {open && (
-          <button
-            type="button"
-            className="btn btn-ghost btn-sm window-close"
-            onClick={() => setOpenPanel(null)}
-            aria-label="Tutup jendela"
-            title="Tutup"
-          >
-            <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" aria-hidden="true">
-              <path d="M6 6l12 12M18 6L6 18" />
-            </svg>
-          </button>
-        )}
-      </header>
-    )
-  }
+  const sectionClass = (id: string) => `nav-section${openPanel === id ? ' front' : ''}`
 
   return (
     <div className="app">
@@ -199,67 +176,29 @@ export default function App() {
         </main>
       )}
 
-      {openPanel && <div className="window-backdrop" onClick={() => setOpenPanel(null)} />}
-
-      <div
-        id="nav-catat"
-        className={sectionClass('nav-catat')}
-        role={openPanel === 'nav-catat' ? 'dialog' : undefined}
-        aria-modal={openPanel === 'nav-catat' ? 'true' : undefined}
-      >
-        {windowHead('nav-catat')}
+      <div id="nav-catat" className={sectionClass('nav-catat')}>
         <ExpensesPanel state={state} update={update} notify={notify} />
         <IncomePanel state={state} update={update} notify={notify} />
       </div>
-      <div
-        id="nav-kewajiban"
-        className={sectionClass('nav-kewajiban')}
-        role={openPanel === 'nav-kewajiban' ? 'dialog' : undefined}
-        aria-modal={openPanel === 'nav-kewajiban' ? 'true' : undefined}
-      >
-        {windowHead('nav-kewajiban')}
+      <div id="nav-kewajiban" className={sectionClass('nav-kewajiban')}>
         <ObligationsPanel state={state} update={update} notify={notify} />
       </div>
-      <div
-        id="nav-analisis"
-        className={sectionClass('nav-analisis')}
-        role={openPanel === 'nav-analisis' ? 'dialog' : undefined}
-        aria-modal={openPanel === 'nav-analisis' ? 'true' : undefined}
-      >
-        {windowHead('nav-analisis')}
+      <div id="nav-analisis" className={sectionClass('nav-analisis')}>
         <CashflowChart state={state} derived={derived} />
         <TrendPanel state={state} />
         <AllocationDonut state={state} derived={derived} />
         <CalendarHeatmap state={state} update={update} />
         <MonthCompare state={state} derived={derived} />
       </div>
-      <div
-        id="nav-tabungan"
-        className={sectionClass('nav-tabungan')}
-        role={openPanel === 'nav-tabungan' ? 'dialog' : undefined}
-        aria-modal={openPanel === 'nav-tabungan' ? 'true' : undefined}
-      >
-        {windowHead('nav-tabungan')}
+      <div id="nav-tabungan" className={sectionClass('nav-tabungan')}>
         <DompetPanel state={state} update={update} />
         <SavingsPanel state={state} derived={derived} update={update} />
         <WishlistPanel state={state} derived={derived} update={update} />
       </div>
-      <div
-        id="nav-laporan"
-        className={sectionClass('nav-laporan')}
-        role={openPanel === 'nav-laporan' ? 'dialog' : undefined}
-        aria-modal={openPanel === 'nav-laporan' ? 'true' : undefined}
-      >
-        {windowHead('nav-laporan')}
+      <div id="nav-laporan" className={sectionClass('nav-laporan')}>
         <ReportCard state={state} />
       </div>
-      <div
-        id="nav-data"
-        className={sectionClass('nav-data')}
-        role={openPanel === 'nav-data' ? 'dialog' : undefined}
-        aria-modal={openPanel === 'nav-data' ? 'true' : undefined}
-      >
-        {windowHead('nav-data')}
+      <div id="nav-data" className={sectionClass('nav-data')}>
         <DataControls state={state} saved={saved} onImport={replace} onReset={resetAll} notify={notify} />
       </div>
 

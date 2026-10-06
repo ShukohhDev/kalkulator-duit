@@ -153,56 +153,9 @@ select {
   min-width: 0;
 }
 
-.window-backdrop {
-  position: fixed;
-  inset: 0;
-  background: rgba(15, 17, 22, 0.55);
-  backdrop-filter: blur(3px);
-  z-index: 44;
-}
-
-.nav-section-window {
-  display: flex;
-  flex-direction: column;
-  gap: 24px;
-  position: relative;
-  z-index: 50;
-  width: min(960px, 100%);
-  margin: 4px auto 8px;
-  max-height: min(86vh, 1040px);
-  overflow-y: auto;
-  background: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: 24px;
-  box-shadow: var(--shadow);
-  padding: 24px;
-  min-width: 0;
-}
-
-.window-head {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 12px;
-}
-
-.window-head h2 {
-  font-size: 20px;
-  font-weight: 700;
-  margin: 0;
-}
-
 .window-close {
   line-height: 0;
   padding: 8px;
-}
-
-@media (max-width: 900px) {
-  .nav-section-window {
-    padding: 16px;
-    max-height: 92vh;
-    border-radius: 18px;
-  }
 }
 
 .card {
