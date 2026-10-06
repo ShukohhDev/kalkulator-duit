@@ -1,7 +1,7 @@
 {
   "name": "Kalkulator Uang Jajan",
   "short_name": "UangJajan",
-  "description": "Kalkulator uang jajan mingguan dan bulanan: alokasi 50/20/10/20, pencatatan pengeluaran, grafik, dan target tabungan bunga 8% per tahun.",
+  "description": "Kalkulator uang jajan mingguan dan bulanan: alokasi per kategori dengan profil Tinggal di Rumah / Tinggal di Kos, pencatatan pengeluaran, grafik, dan target tabungan bunga 8% per tahun.",
   "lang": "id",
   "start_url": "/",
   "scope": "/",

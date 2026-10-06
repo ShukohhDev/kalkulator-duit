@@ -1,17 +1,17 @@
 # Kalkulator Uang Jajan
 
-Kalkulator uang jajan mingguan/bulanan dengan alokasi default **50/10/5/10/5/20** (makan, transport, pulsa, nongkrong, kebutuhan rumah, tabungan), pencatatan pengeluaran & pemasukan, grafik, target tabungan berbunga **8% per tahun**, laporan bulanan yang bisa dicetak ke PDF, dan mode offline (PWA).
+Kalkulator uang jajan mingguan/bulanan dengan alokasi default **30/20/5/15/7/20/3** (makan, transport, pulsa, nongkrong, dana darurat, ditabung, langganan), pencatatan pengeluaran & pemasukan, grafik, target tabungan berbunga **8% per tahun**, laporan bulanan yang bisa dicetak ke PDF, dan mode offline (PWA).
 
 Semua data disimpan di `localStorage` browser; tidak ada server, tidak ada data yang dikirim ke mana pun.
 
 ## Fitur
 
 - **Beranda = halaman depan**: langsung terlihat saat dibuka, diawali **Total Aset** (jumlah saldo semua dompet, tombol mata untuk menyembunyikan sementara `Rp ••••••`, pilihan diingat di browser), lalu kartu Uang Jajan, dompet, dan insight.
-- **Navigasi panel**: chip sticky di atas (Beranda, Catat, Kewajiban, Analisis, Tabungan, Laporan, Data); chip Beranda kembali ke halaman depan, chip lain **membuka jendela panel** di atas Beranda (tutup lewat tombol X, Esc, atau klik latar), chip lain bisa langsung diganti, dan di layar kecil chip bisa digeser.
+- **Navigasi halaman biasa**: chip sticky di atas (Beranda, Catat, Kewajiban, Analisis, Tabungan, Laporan, Data); chip menukar konten di halaman berukuran sama seperti Beranda (tanpa latar gelap, tanpa jendela), tekan Esc atau klik chip Beranda untuk kembali, chip lain bisa langsung diganti, dan di layar kecil chip bisa digeser.
 - **Catat cepat dari topbar**: tombol **+ Pengeluaran** dan **+ Pemasukan** membuka form ringkas langsung di Beranda (tanggal, kategori/sumber, nominal), jadi bisa mencatat tanpa pindah jendela; tekan lagi untuk menutup.
 - **Periode** 1 minggu atau 1 bulan, dengan uang jajan yang **dibagi rata per hari** untuk grafik dan sisa uang.
-- **Alokasi per kategori lewat input nominal rupiah**: persen ikut terhitung otomatis, jumlah seluruh alokasi wajib tepat sama dengan uang jajan (ada pesan kurang/lebih), dan kategori bisa ditambah sendiri.
-- **2 profil alokasi**: Tinggal di Rumah dan Tinggal di Kos; saat pertama kali ada **wizard onboarding** yang menanyakan profil (Langkah 1) sebelum periode (Langkah 2), lalu profil bisa diganti lewat chip di pemilih periode (ada konfirmasi), rasio nominal tetap bebas diubah dan kategori tetap bisa ditambah; data transaksi tidak ikut berubah. Data lama dengan profil lain otomatis dimigrasi.
+- **Hasil alokasi berbentuk kartu** seperti Kartu Saku (nominal + persen per kategori), dan **editor Ubah alokasi berupa tabel persen ala spreadsheet**: dua kolom profil (aktif bisa diubah, profil lain hanya referensi), sel persen biru, baris **Total** dan **Cek 100%** dihitung otomatis, kolom **Opsional** untuk mematikan kategori (persentasenya dibagi proporsional ke kategori lain), plus tombol tambah kategori dan Kurangi (set ke 0, riwayat catatan aman).
+- **2 profil alokasi**: Tinggal di Rumah dan Tinggal di Kos dengan rasio bawaan sesuai kebutuhan masing-masing (termasuk kategori sewa kos, belanja bulanan, laundry); saat pertama kali ada **wizard onboarding** yang menanyakan profil (Langkah 1) sebelum periode (Langkah 2), lalu profil bisa diganti lewat chip di pemilih periode (ada konfirmasi), persen tetap bebas diubah dan kategori tetap bisa ditambah; data transaksi tidak ikut berubah. Data lama dengan profil lain otomatis dimigrasi.
 - **Kalkulator** lewat **tombol melayang** di pojok kanan bawah: tekan untuk buka, tekan lagi/Esc untuk menutup, dan "Pakai angka" otomatis memakai hasilnya sebagai uang jajan lalu menutup panel. **Tema terang/gelap** juga lewat tombol melayang kedua di atasnya.
 - **Pengeluaran**: filter kategori/bulan, pencarian, urut tanggal/nominal, edit & hapus catatan.
 - **Urungkan hapus**: menghapus catatan, pemasukan, tagihan, atau utang menampilkan toast **Urungkan** selama beberapa detik.
@@ -23,7 +23,7 @@ Semua data disimpan di `localStorage` browser; tidak ada server, tidak ada data 
 - **Kewajiban**: tagihan rutin (listrik, internet, sewa) dan utang berjalan dengan angsuran per bulan; tgl jatuh tempo dipilih lewat **kalender mini 1-28**; tombol bayar ikut **tercatat sebagai pengeluaran kategori "Tagihan" / "Cicilan"**, badge jatuh tempo (H-x, lunas bulan ini), insight pengingat jatuh tempo ≤7 hari, dan **notifikasi browser sekali sehari per tagihan** setelah izin diberikan. Dari detail tanggal di kalender heatmap juga bisa **Tandai lunas** (tagihan) atau **Bayar angsuran** (utang).
 - **Dompet & e-wallet**: pencatatan aset (rekening, e-wallet, tunai) dengan saldo yang bisa diedit; **total aset bisa ditampilkan Rp atau USD** lewat toggle, kurs manual (1 USD = Rp ...) disimpan di prefs browser.
 - **Target tabungan**: bunga majemuk 8%/tahun (≈0,64%/bulan), beberapa target bisa **aktif diparalel**, rekomendasi setoran dihitung per target.
-- **Auto-sync tabungan**: pengeluaran kategori "Ditabung / Investasi" bisa ditujukan ke target tertentu, dan saldonya ikut terhitung di progres target.
+- **Auto-sync tabungan**: pengeluaran kategori "Ditabung" bisa ditujukan ke target tertentu, dan saldonya ikut terhitung di progres target.
 - **Wishlist / Incaran Beli**: daftar barang yang ingin dibeli (harga + saldo awal), **tanpa bunga/tanpa umur target**: progres = saldo awal + setoran lewat tombol **Setor** (tercatat sebagai pengeluaran "Ditabung" berhari ini) atau lewat select **Masukkan ke** di form pengeluaran.
 - **Laporan bulanan**: ringkasan pemasukan/pengeluaran, rincian per kategori, progres target, dan 5 pengeluaran terbesar; tombol **Cetak / Simpan PDF** memakai dialog cetak browser.
 - **Insight otomatis**: kategori yang melebihi alokasi, kartu dompet yang hampir mencapai batas alokasi (badge + insight di 80%), proyeksi uang habis, kekurangan setoran target.
@@ -43,10 +43,10 @@ npm run preview    # sajian lokal hasil build
 
 ## Cara pakai singkat
 
-1. Pilih periode (1 Minggu / 1 Bulan), isi nominal uang jajan, lalu pilih profil (Tinggal di Rumah / Tinggal di Kos). Kalau nominal alokasinya belum pas, klik **Ubah alokasi** (total wajib tepat sama dengan uang jajan).
+1. Pilih periode (1 Minggu / 1 Bulan), isi nominal uang jajan, lalu pilih profil (Tinggal di Rumah / Tinggal di Kos). Kalau persen alokasinya belum pas, klik **Ubah alokasi** (tabel persen, total wajib 100%).
 2. Catat pengeluaran tiap hari lewat tombol **+ Pengeluaran** di topbar (form ringkas di Beranda) atau chip **Catat**; pakai preset kategori kalau mau kategori lebih spesifik.
 3. Buat target tabungan (nama, target, umur target), tandai **Aktif** untuk target yang sedang dikejar.
-4. Kalau menabung lewat kategori "Ditabung / Investasi", pilih tujuannya di select **Masukkan ke** (target tabungan atau incaran wishlist). Untuk incaran, bisa juga pakai tombol **Setor** di kartu Wishlist.
+4. Kalau menabung lewat kategori "Ditabung", pilih tujuannya di select **Masukkan ke** (target tabungan atau incaran wishlist). Untuk incaran, bisa juga pakai tombol **Setor** di kartu Wishlist.
 5. Buka **Laporan Bulanan**, pilih bulan, lalu **Cetak / Simpan PDF**.
 
 ## Struktur

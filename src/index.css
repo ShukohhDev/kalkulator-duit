@@ -13,6 +13,7 @@
   --ok-soft: rgba(43, 138, 62, 0.12);
   --warn: #d97706;
   --warn-soft: rgba(217, 119, 6, 0.15);
+  --pct-blue: #1971c2;
   --shadow: 0 1px 2px rgba(120, 72, 20, 0.06), 0 8px 20px rgba(120, 72, 20, 0.07);
   --radius: 20px;
   --radius-sm: 14px;
@@ -34,6 +35,7 @@
   --ok-soft: rgba(105, 219, 124, 0.15);
   --warn: #ffd43b;
   --warn-soft: rgba(255, 212, 59, 0.14);
+  --pct-blue: #4dabf7;
   --shadow: 0 1px 2px rgba(0, 0, 0, 0.4), 0 6px 16px rgba(0, 0, 0, 0.35);
   color-scheme: dark;
 }
@@ -604,53 +606,120 @@ select {
   font-variant-numeric: tabular-nums;
 }
 
-/* ---------- ubah rasio alokasi ---------- */
+/* ---------- editor alokasi (tabel persen) ---------- */
 
-.ratio-edit {
+.alloc-edit {
   margin-top: 16px;
   border-top: 1px dashed var(--border);
   padding-top: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
 }
 
-.ratio-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
-  gap: 10px;
-  margin-bottom: 12px;
+.alloc-table-wrap {
+  overflow-x: auto;
 }
 
-.ratio-field {
+.alloc-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 14px;
+}
+
+.alloc-table th,
+.alloc-table td {
+  padding: 9px 12px;
+  border-bottom: 1px solid var(--border);
+  text-align: right;
+  white-space: nowrap;
+}
+
+.alloc-table th:first-child,
+.alloc-table td:first-child {
+  text-align: left;
+}
+
+.alloc-table thead th {
+  background: var(--surface-2);
+  color: var(--muted);
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.alloc-table thead th.alloc-col-active {
+  color: var(--pct-blue);
+}
+
+.alloc-cat {
   display: flex;
   align-items: center;
   gap: 8px;
-  background: var(--surface-2);
-  border: 1px solid var(--border);
-  border-radius: var(--radius-sm);
-  padding: 10px 14px;
+  font-weight: 600;
 }
 
-.ratio-name {
-  display: flex;
-  align-items: center;
-  gap: 7px;
-  flex: 1;
-  min-width: 0;
-  font-size: 13px;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-.ratio-input {
-  width: 64px;
+.alloc-pct-input {
+  width: 88px;
   text-align: right;
   font-variant-numeric: tabular-nums;
-  padding: 5px 7px;
+  font-weight: 700;
+  color: var(--pct-blue);
 }
 
-.ratio-unit {
+.alloc-pct-input:focus {
+  border-color: var(--pct-blue);
+}
+
+.alloc-pct-input:disabled {
+  opacity: 0.5;
+}
+
+.alloc-pct-static {
   color: var(--muted);
-  font-size: 13px;
+  font-variant-numeric: tabular-nums;
+}
+
+.alloc-off .alloc-cat {
+  opacity: 0.55;
+  text-decoration: line-through;
+  text-decoration-thickness: 1px;
+}
+
+.alloc-toggle-cell,
+.alloc-action-cell {
+  text-align: center;
+}
+
+.alloc-total td {
+  font-weight: 700;
+  background: var(--surface-2);
+}
+
+.alloc-check {
+  font-weight: 700;
+}
+
+.alloc-check-ok {
+  color: var(--ok);
+}
+
+.alloc-legend {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.alloc-add {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+}
+
+.alloc-add .input {
+  min-width: 220px;
+  flex: 1;
 }
 
 /* ---------- progress ---------- */

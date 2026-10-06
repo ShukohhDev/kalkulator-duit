@@ -376,32 +376,70 @@ describe('alur aplikasi', () => {
     expect(container.querySelector('#nav-beranda #qk-source')).toBeNull()
   })
 
-  it('mengubah alokasi lewat form nominal dengan persen otomatis dan validasi total', () => {
+  it('mengubah alokasi lewat tabel persen dengan redistribusi kategori opsional', () => {
     click('.period-option')
     setValue('#allowance', '700000')
 
     clickText('button', 'Ubah alokasi')
-    expect(container.querySelector('.ratio-edit')).not.toBeNull()
+    const table = container.querySelector('.alloc-table')
+    expect(table).not.toBeNull()
+    expect(table?.textContent).toContain('Tinggal di Rumah')
 
-    setValue('[aria-label="Alokasi Makan & minum"]', '350000')
-    expect(container.querySelector('.ratio-sum')?.textContent).toContain('lebih')
-    expect(container.querySelector('.ratio-sum')?.textContent).toContain('840.000')
+    setValue('[aria-label="Persen Makan & minum"]', '50')
+    expect(container.querySelector('.alloc-check.text-danger')?.textContent).toBe('BELUM')
 
-    const simpan = [...container.querySelectorAll('.ratio-edit button')].find((b) =>
+    setValue('[aria-label="Persen Transportasi/bensin"]', '0')
+    expect(container.querySelector('.alloc-check-ok')?.textContent).toBe('OK')
+
+    const simpan = [...container.querySelectorAll('.alloc-edit button')].find((b) =>
       b.textContent?.includes('Simpan alokasi'),
     ) as HTMLButtonElement
-    expect(simpan.disabled).toBe(true)
-
-    setValue('[aria-label="Alokasi Transportasi/bensin"]', '0')
-    expect(container.querySelector('.ratio-sum')?.textContent).toContain('pas, siap disimpan')
-    expect(container.querySelector('.ratio-edit')?.textContent).toContain('50%')
     expect(simpan.disabled).toBe(false)
 
-    clickText('.ratio-edit button', 'Simpan alokasi')
-    expect(container.querySelector('.ratio-edit')).toBeNull()
+    const langganan = container.querySelector('[aria-label="Opsional Langganan"]') as HTMLInputElement
+    expect(langganan.checked).toBe(true)
+    click('[aria-label="Opsional Langganan"]')
+    expect(langganan.checked).toBe(false)
+    expect((container.querySelector('[aria-label="Persen Makan & minum"]') as HTMLInputElement).value).toBe('51.5')
+    expect(container.querySelector('.alloc-check-ok')?.textContent).toBe('OK')
 
-    expect(container.textContent).toContain('350.000')
-    expect(container.textContent).toContain('140.000')
+    click('[aria-label="Opsional Langganan"]')
+    expect(langganan.checked).toBe(true)
+    expect(container.querySelector('.alloc-check-ok')?.textContent).toBe('OK')
+
+    clickText('.alloc-edit button', 'Simpan alokasi')
+    expect(container.querySelector('.alloc-table')).toBeNull()
+    expect(container.querySelector('.alloc-cards')?.textContent).toContain('350.000')
+    expect(container.querySelector('.alloc-cards')?.textContent).toContain('Langganan')
+  })
+
+  it('menambah kategori baru dan mengurangi alokasi jadi 0 di editor', () => {
+    click('.period-option')
+    setValue('#allowance', '700000')
+
+    clickText('button', 'Ubah alokasi')
+    setValue('[aria-label="Nama kategori baru"]', 'Kopi')
+    clickText('.alloc-add button', '+ Tambah kategori')
+    expect(container.querySelector('[aria-label="Persen Kopi"]')).not.toBeNull()
+
+    const simpan = [...container.querySelectorAll('.alloc-edit button')].find((b) =>
+      b.textContent?.includes('Simpan alokasi'),
+    ) as HTMLButtonElement
+    expect(simpan.disabled).toBe(false)
+
+    const kurangi = [...container.querySelectorAll('.alloc-edit button')].find((b) => b.textContent === 'Kurangi')!
+    act(() => {
+      kurangi.dispatchEvent(new MouseEvent('click', { bubbles: true }))
+    })
+    expect(container.querySelector('.alloc-check.text-danger')?.textContent).toBe('BELUM')
+    expect(simpan.disabled).toBe(true)
+
+    setValue('[aria-label="Persen Makan & minum"]', '30')
+    expect(container.querySelector('.alloc-check-ok')?.textContent).toBe('OK')
+    clickText('.alloc-edit button', 'Simpan alokasi')
+
+    expect(container.querySelector('.alloc-table')).toBeNull()
+    expect(container.textContent).toContain('Kopi')
   })
 
   it('mencatat pengeluaran besar dan memicu insight', () => {
