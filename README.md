@@ -6,9 +6,10 @@ Semua data disimpan di `localStorage` browser; tidak ada server, tidak ada data 
 
 ## Fitur
 
-- **Beranda = halaman depan**: langsung terlihat saat dibuka, diawali **Total Aset** (jumlah saldo semua dompet, tombol mata untuk menyembunyikan sementara `Rp ••••••`, pilihan diingat di browser), lalu kartu Uang Jajan, dompet, dan insight.
+- **Beranda = halaman depan**: langsung terlihat saat dibuka, diawali **Total Aset** (jumlah saldo semua dompet, tombol mata untuk menyembunyikan sementara `Rp ••••••`, pilihan diingat di browser), lalu kartu Uang Jajan, 7 Hari Terakhir, dompet, dan insight.
 - **Navigasi halaman biasa**: chip sticky di atas (Beranda, Catat, Kewajiban, Analisis, Tabungan, Laporan, Data); chip menukar konten di halaman berukuran sama seperti Beranda (tanpa latar gelap, tanpa jendela), tekan Esc atau klik chip Beranda untuk kembali, chip lain bisa langsung diganti, dan di layar kecil chip bisa digeser.
-- **Catat cepat dari topbar**: tombol **+ Pengeluaran** dan **+ Pemasukan** membuka form ringkas langsung di Beranda (tanggal, kategori/sumber, nominal), jadi bisa mencatat tanpa pindah jendela; tekan lagi untuk menutup.
+- **Catat cepat dari topbar**: tombol **+ Pengeluaran** dan **+ Pemasukan** membuka **popover form ringkas** yang menempel di bawah tombol (tanggal, kategori/sumber, nominal), bisa dibuka dari halaman mana pun dan tetap terbuka setelah disimpan supaya bisa mencatat beruntun; tekan Esc, klik di luar, atau tekan tombolnya lagi untuk menutup. **Shortcut keyboard `E`** membuka form pengeluaran dan **`P`** form pemasukan (diabaikan saat sedang mengetik di input).
+- **Kartu 7 Hari Terakhir**: sparkline pengeluaran harian 7 hari terakhir plus totalnya, dan tombol **Salin ringkasan hari ini** yang menyalin tanggal, total, serta rincian per kategori ke clipboard.
 - **Periode** 1 minggu atau 1 bulan, dengan uang jajan yang **dibagi rata per hari** untuk grafik dan sisa uang.
 - **Hasil alokasi berbentuk kartu** seperti Kartu Saku (nominal + persen per kategori), dan **editor Ubah alokasi berupa tabel persen ala spreadsheet**: dua kolom profil (aktif bisa diubah, profil lain hanya referensi), sel persen biru, baris **Total** dan **Cek 100%** dihitung otomatis, kolom **Opsional** untuk mematikan kategori (persentasenya dibagi proporsional ke kategori lain), plus tombol tambah kategori dan Kurangi (set ke 0, riwayat catatan aman).
 - **2 profil alokasi**: Tinggal di Rumah dan Tinggal di Kos dengan rasio bawaan sesuai kebutuhan masing-masing (termasuk kategori sewa kos, belanja bulanan, laundry); saat pertama kali ada **wizard onboarding** yang menanyakan profil (Langkah 1) sebelum periode (Langkah 2), lalu profil bisa diganti lewat chip di pemilih periode (ada konfirmasi), persen tetap bebas diubah dan kategori tetap bisa ditambah; data transaksi tidak ikut berubah. Data lama dengan profil lain otomatis dimigrasi.
@@ -44,7 +45,7 @@ npm run preview    # sajian lokal hasil build
 ## Cara pakai singkat
 
 1. Pilih periode (1 Minggu / 1 Bulan), isi nominal uang jajan, lalu pilih profil (Tinggal di Rumah / Tinggal di Kos). Kalau persen alokasinya belum pas, klik **Ubah alokasi** (tabel persen, total wajib 100%).
-2. Catat pengeluaran tiap hari lewat tombol **+ Pengeluaran** di topbar (form ringkas di Beranda) atau chip **Catat**; pakai preset kategori kalau mau kategori lebih spesifik.
+2. Catat pengeluaran tiap hari lewat tombol **+ Pengeluaran** di topbar (popover di bawah tombol, atau tekan `E`) atau chip **Catat**; pakai preset kategori kalau mau kategori lebih spesifik.
 3. Buat target tabungan (nama, target, umur target), tandai **Aktif** untuk target yang sedang dikejar.
 4. Kalau menabung lewat kategori "Ditabung", pilih tujuannya di select **Masukkan ke** (target tabungan atau incaran wishlist). Untuk incaran, bisa juga pakai tombol **Setor** di kartu Wishlist.
 5. Buka **Laporan Bulanan**, pilih bulan, lalu **Cetak / Simpan PDF**.

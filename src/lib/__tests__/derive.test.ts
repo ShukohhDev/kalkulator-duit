@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import type { AppState } from '../../types'
-import { buildCashflow, derive } from '../derive'
+import { buildCashflow, derive, expenseLast7Days } from '../derive'
 import { initialState } from '../state'
 
 const now = new Date(2026, 9, 10) // Sabtu, 10 Oktober 2026
@@ -94,5 +94,45 @@ describe('wishlistSavings', () => {
     }
     const derived = derive(state, new Date(2026, 9, 4))
     expect(derived.wishlistSavings).toEqual({ w1: 70_000 })
+  })
+})
+
+describe('expenseLast7Days', () => {
+  it('menjumlah 7 hari terakhir hingga hari ini dan merinci hari ini per kategori', () => {
+    const now = new Date(2026, 9, 10) // Sabtu, 10 Oktober 2026
+    const state = initialState()
+    state.expenses = [
+      { id: 'e1', date: '2026-10-10', categoryId: 'makan', note: 'nasi', amount: 15_000 },
+      { id: 'e2', date: '2026-10-10', categoryId: 'transport', note: 'ojek', amount: 5_000 },
+      { id: 'e3', date: '2026-10-04', categoryId: 'makan', note: '6 hari lalu', amount: 9_000 },
+      { id: 'e4', date: '2026-10-03', categoryId: 'makan', note: 'di luar jendela', amount: 99_000 },
+    ]
+
+    const week = expenseLast7Days(state, now)
+
+    expect(week.days.map((day) => day.iso)).toEqual([
+      '2026-10-04',
+      '2026-10-05',
+      '2026-10-06',
+      '2026-10-07',
+      '2026-10-08',
+      '2026-10-09',
+      '2026-10-10',
+    ])
+    expect(week.total7).toBe(29_000)
+    expect(week.today.iso).toBe('2026-10-10')
+    expect(week.today.total).toBe(20_000)
+    expect(week.today.byCategory).toEqual([
+      { id: 'makan', name: 'Makan & minum', amount: 15_000 },
+      { id: 'transport', name: 'Transportasi/bensin', amount: 5_000 },
+    ])
+    expect(week.days[6]).toEqual({ iso: '2026-10-10', label: 'S', total: 20_000 })
+  })
+
+  it('menghasilkan 7 hari nol tanpa pengeluaran', () => {
+    const week = expenseLast7Days(initialState(), new Date(2026, 9, 10))
+    expect(week.days).toHaveLength(7)
+    expect(week.total7).toBe(0)
+    expect(week.today.byCategory).toEqual([])
   })
 })

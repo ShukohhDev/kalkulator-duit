@@ -338,11 +338,11 @@ describe('alur aplikasi', () => {
     expect(container.querySelector('.toast')?.textContent).toContain('Cadangan tersimpan')
   })
 
-  it('tombol catat cepat di topbar membuka form ringkas di Beranda', () => {
+  it('tombol catat cepat di topbar membuka popover form ringkas', () => {
     click('.period-option')
 
     clickText('.topbar button', '+ Pengeluaran')
-    expect(container.querySelector('#nav-beranda #qk-amount')).not.toBeNull()
+    expect(container.querySelector('.quick-pop #qk-amount')).not.toBeNull()
 
     setValue('#qk-note', 'kopi susu')
     setValue('#qk-amount', '18000')
@@ -360,7 +360,7 @@ describe('alur aplikasi', () => {
     expect(expenseRow!.textContent).toContain('18.000')
 
     clickText('.topbar button', '+ Pemasukan')
-    expect(container.querySelector('#nav-beranda #qk-source')).not.toBeNull()
+    expect(container.querySelector('.quick-pop #qk-source')).not.toBeNull()
     setValue('#qk-amount', '50000')
     const incomeForm = container.querySelector('#qk-amount')!.closest('form') as HTMLFormElement
     act(() => {
@@ -373,7 +373,76 @@ describe('alur aplikasi', () => {
     expect(incomeRow.textContent).toContain('50.000')
 
     clickText('.topbar button', '+ Pemasukan')
-    expect(container.querySelector('#nav-beranda #qk-source')).toBeNull()
+    expect(container.querySelector('.quick-pop #qk-source')).toBeNull()
+  })
+
+  it('shortcut E/P membuka popover dan diabaikan saat mengetik di input', () => {
+    act(() => {
+      window.dispatchEvent(new KeyboardEvent('keydown', { key: 'e' }))
+    })
+    expect(container.querySelector('.quick-pop #qk-amount')).not.toBeNull()
+
+    const amount = container.querySelector('#qk-amount') as HTMLInputElement
+    act(() => {
+      amount.dispatchEvent(new KeyboardEvent('keydown', { key: 'p', bubbles: true }))
+    })
+    expect(container.querySelector('.quick-pop #qk-amount')).not.toBeNull()
+    expect(container.querySelector('.quick-pop #qk-source')).toBeNull()
+
+    act(() => {
+      window.dispatchEvent(new KeyboardEvent('keydown', { key: 'e' }))
+    })
+    expect(container.querySelector('.quick-pop')).toBeNull()
+
+    act(() => {
+      window.dispatchEvent(new KeyboardEvent('keydown', { key: 'p' }))
+    })
+    expect(container.querySelector('.quick-pop #qk-source')).not.toBeNull()
+  })
+
+  it('klik di luar tombol catat cepat menutup popover', () => {
+    clickText('.topbar button', '+ Pengeluaran')
+    expect(container.querySelector('.quick-pop')).not.toBeNull()
+    act(() => {
+      document.body.dispatchEvent(new MouseEvent('mousedown', { bubbles: true }))
+    })
+    expect(container.querySelector('.quick-pop')).toBeNull()
+  })
+
+  it('kartu 7 hari menampilkan total dan menyalin ringkasan hari ini', async () => {
+    expect(container.querySelector('.week-card .card-head h2')?.textContent).toBe('7 Hari Terakhir')
+    expect(container.querySelector('.week-card .spark-wrap')).not.toBeNull()
+    expect(container.querySelector('.week-card')?.textContent).toContain('0')
+
+    const writeText = vi.fn(async (_text: string) => undefined)
+    Object.defineProperty(window.navigator, 'clipboard', { value: { writeText }, configurable: true })
+
+    const copyButton = [...container.querySelectorAll('.week-card button')].find((button) =>
+      button.textContent?.includes('Salin ringkasan hari ini'),
+    )!
+    await act(async () => {
+      copyButton.dispatchEvent(new MouseEvent('click', { bubbles: true }))
+      await Promise.resolve()
+    })
+    expect(container.querySelector('.toast')?.textContent).toContain('Ringkasan hari ini disalin')
+    expect(writeText.mock.calls[0][0]).toContain('Belum ada pengeluaran hari ini')
+
+    clickText('.topbar button', '+ Pengeluaran')
+    setValue('#qk-amount', '18000')
+    const form = container.querySelector('#qk-amount')!.closest('form') as HTMLFormElement
+    act(() => {
+      form.dispatchEvent(new Event('submit', { bubbles: true, cancelable: true }))
+    })
+    expect(container.querySelector('.week-card')?.textContent).toContain('18.000')
+
+    await act(async () => {
+      copyButton.dispatchEvent(new MouseEvent('click', { bubbles: true }))
+      await Promise.resolve()
+    })
+    const copied = writeText.mock.calls[1][0]
+    expect(copied).toContain('Pengeluaran hari ini: Rp')
+    expect(copied).toContain('Makan & minum')
+    expect(copied).toContain('18.000')
   })
 
   it('mengubah alokasi lewat tabel persen dengan redistribusi kategori opsional', () => {

@@ -5,7 +5,7 @@ import {
   periodRange,
   type PeriodRange,
 } from './allocation'
-import { daysBetween, monthKey, parseISO, perDay, perWeek, perMonth, toISO, toYearly } from './money'
+import { addDays, daysBetween, monthKey, parseISO, perDay, perWeek, perMonth, toISO, toYearly } from './money'
 import { SAVINGS_CATEGORY } from './state'
 
 export interface Derived {
@@ -203,4 +203,60 @@ function nextBucket(date: Date, view: CashflowView): Date {
   if (view === 'week') return new Date(date.getFullYear(), date.getMonth(), date.getDate() + 7)
   if (view === 'month') return new Date(date.getFullYear(), date.getMonth() + 1, 1)
   return new Date(date.getFullYear() + 1, 0, 1)
+}
+
+export interface WeekDayExpense {
+  iso: string
+  label: string
+  total: number
+}
+
+export interface WeekExpenseSummary {
+  days: WeekDayExpense[]
+  total7: number
+  today: {
+    iso: string
+    label: string
+    total: number
+    byCategory: { id: string; name: string; amount: number }[]
+  }
+}
+
+const WEEKDAY_INITIALS = ['M', 'S', 'S', 'R', 'K', 'J', 'S']
+
+export function expenseLast7Days(state: AppState, now: Date = new Date()): WeekExpenseSummary {
+  const days: WeekDayExpense[] = []
+  for (let back = 6; back >= 0; back--) {
+    const date = addDays(now, -back)
+    const iso = toISO(date)
+    const total = state.expenses
+      .filter((expense) => expense.date === iso)
+      .reduce((sum, expense) => sum + expense.amount, 0)
+    days.push({ iso, label: WEEKDAY_INITIALS[date.getDay()], total })
+  }
+
+  const todayIso = toISO(now)
+  const todayExpenses = state.expenses.filter((expense) => expense.date === todayIso)
+  const totalsById = new Map<string, number>()
+  for (const expense of todayExpenses) {
+    totalsById.set(expense.categoryId, (totalsById.get(expense.categoryId) ?? 0) + expense.amount)
+  }
+  const byCategory = [...totalsById.entries()]
+    .map(([id, amount]) => ({
+      id,
+      name: state.categories.find((category) => category.id === id)?.name ?? 'Lainnya',
+      amount,
+    }))
+    .sort((a, b) => b.amount - a.amount)
+
+  return {
+    days,
+    total7: days.reduce((sum, day) => sum + day.total, 0),
+    today: {
+      iso: todayIso,
+      label: now.toLocaleDateString('id-ID', { weekday: 'long', day: 'numeric', month: 'short', year: 'numeric' }),
+      total: todayExpenses.reduce((sum, expense) => sum + expense.amount, 0),
+      byCategory,
+    },
+  }
 }

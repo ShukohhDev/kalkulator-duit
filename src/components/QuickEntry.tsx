@@ -1,4 +1,4 @@
-import { useState, type FormEvent } from 'react'
+import { useLayoutEffect, useRef, useState, type FormEvent } from 'react'
 import type { AppState, Expense, Income, Notify } from '../types'
 import type { Updater } from '../hooks/useAppState'
 import { INCOME_SOURCES, SAVINGS_CATEGORY, primaryGoal } from '../lib/state'
@@ -26,6 +26,26 @@ export function QuickEntry({ mode, state, update, notify, onClose }: Props) {
   const [source, setSource] = useState(INCOME_SOURCES[0])
   const [note, setNote] = useState('')
   const [amount, setAmount] = useState(0)
+  const rootRef = useRef<HTMLElement | null>(null)
+
+  useLayoutEffect(() => {
+    const section = rootRef.current
+    const anchor = section?.parentElement
+    const button = anchor?.querySelector('button')
+    if (!section || !anchor || !button) return
+    const place = () => {
+      const rect = button.getBoundingClientRect()
+      const box = anchor.getBoundingClientRect()
+      const width = Math.min(380, window.innerWidth - 24)
+      const left = Math.min(Math.max(12, rect.right - width), window.innerWidth - width - 12)
+      section.style.left = `${left - box.left}px`
+      section.style.right = 'auto'
+      section.style.width = `${width}px`
+    }
+    place()
+    window.addEventListener('resize', place)
+    return () => window.removeEventListener('resize', place)
+  }, [])
 
   const submit = (event: FormEvent) => {
     event.preventDefault()
@@ -50,7 +70,7 @@ export function QuickEntry({ mode, state, update, notify, onClose }: Props) {
   }
 
   return (
-    <section className="card quick-form">
+    <section ref={rootRef} className="card quick-form quick-pop">
       <header className="card-head">
         <h2>{mode === 'expense' ? 'Catat Pengeluaran' : 'Catat Pemasukan'}</h2>
         <button

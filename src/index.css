@@ -1183,6 +1183,20 @@ select {
 
 /* ---------- form catat cepat ---------- */
 
+.quick-anchor {
+  position: relative;
+  display: inline-flex;
+}
+
+.quick-pop {
+  position: absolute;
+  top: calc(100% + 8px);
+  right: 0;
+  z-index: 70;
+  width: min(380px, calc(100vw - 24px));
+  box-shadow: 0 12px 32px rgba(16, 24, 40, 0.24);
+}
+
 .quick-form {
   border-color: var(--accent);
 }
@@ -1192,6 +1206,25 @@ select {
   border-color: var(--accent);
   color: var(--accent);
   font-weight: 600;
+}
+
+/* ---------- kartu 7 hari ---------- */
+
+.spark-wrap {
+  height: 72px;
+}
+
+.week-total {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 12px;
+  margin: 12px 0 0;
+  font-size: 14px;
+}
+
+.week-total strong {
+  font-size: 16px;
 }
 
 /* ---------- charts ---------- */

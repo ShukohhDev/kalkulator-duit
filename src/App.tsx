@@ -28,6 +28,7 @@ import { TotalAsetCard } from './components/TotalAsetCard'
 import { TrendPanel } from './components/TrendPanel'
 import { WalletCards } from './components/WalletCards'
 import { WishlistPanel } from './components/WishlistPanel'
+import { WeekCard } from './components/WeekCard'
 
 const SUN_ICON = (
   <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" aria-hidden="true">
@@ -94,6 +95,32 @@ export default function App() {
     return () => window.removeEventListener('keydown', onKeyDown)
   }, [openPanel, quick])
 
+  useEffect(() => {
+    if (!quick) return
+    const onDown = (event: MouseEvent) => {
+      const anchor = (event.target as HTMLElement | null)?.closest?.('.quick-anchor')
+      if (!anchor) setQuick(null)
+    }
+    document.addEventListener('mousedown', onDown)
+    return () => document.removeEventListener('mousedown', onDown)
+  }, [quick])
+
+  useEffect(() => {
+    const onKeyDown = (event: KeyboardEvent) => {
+      if (event.ctrlKey || event.metaKey || event.altKey) return
+      const target = event.target as HTMLElement | null
+      const tag = target?.tagName
+      if (tag === 'INPUT' || tag === 'SELECT' || tag === 'TEXTAREA' || target?.isContentEditable) return
+      const key = event.key.toLowerCase()
+      if (key !== 'e' && key !== 'p') return
+      event.preventDefault()
+      const mode = key === 'e' ? 'expense' : 'income'
+      setQuick((prev) => (prev === mode ? null : mode))
+    }
+    window.addEventListener('keydown', onKeyDown)
+    return () => window.removeEventListener('keydown', onKeyDown)
+  }, [])
+
   const pickMode = (mode: 'week' | 'month') => {
     update((s) => ({ ...s, mode }))
     setPickerOpen(false)
@@ -124,7 +151,6 @@ export default function App() {
   }
 
   const toggleQuick = (mode: 'expense' | 'income') => {
-    setOpenPanel(null)
     setQuick((prev) => (prev === mode ? null : mode))
   }
 
@@ -137,22 +163,48 @@ export default function App() {
           <h1 className="brand">Kalkulator Uang Jajan</h1>
         </div>
         <div className="topbar-actions">
-          <button
-            type="button"
-            className={`btn btn-sm${quick === 'expense' ? ' quick-on' : ''}`}
-            aria-expanded={quick === 'expense'}
-            onClick={() => toggleQuick('expense')}
-          >
-            + Pengeluaran
-          </button>
-          <button
-            type="button"
-            className={`btn btn-sm${quick === 'income' ? ' quick-on' : ''}`}
-            aria-expanded={quick === 'income'}
-            onClick={() => toggleQuick('income')}
-          >
-            + Pemasukan
-          </button>
+          <div className="quick-anchor">
+            <button
+              type="button"
+              className={`btn btn-sm${quick === 'expense' ? ' quick-on' : ''}`}
+              aria-expanded={quick === 'expense'}
+              title="+ Pengeluaran (E)"
+              onClick={() => toggleQuick('expense')}
+            >
+              + Pengeluaran
+            </button>
+            {quick === 'expense' && (
+              <QuickEntry
+                key="expense"
+                mode="expense"
+                state={state}
+                update={update}
+                notify={notify}
+                onClose={() => setQuick(null)}
+              />
+            )}
+          </div>
+          <div className="quick-anchor">
+            <button
+              type="button"
+              className={`btn btn-sm${quick === 'income' ? ' quick-on' : ''}`}
+              aria-expanded={quick === 'income'}
+              title="+ Pemasukan (P)"
+              onClick={() => toggleQuick('income')}
+            >
+              + Pemasukan
+            </button>
+            {quick === 'income' && (
+              <QuickEntry
+                key="income"
+                mode="income"
+                state={state}
+                update={update}
+                notify={notify}
+                onClose={() => setQuick(null)}
+              />
+            )}
+          </div>
           {state.mode && (
             <button type="button" className="btn btn-ghost btn-sm" onClick={() => setPickerOpen(true)}>
               Periode: {state.mode === 'week' ? '1 Minggu' : '1 Bulan'}
@@ -167,10 +219,8 @@ export default function App() {
       {!openPanel && (
         <main className="front" id="nav-beranda">
           <TotalAsetCard state={state} />
-          {quick && (
-            <QuickEntry key={quick} mode={quick} state={state} update={update} notify={notify} onClose={() => setQuick(null)} />
-          )}
           <AllowanceCard state={state} derived={derived} update={update} onChangePeriod={() => setPickerOpen(true)} />
+          <WeekCard state={state} notify={notify} />
           <WalletCards state={state} derived={derived} />
           <InsightsPanel insights={insights} />
         </main>
