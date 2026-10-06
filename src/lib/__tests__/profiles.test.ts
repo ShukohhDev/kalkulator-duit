@@ -16,12 +16,12 @@ describe('profil alokasi', () => {
     const state = initialState()
     const next = applyProfile(state.categories, findProfile('tinggal-kos'))
 
-    const makan = next.find((category) => category.name === 'Makan & Minum')
+    const makan = next.find((category) => category.name === 'Makan & minum')
     expect(makan?.id).toBe('makan')
-    expect(makan?.ratio).toBe(0.45)
+    expect(makan?.ratio).toBe(0.24)
 
-    expect(next.some((category) => category.name === 'Laundry & Setrika')).toBe(true)
-    expect(next.some((category) => category.name === 'Internet / WiFi')).toBe(true)
+    expect(next.some((category) => category.name === 'Laundry')).toBe(true)
+    expect(next.some((category) => category.name === 'Sewa kos + listrik + keamanan')).toBe(true)
     expect(next.reduce((sum, category) => sum + category.ratio, 0)).toBeCloseTo(1, 6)
   })
 

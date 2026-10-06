@@ -47,7 +47,7 @@ describe('buildInsights', () => {
 
   it('kategori mendekati 80% alokasi → peringatan hampir batas', () => {
     const state = base()
-    state.expenses = [expense('2026-10-06', 'makan', 300_000)]
+    state.expenses = [expense('2026-10-06', 'makan', 180_000)]
     const result = buildInsights(state, derive(state, now))
     const near = result.find((item) => item.id === 'near-makan')
     expect(near?.tone).toBe('warn')

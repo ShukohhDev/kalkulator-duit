@@ -10,6 +10,9 @@ export interface Category {
   ratio: number
   builtin: boolean
   color: string
+  optional?: boolean
+  off?: boolean
+  baseRatio?: number
 }
 
 export interface Expense {

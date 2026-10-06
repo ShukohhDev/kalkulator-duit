@@ -111,7 +111,7 @@ describe('alur aplikasi', () => {
     click('.period-option')
     setValue('#allowance', '700000')
     const allowance = container.querySelector('#allowance')!.closest('section')!
-    expect(allowance.textContent).toContain('Laundry & Setrika')
+    expect(allowance.textContent).toContain('Laundry')
   })
 
   it('memilih 1 minggu lalu menghitung alokasi profil tinggal di rumah', () => {
@@ -119,9 +119,9 @@ describe('alur aplikasi', () => {
     setValue('#allowance', '700000')
 
     expect(container.textContent).toContain('Hasil alokasi')
-    expect(container.textContent).toContain('350.000')
-    expect(container.textContent).toContain('70.000')
-    expect(container.textContent).toContain('35.000')
+    expect(container.textContent).toContain('210.000')
+    expect(container.textContent).toContain('105.000')
+    expect(container.textContent).toContain('49.000')
     expect(container.textContent).toContain('140.000')
     expect(container.textContent).toContain('Boleh belanja hari ini')
   })
@@ -137,12 +137,12 @@ describe('alur aplikasi', () => {
     clickText('button', 'Batal')
 
     const options = [...container.querySelectorAll('#exp-cat option')].map((option) => option.textContent)
-    expect(options.some((text) => text?.includes('Laundry & Setrika'))).toBe(true)
-    expect(options.some((text) => text?.includes('Internet / WiFi'))).toBe(true)
+    expect(options.some((text) => text?.includes('Laundry'))).toBe(true)
+    expect(options.some((text) => text?.includes('Sewa kos + listrik + keamanan'))).toBe(true)
 
     setValue('#allowance', '700000')
-    expect(container.textContent).toContain('315.000')
-    expect(container.textContent).toContain('105.000')
+    expect(container.textContent).toContain('210.000')
+    expect(container.textContent).toContain('168.000')
   })
 
   it('menambah tagihan dan utang lewat Kewajiban, lalu membayarnya tercatat sebagai pengeluaran', () => {
@@ -383,24 +383,24 @@ describe('alur aplikasi', () => {
     clickText('button', 'Ubah alokasi')
     expect(container.querySelector('.ratio-edit')).not.toBeNull()
 
-    setValue('[aria-label="Alokasi Makan & Minum"]', '420000')
+    setValue('[aria-label="Alokasi Makan & minum"]', '350000')
     expect(container.querySelector('.ratio-sum')?.textContent).toContain('lebih')
-    expect(container.querySelector('.ratio-sum')?.textContent).toContain('770.000')
+    expect(container.querySelector('.ratio-sum')?.textContent).toContain('840.000')
 
     const simpan = [...container.querySelectorAll('.ratio-edit button')].find((b) =>
       b.textContent?.includes('Simpan alokasi'),
     ) as HTMLButtonElement
     expect(simpan.disabled).toBe(true)
 
-    setValue('[aria-label="Alokasi Transport / Bensin"]', '0')
+    setValue('[aria-label="Alokasi Transportasi/bensin"]', '0')
     expect(container.querySelector('.ratio-sum')?.textContent).toContain('pas, siap disimpan')
-    expect(container.querySelector('.ratio-edit')?.textContent).toContain('60%')
+    expect(container.querySelector('.ratio-edit')?.textContent).toContain('50%')
     expect(simpan.disabled).toBe(false)
 
     clickText('.ratio-edit button', 'Simpan alokasi')
     expect(container.querySelector('.ratio-edit')).toBeNull()
 
-    expect(container.textContent).toContain('420.000')
+    expect(container.textContent).toContain('350.000')
     expect(container.textContent).toContain('140.000')
   })
 
@@ -521,7 +521,7 @@ describe('alur aplikasi', () => {
     })
 
     const categorySelect = container.querySelector('#exp-cat') as HTMLSelectElement
-    expect([...categorySelect.options].map((option) => option.textContent)).toContain('Laundry & Setrika')
+    expect([...categorySelect.options].map((option) => option.textContent)).toContain('Air Galón')
   })
 
   it('laporan bulanan menampilkan ringkasan dan bisa dicetak', () => {

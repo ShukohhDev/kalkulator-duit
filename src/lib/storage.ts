@@ -28,6 +28,9 @@ function sanitizeCategoryList(value: unknown): Category[] {
       ratio: Math.max(0, num(item.ratio)),
       builtin: Boolean(item.builtin),
       color: str(item.color, '#f08c00'),
+      ...(item.optional ? { optional: true } : {}),
+      ...(item.off ? { off: true } : {}),
+      ...(num(item.baseRatio) > 0 ? { baseRatio: num(item.baseRatio) } : {}),
     }))
 }
 
@@ -42,9 +45,19 @@ function normalizeRatios(categories: Category[]): Category[] {
   return categories.map((category) => ({ ...category, ratio: category.ratio / sum }))
 }
 
+// nama/warna/flag kategori bawaan ikut disegarkan mengikuti default terbaru (id tetap, data catatan aman)
+function refreshBuiltins(categories: Category[]): Category[] {
+  const defaults = new Map(defaultCategories().map((category) => [category.id, category]))
+  return categories.map((category) => {
+    const fallback = category.builtin ? defaults.get(category.id) : undefined
+    if (!fallback) return category
+    return { ...category, name: fallback.name, color: fallback.color, ...(fallback.optional ? { optional: true } : {}) }
+  })
+}
+
 // data lama (4 kategori, "Transport & Pulsa" 20%) dipecah: transport 3/4, pulsa 1/4, jumlah tetap 100%
 function migrateCategories(categories: Category[]): Category[] {
-  const migrated = migratePulsa(categories)
+  const migrated = migratePulsa(refreshBuiltins(categories))
   const missing = defaultCategories().filter(
     (category) =>
       (category.id === CICILAN_CATEGORY || category.id === TAGIHAN_CATEGORY) &&
@@ -58,24 +71,17 @@ function migratePulsa(categories: Category[]): Category[] {
   const pulsa = defaultCategories().find((category) => category.id === PULSA_CATEGORY)
   if (!pulsa) return categories
 
-  // nama/warna kategori bawaan ikut disegarkan (mis. "Transport & Pulsa" → "Transport / Bensin")
-  const defaults = new Map(defaultCategories().map((category) => [category.id, category]))
-  const refreshed = categories.map((category) => {
-    const fallback = category.builtin ? defaults.get(category.id) : undefined
-    return fallback ? { ...category, name: fallback.name, color: fallback.color } : category
-  })
-
-  const index = refreshed.findIndex((category) => category.id === 'transport' && category.builtin)
+  const index = categories.findIndex((category) => category.id === 'transport' && category.builtin)
   if (index >= 0) {
-    const transport = refreshed[index]
-    const next = [...refreshed]
+    const transport = categories[index]
+    const next = [...categories]
     next[index] = { ...transport, ratio: transport.ratio * 0.75 }
     next.splice(index + 1, 0, { ...pulsa, ratio: transport.ratio * 0.25 })
     return normalizeRatios(next)
   }
 
   // jalur langka: tanpa transport bawaan, pulsa 5% diambil dari rasio terbesar
-  const next = [...refreshed]
+  const next = [...categories]
   let biggest = -1
   next.forEach((category, i) => {
     if (category.ratio > (next[biggest]?.ratio ?? -1)) biggest = i

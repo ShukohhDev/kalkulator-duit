@@ -17,7 +17,7 @@ export const BUILTIN_PRESETS: CategoryPreset[] = [
     id: 'preset-rumah',
     name: 'Tinggal di Rumah',
     categories: [
-      extra('rmh-belanja', 'Belanja Bulanan', 0),
+      extra('rmh-belanja', 'Belanja bulanan', 0),
       extra('rmh-listrik', 'Listrik / Air', 5),
       extra('rmh-perawatan', 'Perawatan Rumah', 2),
       extra('rmh-keluarga', 'Jajan Keluarga', 4),
@@ -27,7 +27,6 @@ export const BUILTIN_PRESETS: CategoryPreset[] = [
     id: 'preset-kos',
     name: 'Tinggal di Kos',
     categories: [
-      extra('kos-laundry', 'Laundry & Setrika', 1),
       extra('kos-air', 'Air Galón', 5),
       extra('kos-jajan', 'Jajan Malam', 4),
       extra('kos-kebersihan', 'Kebersihan Kamar', 3),

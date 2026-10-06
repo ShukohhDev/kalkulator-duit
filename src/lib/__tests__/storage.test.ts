@@ -25,8 +25,8 @@ describe('migrasi kategori lama ke 5 kategori', () => {
 
     expect(transport.ratio).toBeCloseTo(0.15, 9)
     expect(pulsa.ratio).toBeCloseTo(0.05, 9)
-    expect(transport.name).toBe('Transport / Bensin')
-    expect(pulsa.name).toBe('Pulsa & Kuota')
+    expect(transport.name).toBe('Transportasi/bensin')
+    expect(pulsa.name).toBe('Pulsa/kuota')
 
     const sum = state.categories.reduce((total, category) => total + category.ratio, 0)
     expect(sum).toBeCloseTo(1, 9)
@@ -59,7 +59,7 @@ describe('migrasi kategori lama ke 5 kategori', () => {
 
   it('data baru (sudah ada pulsa) tidak dimigrasi ulang dan idempoten', () => {
     const fresh = sanitize({ version: 1 })
-    expect(fresh.categories).toHaveLength(8) // 6 alokasi + cicilan + tagihan (rasio 0)
+    expect(fresh.categories).toHaveLength(9) // 7 alokasi + cicilan + tagihan (rasio 0)
     expect(fresh.categories.find((category) => category.id === 'pulsa')?.ratio).toBe(0.05)
     expect(fresh.categories.filter((category) => category.ratio === 0).map((category) => category.id)).toEqual([
       'cicilan',

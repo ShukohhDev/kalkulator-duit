@@ -1,32 +1,6 @@
 import type { Category, PeriodMode } from '../types'
 import { addDays, toISO } from './money'
 
-export interface Allocation {
-  makan: number
-  transport: number
-  pulsa: number
-  nongkrong: number
-  tabungan: number
-}
-
-export const ALLOCATION_RATIOS = {
-  makan: 0.5,
-  transport: 0.15,
-  pulsa: 0.05,
-  nongkrong: 0.1,
-  tabungan: 0.2,
-} as const
-
-export function computeAllocation(allowance: number): Allocation {
-  return {
-    makan: allowance * ALLOCATION_RATIOS.makan,
-    transport: allowance * ALLOCATION_RATIOS.transport,
-    pulsa: allowance * ALLOCATION_RATIOS.pulsa,
-    nongkrong: allowance * ALLOCATION_RATIOS.nongkrong,
-    tabungan: allowance * ALLOCATION_RATIOS.tabungan,
-  }
-}
-
 export function allocationFor(
   allowance: number,
   categoryId: string,

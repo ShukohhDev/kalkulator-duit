@@ -10,7 +10,7 @@ import {
   perWeek,
   toYearly,
 } from '../money'
-import { computeAllocation, dailyAllowanceEntries, periodRange } from '../allocation'
+import { dailyAllowanceEntries, periodRange } from '../allocation'
 
 describe('konversi periode', () => {
   it('uang jajan mingguan → tahunan memakai 365/7', () => {
@@ -51,18 +51,6 @@ describe('format & parse', () => {
 
   it('monthKey', () => {
     expect(monthKey('2026-10-03')).toBe('2026-10')
-  })
-})
-
-describe('alokasi 50/15/5/10/20', () => {
-  it('menjumlah 100% dari uang jajan', () => {
-    const a = computeAllocation(700_000)
-    expect(a.makan).toBe(350_000)
-    expect(a.transport).toBe(105_000)
-    expect(a.pulsa).toBe(35_000)
-    expect(a.nongkrong).toBe(70_000)
-    expect(a.tabungan).toBe(140_000)
-    expect(a.makan + a.transport + a.pulsa + a.nongkrong + a.tabungan).toBe(700_000)
   })
 })
 
