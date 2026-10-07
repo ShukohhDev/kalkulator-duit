@@ -6,8 +6,8 @@ import { periodRange } from '../allocation'
 import { derive } from '../derive'
 
 const NOW = new Date(2026, 9, 7, 12) // Rabu
-const CUR = periodRange('week', NOW) // Sen 5–Min 11 Okt 2026
-const PREV = periodRange('week', new Date(2026, 8, 30, 12)) // Sen 28 Sep–Min 4 Okt
+const CUR = periodRange('week', NOW) // Sen 5-Min 11 Okt 2026
+const PREV = periodRange('week', new Date(2026, 8, 30, 12)) // Sen 28 Sep-Min 4 Okt
 
 function stateWith(patch: Partial<AppState>): AppState {
   return { ...initialState(), ...patch }

@@ -21,7 +21,7 @@ export interface LatePlan {
 }
 
 // rencana alokasi ulang saat sisa menipis (proyeksi boros melebihi uang jajan):
-// potong dari prioritas terendah — keinginan dulu, lalu tabungan kalau kebutuhan saja belum cukup
+// potong dari prioritas terendah: keinginan dulu, lalu tabungan kalau kebutuhan saja belum cukup
 export function latePlan(state: AppState, derived: Derived): LatePlan | null {
   const period = derived.period
   if (!state.mode || !period || state.allowance <= 0 || derived.elapsedDays < 1) return null

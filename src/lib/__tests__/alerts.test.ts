@@ -4,7 +4,7 @@ import { buildAlerts } from '../alerts'
 import { derive } from '../derive'
 import { initialState } from '../state'
 
-const now = new Date(2026, 9, 10) // Jumat; periode Sen 5 – Min 11 Okt 2026
+const now = new Date(2026, 9, 10) // Jumat; periode Sen 5 - Min 11 Okt 2026
 
 function base(): AppState {
   const state = initialState()

@@ -256,6 +256,15 @@ button, input, select, textarea {
   gap: 10px;
 }
 
+.brand-logo-img {
+  width: 28px;
+  height: 28px;
+  border-radius: var(--radius-xs);
+  object-fit: contain;
+  display: inline-block;
+  flex-shrink: 0;
+}
+
 .topbar-actions {
   display: flex;
   align-items: center;
@@ -2151,6 +2160,21 @@ button, input, select, textarea {
   border: 1px solid var(--border);
   background: var(--surface);
   animation: slide-up 0.3s ease both;
+}
+
+.auth-logo-wrap {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-bottom: 18px;
+}
+
+.auth-logo-img {
+  width: 64px;
+  height: 64px;
+  border-radius: var(--radius-sm);
+  object-fit: cover;
+  display: block;
 }
 
 .auth-title {

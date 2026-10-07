@@ -39,7 +39,7 @@ describe('buildReport', () => {
   })
 
   it('bulan berjalan: uang jajan hanya sampai hari ini', () => {
-    const report = buildReport(base(), '2026-10', at([2026, 9, 10])) // 1–10 Oktober
+    const report = buildReport(base(), '2026-10', at([2026, 9, 10])) // 1-10 Oktober
     expect(report.allowance).toBeCloseTo(1_000_000, 6)
   })
 

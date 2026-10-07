@@ -57,7 +57,7 @@ import { WishlistPanel } from './components/WishlistPanel'
 import { PwaInstallCard } from './components/PwaInstallCard'
 import { ShoppingListCard } from './components/ShoppingListCard'
 import { WeekCard } from './components/WeekCard'
-import { ICON_BELL, ICON_WALLET } from './components/icons'
+import { ICON_BELL } from './components/icons'
 
 const SUN_ICON = (
   <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" aria-hidden="true">
@@ -273,7 +273,7 @@ function AppShell({ user, onLogout }: { user: string; onLogout: () => void }) {
       <header className="topbar">
         <div>
           <h1 className="brand">
-            {ICON_WALLET}
+            <img src="/favicon.png" alt="Logo" className="brand-logo-img" width="28" height="28" />
             <span>Kalkulator Uang Jajan</span>
           </h1>
         </div>

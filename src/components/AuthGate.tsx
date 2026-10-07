@@ -38,6 +38,9 @@ export function AuthGate({ onAuthed }: AuthGateProps) {
     <div className="auth-gate">
       {/* Auth form card */}
       <form className="card auth-card" onSubmit={submit}>
+        <div className="auth-logo-wrap">
+          <img src="/icon-192.png" alt="Logo Kalkulator Uang Jajan" className="auth-logo-img" width="64" height="64" />
+        </div>
         <h2 className="auth-title">{mode === 'daftar' ? 'Buat Akun' : 'Selamat Datang'}</h2>
         <p className="auth-sub">
           {first

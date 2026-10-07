@@ -27,7 +27,7 @@ function gradeOf(score: number): string {
   return 'Kritis'
 }
 
-// Skor 0–100 dari 4 indikator: rasio tabungan 30%, cakupan dana darurat 30%,
+// Skor 0-100 dari 4 indikator: rasio tabungan 30%, cakupan dana darurat 30%,
 // beban kewajiban 20%, kepatuhan alokasi 20%.
 export function healthScore(state: AppState, derived: Derived, now: Date = new Date()): HealthResult {
   const period = derived.period

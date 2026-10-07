@@ -17,7 +17,7 @@ function spentBetween(state: AppState, fromISO: string, toISO: string): Record<s
 }
 
 // honey: alokasi periode lalu dihitung ulang dengan allowance sekarang (alokasi lama tidak
-// disimpan) — cukup akurat selama nominal uang jajan tidak diubah di tengah periode.
+// disimpan): cukup akurat selama nominal uang jajan tidak diubah di tengah periode.
 // Gagal bawa kalau app dilewati lebih dari satu periode penuh: hanya periode sebelumnya yang dihitung.
 export function sweepTransition(state: AppState, period: PeriodRange): AppState {
   if (!state.mode) return state

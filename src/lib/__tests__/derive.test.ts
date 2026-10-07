@@ -38,14 +38,14 @@ describe('savingsByGoal', () => {
 describe('uang jajan harian', () => {
   it('mingguan dibagi rata 7 hari, dari awal periode sampai hari ini', () => {
     const derived = derive(base('week', 70_000), now)
-    expect(derived.generatedIncomes).toHaveLength(6) // Senin 5 Okt – Sabtu 10 Okt
+    expect(derived.generatedIncomes).toHaveLength(6) // Senin 5 Okt - Sabtu 10 Okt
     expect(derived.generatedIncomes.every((item) => Math.abs(item.amount - 10_000) < 1e-9)).toBe(true)
     expect(derived.totalIncome).toBeCloseTo(60_000, 6)
   })
 
   it('bulanan dibagi rata sesuai jumlah hari bulan itu', () => {
     const derived = derive(base('month', 620_000), now)
-    expect(derived.generatedIncomes).toHaveLength(10) // 1–10 Oktober
+    expect(derived.generatedIncomes).toHaveLength(10) // 1-10 Oktober
     expect(derived.generatedIncomes.every((item) => Math.abs(item.amount - 20_000) < 1e-9)).toBe(true)
     expect(derived.totalIncome).toBeCloseTo(200_000, 6)
   })

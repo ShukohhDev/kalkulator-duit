@@ -8,7 +8,7 @@ import { isLifestyleId } from './lifestyles'
 
 const STORAGE_BASE = 'kalkulator-duitmu:v1'
 
-// tanpa sesi (layar login) pakai key lama — hanya untuk jalur migrasi/belum ada akun
+// tanpa sesi (layar login) pakai key lama: hanya untuk jalur migrasi/belum ada akun
 function stateKey(): string {
   const user = currentUser()
   return user ? `${STORAGE_BASE}:${user}` : STORAGE_BASE

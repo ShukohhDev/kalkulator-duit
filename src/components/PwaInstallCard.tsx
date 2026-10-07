@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import type { Notify } from '../types'
-import { ICON_INSTALL, ICON_PHONE, ICON_WIFI } from './icons'
+import { ICON_INSTALL, ICON_WIFI } from './icons'
 
 interface Props {
   notify: Notify
@@ -94,7 +94,7 @@ export function PwaInstallCard({ notify }: Props) {
       <header className="card-head">
         <div className="pwa-head-title">
           <div className="pwa-head-icon" aria-hidden="true">
-            {ICON_PHONE}
+            <img src="/favicon.png" alt="" width="26" height="26" style={{ borderRadius: 6, display: 'block' }} />
           </div>
           <div>
             <h2>Aplikasi HP & Mode Offline (PWA)</h2>

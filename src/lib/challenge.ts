@@ -27,7 +27,7 @@ function spentBetween(state: AppState, startISO: string, endISO: string): number
 
 // Tantangan otomatis tiap periode: belanja ≤ 80% uang jajan.
 // Poin dihitung dari 12 periode lampau yang punya catatan (target memakai
-// uang jajan sekarang — cukup sebagai indikator, bukan rekor yang diikat).
+// uang jajan sekarang: cukup sebagai indikator, bukan rekor yang diikat).
 export function challenge(state: AppState, derived: Derived): Challenge | null {
   if (!derived.period || !state.mode || state.allowance <= 0) return null
   const mode: PeriodMode = state.mode

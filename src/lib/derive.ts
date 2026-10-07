@@ -138,7 +138,7 @@ function bucketLabel(key: string, view: CashflowView): string {
   const start = parseISO(key)
   const end = new Date(start.getFullYear(), start.getMonth(), start.getDate() + 6)
   const sameMonth = start.getMonth() === end.getMonth()
-  return `${start.getDate()}${sameMonth ? '' : ' ' + start.toLocaleDateString('id-ID', { month: 'short' })}–${end.getDate()} ${end.toLocaleDateString('id-ID', { month: 'short' })}`
+  return `${start.getDate()}${sameMonth ? '' : ' ' + start.toLocaleDateString('id-ID', { month: 'short' })}-${end.getDate()} ${end.toLocaleDateString('id-ID', { month: 'short' })}`
 }
 
 const VIEW_LIMIT: Record<CashflowView, number> = { day: 30, week: 26, month: 24, year: 5 }

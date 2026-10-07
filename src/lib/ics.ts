@@ -22,7 +22,7 @@ function escapeText(text: string): string {
     .replace(/\r?\n/g, '\\n')
 }
 
-// jatuh tempo bulanan berikutnya (dueDay dikunci 1–28 supaya aman di semua bulan)
+// jatuh tempo bulanan berikutnya (dueDay dikunci 1-28 supaya aman di semua bulan)
 function nextDue(dueDay: number, now: Date): Date {
   const day = Math.min(28, Math.max(1, Math.round(dueDay) || 1))
   const candidate = new Date(now.getFullYear(), now.getMonth(), day)
