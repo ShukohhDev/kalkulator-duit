@@ -6,11 +6,13 @@ interface Props {
   id?: string
   placeholder?: string
   autoFocus?: boolean
+  disabled?: boolean
+  onBlur?: () => void
 }
 
 const group = (value: number) => (value > 0 ? value.toLocaleString('id-ID') : '')
 
-export function MoneyInput({ value, onValueChange, id, placeholder = '0', autoFocus }: Props) {
+export function MoneyInput({ value, onValueChange, id, placeholder = '0', autoFocus, disabled, onBlur }: Props) {
   const [text, setText] = useState(() => group(value))
   const editing = useRef(false)
 
@@ -25,6 +27,7 @@ export function MoneyInput({ value, onValueChange, id, placeholder = '0', autoFo
       type="text"
       inputMode="numeric"
       autoFocus={autoFocus}
+      disabled={disabled}
       placeholder={placeholder}
       value={text}
       onFocus={() => {
@@ -33,6 +36,7 @@ export function MoneyInput({ value, onValueChange, id, placeholder = '0', autoFo
       onBlur={() => {
         editing.current = false
         setText(group(value))
+        onBlur?.()
       }}
       onChange={(event) => {
         const digits = event.target.value.replace(/\D/g, '')

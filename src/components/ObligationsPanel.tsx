@@ -12,6 +12,7 @@ import {
   nowDate,
 } from '../lib/obligations'
 import { uid } from '../lib/id'
+import { buildICS } from '../lib/ics'
 import { MiniCalendar } from './MiniCalendar'
 import { MoneyInput } from './MoneyInput'
 import { ProgressBar } from './ProgressBar'
@@ -31,6 +32,20 @@ export function ObligationsPanel({ state, update, notify }: Props) {
   const [debtInstallment, setDebtInstallment] = useState(0)
   const [debtDay, setDebtDay] = useState(1)
   const now = nowDate()
+
+  const exportIcs = () => {
+    try {
+      const url = URL.createObjectURL(new Blob([buildICS(state)], { type: 'text/calendar;charset=utf-8' }))
+      const link = document.createElement('a')
+      link.href = url
+      link.download = 'kewajiban.ics'
+      link.click()
+      URL.revokeObjectURL(url)
+      notify('Kalender kewajiban diunduh (.ics).')
+    } catch {
+      notify('Gagal membuat file .ics.', { error: true })
+    }
+  }
 
   const addBill = (event: FormEvent) => {
     event.preventDefault()
@@ -101,7 +116,12 @@ export function ObligationsPanel({ state, update, notify }: Props) {
     <section className="card">
       <header className="card-head">
         <h2>Kewajiban</h2>
-        <span className="muted small">cicilan utang dan tagihan rutin, ikut tercatat sebagai pengeluaran</span>
+        <div className="report-actions no-print">
+          <span className="muted small">cicilan utang dan tagihan rutin, ikut tercatat sebagai pengeluaran</span>
+          <button type="button" className="btn btn-ghost btn-sm" onClick={exportIcs}>
+            Ekspor .ics
+          </button>
+        </div>
       </header>
 
       <h3 className="section-title">Tagihan rutin</h3>

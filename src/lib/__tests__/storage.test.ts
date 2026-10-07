@@ -112,6 +112,31 @@ describe('dompet', () => {
   })
 })
 
+describe('pemasukan tidak tetap', () => {
+  it('data lama mendapat nilai default dan data baru tersanitasi', () => {
+    const old = sanitize({ version: 1 })
+    expect(old.incomeVar).toBe(false)
+    expect(old.allowanceMax).toBe(0)
+    expect(old.bonusSplit).toEqual({ savings: 50, buffer: 30, fun: 20 })
+
+    const fresh = sanitize({
+      version: 1,
+      incomeVar: true,
+      allowanceMax: '800000',
+      bonusSplit: { savings: 60, buffer: 25, fun: 15 },
+    })
+    expect(fresh.incomeVar).toBe(true)
+    expect(fresh.allowanceMax).toBe(800_000)
+    expect(fresh.bonusSplit).toEqual({ savings: 60, buffer: 25, fun: 15 })
+
+    const broken = sanitize({ version: 1, incomeVar: 'ya', allowanceMax: -10, bonusSplit: { savings: 999 } })
+    expect(broken.incomeVar).toBe(false)
+    expect(broken.allowanceMax).toBe(0)
+    expect(broken.bonusSplit).toEqual({ savings: 100, buffer: 30, fun: 20 })
+    expect(sanitize(JSON.parse(JSON.stringify(fresh)))).toEqual(fresh)
+  })
+})
+
 describe('bukti transaksi', () => {
   it('receiptId lolos sanitasi dan nilai kosong dibuang', () => {
     const state = sanitize({
@@ -125,3 +150,119 @@ describe('bukti transaksi', () => {
     expect(state.expenses[1].receiptId).toBeUndefined()
   })
 })
+
+describe('sisa periode & jenis kategori', () => {
+  it('jenis kategori lolos sanitasi, data rollover lama diakumulasi jadi pot', () => {
+    const state = sanitize({
+      version: 1,
+      categories: [
+        { id: 'nongkrong', name: 'Nongkrong', ratio: 0.15, builtin: true, color: '#9c36b5', kind: 'keinginan' },
+        { id: 'custom', name: 'Kado', ratio: 0.05, builtin: false, color: '#5f3dc4', kind: 'aneh' },
+      ],
+      rollover: { makan: 60_000, custom: -5, hantu: 9_000, nongkrong: '12000' },
+      pendingSavings: -400,
+      periodKey: 'bulan',
+    })
+
+    expect(state.categories.find((category) => category.id === 'nongkrong')?.kind).toBe('keinginan')
+    expect(state.categories.find((category) => category.id === 'custom')?.kind).toBeUndefined()
+    // nilai valid (makan 60.000 + nongkrong 12.000 + hantu 9.000) masuk pot; negatif/non-angka dibuang
+    expect(state.endSavings).toBe(81_000)
+    expect(state.periodKey).toBe('')
+  })
+
+  it('endSavings eksplisit menang atas migrasi rollover lama', () => {
+    const state = sanitize({
+      version: 1,
+      endSavings: 25_000,
+      rollover: { makan: 1_000, 'dana-darurat': 50_000 },
+      pendingSavings: 4_000,
+      periodKey: '2026-10-05',
+    })
+    expect(state.endSavings).toBe(25_000)
+    expect(state.periodKey).toBe('2026-10-05')
+  })
+
+  it('endSavings negatif dibuang', () => {
+    expect(sanitize({ version: 1, endSavings: -50 }).endSavings).toBe(0)
+    expect(sanitize({ version: 1 }).endSavings).toBe(0)
+  })
+})
+
+describe('gaya hidup', () => {
+  it('hanya id yang dikenal yang disimpan', () => {
+    expect(sanitize({ version: 1 }).lifestyle).toBe('seimbang')
+    expect(sanitize({ version: 1, lifestyle: 'hemat' }).lifestyle).toBe('hemat')
+    expect(sanitize({ version: 1, lifestyle: 'santai' }).lifestyle).toBe('santai')
+    expect(sanitize({ version: 1, lifestyle: 'hemat-gila' }).lifestyle).toBe('seimbang')
+    expect(sanitize({ version: 1, lifestyle: 7 }).lifestyle).toBe('seimbang')
+  })
+})
+
+describe('dana musiman & dana darurat', () => {
+  it('list dana musiman dan saldo darurat dinormalisasi', () => {
+    const state = sanitize({
+      version: 1,
+      seasonal: [
+        { id: 's1', name: '  Lebaran  ', target: '500000', saved: -3, dueDate: '2027-03-01' },
+        { name: '', dueDate: 'nanti', target: -10 },
+      ],
+    })
+
+    expect(state.seasonal[0]).toEqual({
+      id: 's1',
+      name: 'Lebaran',
+      target: 500_000,
+      saved: 0,
+      dueDate: '2027-03-01',
+    })
+    expect(state.seasonal[1].name).toBe('Dana musiman baru')
+    expect(state.seasonal[1].dueDate).toBeUndefined()
+    expect(state.seasonal[1].target).toBe(0)
+    expect(sanitize({ version: 1 }).seasonal).toEqual([])
+  })
+
+  it('id setoran musiman divalidasi, saldo negatif dibuang', () => {
+    const state = sanitize({
+      version: 1,
+      expenses: [
+        { id: 'e1', date: '2026-10-06', categoryId: 'tabungan', note: 'Setoran', amount: 5_000, seasonalId: 7 },
+        { id: 'e2', date: '2026-10-06', categoryId: 'tabungan', note: 'Setoran', amount: 5_000, seasonalId: 's1' },
+      ],
+    })
+    expect(state.expenses[0].seasonalId).toBeUndefined()
+    expect(state.expenses[1].seasonalId).toBe('s1')
+  })
+})
+
+describe('daftar rencana belanja (shoppingList)', () => {
+  it('membersihkan dan menormalisasi daftar belanja', () => {
+    const state = sanitize({
+      version: 1,
+      shoppingList: [
+        { id: 'item-1', name: '  Minyak Goreng 2L  ', estimatedPrice: 35000, checked: true, categoryId: 'makan' },
+        { id: 'item-2', name: '', estimatedPrice: -5000, checked: false },
+        { id: 'item-3', name: 'Buku', estimatedPrice: 15000, checked: 'yes' },
+      ],
+    })
+
+    expect(state.shoppingList).toHaveLength(3)
+    expect(state.shoppingList?.[0]).toEqual({
+      id: 'item-1',
+      name: 'Minyak Goreng 2L',
+      estimatedPrice: 35000,
+      checked: true,
+      categoryId: 'makan',
+    })
+    expect(state.shoppingList?.[1].name).toBe('Barang belanjaan')
+    expect(state.shoppingList?.[1].estimatedPrice).toBe(0)
+    expect(state.shoppingList?.[1].checked).toBe(false)
+    expect(state.shoppingList?.[2].checked).toBe(true)
+  })
+
+  it('mengembalikan array kosong jika shoppingList undefined atau non-array', () => {
+    expect(sanitize({ version: 1 }).shoppingList).toEqual([])
+    expect(sanitize({ version: 1, shoppingList: null }).shoppingList).toEqual([])
+  })
+})
+

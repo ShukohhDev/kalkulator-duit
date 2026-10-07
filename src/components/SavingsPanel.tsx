@@ -112,7 +112,7 @@ export function SavingsPanel({ state, derived, update }: Props) {
                     aria-pressed={goal.active}
                     onClick={() => patchGoal(goal.id, { active: !goal.active })}
                   >
-                    {goal.active ? '● Aktif' : '○ Nonaktif'}
+                    {goal.active ? 'Aktif' : 'Nonaktif'}
                   </button>
                   <button
                     type="button"
@@ -121,7 +121,7 @@ export function SavingsPanel({ state, derived, update }: Props) {
                       update((s) => ({ ...s, goals: s.goals.map((item) => ({ ...item, primary: item.id === goal.id })) }))
                     }
                   >
-                    {goal.primary ? '★ Utama' : 'Jadikan utama'}
+                    {goal.primary ? 'Utama' : 'Jadikan utama'}
                   </button>
                   <button type="button" className="btn btn-ghost btn-sm btn-danger" onClick={() => removeGoal(goal.id)}>
                     Hapus

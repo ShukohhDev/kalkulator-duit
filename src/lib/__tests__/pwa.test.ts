@@ -27,10 +27,14 @@ describe('pwa', () => {
     expect(manifest.display).toBe('standalone')
     expect(manifest.lang).toBe('id')
     expect(Array.isArray(manifest.icons) && manifest.icons.length > 0).toBe(true)
+    expect(manifest.icons.some((icon: { sizes?: string }) => icon.sizes === '192x192')).toBe(true)
+    expect(manifest.icons.some((icon: { sizes?: string }) => icon.sizes === '512x512')).toBe(true)
 
     const html = htmlRaw()
     expect(html).toContain('rel="manifest" href="/manifest.webmanifest"')
     expect(html).toContain('name="theme-color"')
+    expect(html).toContain('rel="apple-touch-icon"')
+    expect(html).toContain('name="apple-mobile-web-app-capable"')
   })
 
   it('service worker bisa dibuka offline: navigasi fallback ke root, aset cache-first', () => {
@@ -47,5 +51,7 @@ describe('pwa', () => {
     expect(sw).toContain('installPrecache')
     expect(sw).toContain('\\/assets\\/') // regex di sw.js mem-escape slash
     expect(sw).toContain('manifest.webmanifest')
+    expect(sw).toContain('icon-192.png')
+    expect(sw).toContain('icon-512.png')
   })
 })

@@ -1,9 +1,18 @@
-import type { AppState, Bill, Category, CategoryPreset, Debt, Expense, Goal, Income, PeriodMode, WishlistItem } from '../types'
+import type { ActivityEntry, AppState, Bill, Category, CategoryKind, Debt, Expense, Goal, Income, PeriodMode, SeasonalFund, ShoppingItem, WishlistItem } from '../types'
 import { initialState, defaultCategories, defaultWallets, PULSA_CATEGORY, CICILAN_CATEGORY, TAGIHAN_CATEGORY } from './state'
-import { MAX_USER_PRESETS } from './presets'
 import { migrateProfileId } from './profiles'
+import { currentUser } from './auth'
+import { MAX_ACTIVITY } from './activity'
+import { sanitizeBonusSplit } from './bonus'
+import { isLifestyleId } from './lifestyles'
 
-const STORAGE_KEY = 'kalkulator-duitmu:v1'
+const STORAGE_BASE = 'kalkulator-duitmu:v1'
+
+// tanpa sesi (layar login) pakai key lama — hanya untuk jalur migrasi/belum ada akun
+function stateKey(): string {
+  const user = currentUser()
+  return user ? `${STORAGE_BASE}:${user}` : STORAGE_BASE
+}
 
 function isPeriodMode(value: unknown): value is PeriodMode {
   return value === 'week' || value === 'month'
@@ -20,6 +29,7 @@ function str(value: unknown, fallback = ''): string {
 
 function sanitizeCategoryList(value: unknown): Category[] {
   if (!Array.isArray(value)) return []
+  const kinds: CategoryKind[] = ['harian', 'keinginan', 'tabungan']
   return value
     .filter((item): item is Record<string, unknown> => !!item && typeof item === 'object')
     .map((item, index) => ({
@@ -31,6 +41,7 @@ function sanitizeCategoryList(value: unknown): Category[] {
       ...(item.optional ? { optional: true } : {}),
       ...(item.off ? { off: true } : {}),
       ...(num(item.baseRatio) > 0 ? { baseRatio: num(item.baseRatio) } : {}),
+      ...(kinds.includes(item.kind as CategoryKind) ? { kind: item.kind as CategoryKind } : {}),
     }))
 }
 
@@ -93,19 +104,6 @@ function migratePulsa(categories: Category[]): Category[] {
   return normalizeRatios(next)
 }
 
-function sanitizePresets(value: unknown): CategoryPreset[] {
-  if (!Array.isArray(value)) return []
-  return value
-    .filter((item): item is Record<string, unknown> => !!item && typeof item === 'object')
-    .map((item, index) => ({
-      id: str(item.id, `pre-${index}`),
-      name: str(item.name, '').trim(),
-      categories: sanitizeCategoryList(item.categories),
-    }))
-    .filter((item) => item.name !== '' && item.categories.length > 0)
-    .slice(0, MAX_USER_PRESETS)
-}
-
 function sanitizeExpenses(value: unknown): Expense[] {
   if (!Array.isArray(value)) return []
   return value
@@ -118,6 +116,7 @@ function sanitizeExpenses(value: unknown): Expense[] {
       amount: Math.max(0, num(item.amount)),
       goalId: typeof item.goalId === 'string' && item.goalId !== '' ? item.goalId : undefined,
       wishlistId: typeof item.wishlistId === 'string' && item.wishlistId !== '' ? item.wishlistId : undefined,
+      seasonalId: typeof item.seasonalId === 'string' && item.seasonalId !== '' ? item.seasonalId : undefined,
       receiptId: typeof item.receiptId === 'string' && item.receiptId !== '' ? item.receiptId : undefined,
     }))
     .filter((item) => item.date !== '')
@@ -132,6 +131,36 @@ function sanitizeWishlist(value: unknown): WishlistItem[] {
       name: str(item.name, 'Incaran baru').trim() || 'Incaran baru',
       price: Math.max(0, num(item.price)),
       saved: Math.max(0, num(item.saved)),
+    }))
+}
+
+function sanitizeSeasonal(value: unknown): SeasonalFund[] {
+  if (!Array.isArray(value)) return []
+  const dueDate = (item: Record<string, unknown>) => {
+    const raw = str(item.dueDate)
+    return /^\d{4}-\d{2}-\d{2}$/.test(raw) ? raw : undefined
+  }
+  return value
+    .filter((item): item is Record<string, unknown> => !!item && typeof item === 'object')
+    .map((item, index) => ({
+      id: str(item.id, `season-${index}`),
+      name: str(item.name, 'Dana musiman baru').trim() || 'Dana musiman baru',
+      target: Math.max(0, num(item.target)),
+      saved: Math.max(0, num(item.saved)),
+      ...(dueDate(item) ? { dueDate: dueDate(item) } : {}),
+    }))
+}
+
+function sanitizeShoppingList(value: unknown): ShoppingItem[] {
+  if (!Array.isArray(value)) return []
+  return value
+    .filter((item): item is Record<string, unknown> => !!item && typeof item === 'object')
+    .map((item, index) => ({
+      id: str(item.id, `shop-${index}`),
+      name: str(item.name, 'Barang belanjaan').trim() || 'Barang belanjaan',
+      estimatedPrice: Math.max(0, num(item.estimatedPrice)),
+      checked: Boolean(item.checked),
+      categoryId: typeof item.categoryId === 'string' && item.categoryId !== '' ? item.categoryId : undefined,
     }))
 }
 
@@ -176,6 +205,16 @@ function sanitizeWallets(value: unknown): AppState['wallets'] {
     }))
 }
 
+function sanitizeDestination(value: unknown): Income['destination'] {
+  if (!value || typeof value !== 'object') return undefined
+  const raw = value as Record<string, unknown>
+  if (raw.kind === 'jajan' || raw.kind === 'pot') return { kind: raw.kind }
+  if (raw.kind === 'wallet' && typeof raw.walletId === 'string' && raw.walletId !== '') {
+    return { kind: 'wallet', walletId: raw.walletId }
+  }
+  return undefined
+}
+
 function sanitizeIncomes(value: unknown): Income[] {
   if (!Array.isArray(value)) return []
   return value
@@ -186,6 +225,8 @@ function sanitizeIncomes(value: unknown): Income[] {
       source: str(item.source),
       amount: Math.max(0, num(item.amount)),
       generated: Boolean(item.generated),
+      receiptId: typeof item.receiptId === 'string' && item.receiptId !== '' ? item.receiptId : undefined,
+      destination: sanitizeDestination(item.destination),
     }))
     .filter((item) => item.date !== '')
 }
@@ -207,27 +248,66 @@ function sanitizeGoals(value: unknown): Goal[] {
     .filter((item) => item.target > 0)
 }
 
+function sanitizeActivity(value: unknown): ActivityEntry[] {
+  if (!Array.isArray(value)) return []
+  const kinds: ActivityEntry['kind'][] = ['pemasukan', 'pengeluaran', 'login', 'logout']
+  return value
+    .filter((item): item is Record<string, unknown> => !!item && typeof item === 'object')
+    .filter((item) => kinds.includes(item.kind as ActivityEntry['kind']))
+    .map((item, index) => ({
+      id: str(item.id, `act-${index}`),
+      ts: num(item.ts),
+      kind: item.kind as ActivityEntry['kind'],
+      text: str(item.text),
+    }))
+    .filter((item) => item.text !== '')
+    .slice(0, MAX_ACTIVITY)
+}
+
+// data lama: sisa rollover + penawaran tabungan diakumulasi jadi pot Tabungan akhir periode
+function legacyEndSavings(data: Record<string, unknown>): number {
+  let sum = Math.max(0, num(data.pendingSavings))
+  const raw = data.rollover
+  if (raw && typeof raw === 'object') {
+    for (const value of Object.values(raw as Record<string, unknown>)) {
+      const amount = num(value, -1)
+      if (amount > 0) sum += amount
+    }
+  }
+  return sum
+}
+
 export function sanitize(raw: unknown): AppState {
   const base = initialState()
   if (!raw || typeof raw !== 'object') return base
   const data = raw as Record<string, unknown>
+  const categories = migrateCategories(sanitizeCategories(data.categories))
+  const periodKey = str(data.periodKey)
 
   const state: AppState = {
     version: 1,
     mode: isPeriodMode(data.mode) ? data.mode : null,
     allowance: Math.max(0, num(data.allowance)),
+    incomeVar: data.incomeVar === true,
+    allowanceMax: Math.max(0, num(data.allowanceMax)),
+    bonusSplit: sanitizeBonusSplit(data.bonusSplit),
     profile: migrateProfileId(data.profile),
-    categories: migrateCategories(sanitizeCategories(data.categories)),
-    presets: sanitizePresets(data.presets),
+    lifestyle: isLifestyleId(data.lifestyle) ? data.lifestyle : 'seimbang',
+    categories,
     expenses: sanitizeExpenses(data.expenses),
     incomes: sanitizeIncomes(data.incomes),
     goals: sanitizeGoals(data.goals),
     wishlist: sanitizeWishlist(data.wishlist),
+    seasonal: sanitizeSeasonal(data.seasonal),
     debts: sanitizeDebts(data.debts),
     bills: sanitizeBills(data.bills),
     wallets: Array.isArray(data.wallets) ? sanitizeWallets(data.wallets) : defaultWallets(),
     currentAge: Math.max(1, num(data.currentAge, base.currentAge)),
     theme: data.theme === 'dark' ? 'dark' : 'light',
+    activity: sanitizeActivity(data.activity),
+    endSavings: Math.max(0, num(data.endSavings, legacyEndSavings(data))),
+    periodKey: /^\d{4}-\d{2}-\d{2}$/.test(periodKey) ? periodKey : '',
+    shoppingList: sanitizeShoppingList(data.shoppingList),
   }
 
   if (state.goals.length > 0 && !state.goals.some((goal) => goal.primary)) {
@@ -239,7 +319,7 @@ export function sanitize(raw: unknown): AppState {
 
 export function loadState(): AppState {
   try {
-    const raw = localStorage.getItem(STORAGE_KEY)
+    const raw = localStorage.getItem(stateKey())
     if (!raw) return initialState()
     return sanitize(JSON.parse(raw))
   } catch {
@@ -249,7 +329,7 @@ export function loadState(): AppState {
 
 export function saveState(state: AppState): void {
   try {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(state))
+    localStorage.setItem(stateKey(), JSON.stringify(state))
   } catch {
     // storage penuh/di-block: abaikan, data tetap hidup di memori
   }
@@ -257,7 +337,7 @@ export function saveState(state: AppState): void {
 
 export function clearState(): void {
   try {
-    localStorage.removeItem(STORAGE_KEY)
+    localStorage.removeItem(stateKey())
   } catch {
     // no-op
   }

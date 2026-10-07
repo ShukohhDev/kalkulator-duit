@@ -1,4 +1,5 @@
-import type { AppState, Category, Goal } from '../types'
+import type { AppState, Category, CategoryKind, Goal } from '../types'
+import { DEFAULT_BONUS_SPLIT } from './bonus'
 
 export const CATEGORY_COLORS = [
   '#e8590c',
@@ -16,6 +17,23 @@ export const PULSA_CATEGORY = 'pulsa'
 export const CICILAN_CATEGORY = 'cicilan'
 export const TAGIHAN_CATEGORY = 'tagihan'
 export const INCOME_SOURCES = ['Uang Lembaran', 'Transfer']
+
+const BUILTIN_KINDS: Record<string, CategoryKind> = {
+  makan: 'harian',
+  transport: 'harian',
+  [PULSA_CATEGORY]: 'harian',
+  nongkrong: 'keinginan',
+  langganan: 'keinginan',
+  'dana-darurat': 'tabungan',
+  [SAVINGS_CATEGORY]: 'tabungan',
+  [CICILAN_CATEGORY]: 'tabungan',
+  [TAGIHAN_CATEGORY]: 'tabungan',
+}
+
+// resolusi jenis: explicit > bawaan bawaan-kategori > kategori buatan pengguna = harian
+export function categoryKind(category: Pick<Category, 'id' | 'kind'>): CategoryKind {
+  return category.kind ?? BUILTIN_KINDS[category.id] ?? 'harian'
+}
 
 export function effectiveSaved(goal: Goal, savingsByGoal: Record<string, number>): number {
   return goal.saved + (savingsByGoal[goal.id] ?? 0)
@@ -56,17 +74,25 @@ export function initialState(): AppState {
     version: 1,
     mode: null,
     allowance: 0,
+    incomeVar: false,
+    allowanceMax: 0,
+    bonusSplit: { ...DEFAULT_BONUS_SPLIT },
     profile: 'tinggal-rumah',
+    lifestyle: 'seimbang',
     categories: defaultCategories(),
-    presets: [],
     expenses: [],
     incomes: [],
     goals: [],
     wishlist: [],
+    seasonal: [],
     debts: [],
     bills: [],
     wallets: defaultWallets(),
     currentAge: 17,
     theme: 'light',
+    activity: [],
+    endSavings: 0,
+    periodKey: '',
+    shoppingList: [],
   }
 }

@@ -1,8 +1,9 @@
 import { useState } from 'react'
-import type { AppState, Category } from '../types'
+import type { AppState, Category, CategoryKind } from '../types'
 import type { Updater } from '../hooks/useAppState'
-import { CATEGORY_COLORS } from '../lib/state'
+import { CATEGORY_COLORS, categoryKind } from '../lib/state'
 import { PROFILES, applyProfile, findProfile } from '../lib/profiles'
+import { applyLifestyle } from '../lib/lifestyles'
 import { uid } from '../lib/id'
 
 interface Props {
@@ -17,6 +18,7 @@ interface Row {
   color: string
   optional: boolean
   builtin: boolean
+  kind: CategoryKind
 }
 
 const pctOf = (value: string): number => {
@@ -40,6 +42,7 @@ function buildRows(state: AppState): Row[] {
     color: category.color,
     optional: Boolean(category.optional) || Boolean(defOptional.get(category.id)),
     builtin: category.builtin,
+    kind: categoryKind(category),
   }))
   const ids = new Set(rows.map((row) => row.id))
   const names = new Set(rows.map((row) => row.name.trim().toLowerCase()))
@@ -53,6 +56,7 @@ function buildRows(state: AppState): Row[] {
         color: CATEGORY_COLORS[index % CATEGORY_COLORS.length],
         optional: Boolean(entry.optional),
         builtin: true,
+        kind: categoryKind({ id: entry.id }),
       })
       ids.add(entry.id)
       names.add(entry.name.toLowerCase())
@@ -128,6 +132,7 @@ export function AllocationEditor({ state, update, onDone }: Props) {
           ratio: isOff ? 0 : raw / activeSum,
           builtin: row.builtin,
           color: previous?.color ?? row.color,
+          kind: row.kind,
           ...(row.optional ? { optional: true } : {}),
           ...(isOff ? { off: true, baseRatio: raw / 100 } : {}),
         }
@@ -138,7 +143,7 @@ export function AllocationEditor({ state, update, onDone }: Props) {
   }
 
   const reset = () => {
-    const refreshed = applyProfile(state.categories, findProfile(state.profile))
+    const refreshed = applyLifestyle(applyProfile(state.categories, findProfile(state.profile)), state.lifestyle)
     const byId = new Map(refreshed.map((category) => [category.id, category]))
     setDraft((prev) =>
       Object.fromEntries(
@@ -160,6 +165,7 @@ export function AllocationEditor({ state, update, onDone }: Props) {
       color: CATEGORY_COLORS[rows.length % CATEGORY_COLORS.length],
       optional: false,
       builtin: false,
+      kind: 'harian',
     }
     setRows((prev) => [...prev, row])
     setDraft((prev) => ({ ...prev, [row.id]: '0' }))
@@ -176,6 +182,7 @@ export function AllocationEditor({ state, update, onDone }: Props) {
               <th className="alloc-col-active">{activeProfile.label}</th>
               <th>{otherProfile.label}</th>
               <th>Opsional?</th>
+              <th>Jenis</th>
               <th>Aksi</th>
             </tr>
           </thead>
@@ -218,6 +225,26 @@ export function AllocationEditor({ state, update, onDone }: Props) {
                       <span className="alloc-pct-static">Tidak</span>
                     )}
                   </td>
+                  <td>
+                    <select
+                      className="input alloc-kind"
+                      aria-label={`Jenis ${row.name}`}
+                      value={row.kind}
+                      onChange={(event) =>
+                        setRows((prev) =>
+                          prev.map((item) =>
+                            item.id === row.id
+                              ? { ...item, kind: event.target.value as CategoryKind }
+                              : item,
+                          ),
+                        )
+                      }
+                    >
+                      <option value="harian">Harian</option>
+                      <option value="keinginan">Keinginan</option>
+                      <option value="tabungan">Tabungan</option>
+                    </select>
+                  </td>
                   <td className="alloc-action-cell">
                     <button
                       type="button"
@@ -237,6 +264,7 @@ export function AllocationEditor({ state, update, onDone }: Props) {
               <td>{sumText(otherSum)}%</td>
               <td />
               <td />
+              <td />
             </tr>
             <tr className="alloc-total">
               <td>Cek 100%</td>
@@ -246,6 +274,7 @@ export function AllocationEditor({ state, update, onDone }: Props) {
                 </span>
               </td>
               <td className="alloc-check alloc-check-ok">{Math.abs(otherSum - 100) <= 0.1 ? 'OK' : 'BELUM'}</td>
+              <td />
               <td />
               <td />
             </tr>
@@ -271,6 +300,10 @@ export function AllocationEditor({ state, update, onDone }: Props) {
         <span>Sel angka berwarna biru = nilai yang bisa kamu ubah. Total dan cek dihitung otomatis.</span>
         <span>Kategori opsional yang dimatikan: persentasenya dibagi proporsional ke kategori lain, sehingga total tetap 100%.</span>
         <span>Kurangi menyetel persen ke 0; riwayat catatan tetap aman.</span>
+        <span>
+          Jenis menentukan sisa uang periode lalu: <strong>Harian</strong> dibawa ke periode berikut,{' '}
+          <strong>Keinginan</strong> ditawarkan pindah ke tabungan, <strong>Tabungan</strong> menumpuk natural.
+        </span>
       </div>
 
       <div className="btn-row">

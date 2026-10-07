@@ -1,8 +1,9 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import type { AppState } from '../types'
 import type { Updater } from '../hooks/useAppState'
 import { formatIDR } from '../lib/money'
 import { loadPrefs, savePrefs, type WalletCurrency } from '../lib/prefs'
+import { onRateUpdate, refreshUsdRate } from '../lib/rates'
 import { uid } from '../lib/id'
 import { MoneyInput } from './MoneyInput'
 
@@ -15,23 +16,31 @@ function formatUSD(value: number): string {
   return `$${value.toLocaleString('en-US', { maximumFractionDigits: 0 })}`
 }
 
+function formatRateAt(at: string): string {
+  const stamp = Date.parse(at)
+  if (!Number.isFinite(stamp)) return ''
+  return new Date(stamp).toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' })
+}
+
 export function DompetPanel({ state, update }: Props) {
   const [currency, setCurrency] = useState<WalletCurrency>(() => loadPrefs().walletCurrency)
-  const [rate, setRate] = useState<number>(() => loadPrefs().usdRate)
+  const [rateInfo, setRateInfo] = useState(() => {
+    const prefs = loadPrefs()
+    return { rate: prefs.usdRate, at: prefs.usdRateAt }
+  })
+
+  useEffect(() => onRateUpdate(() => {
+    const prefs = loadPrefs()
+    setRateInfo({ rate: prefs.usdRate, at: prefs.usdRateAt })
+  }), [])
 
   const total = state.wallets.reduce((sum, wallet) => sum + wallet.balance, 0)
-  const inUsd = currency === 'usd' && rate > 0
+  const inUsd = currency === 'usd' && rateInfo.rate > 0
 
   const pickCurrency = (next: WalletCurrency) => {
     setCurrency(next)
     savePrefs({ walletCurrency: next })
-  }
-
-  const changeRate = (raw: string) => {
-    const value = Number(raw)
-    if (!Number.isFinite(value) || value <= 0) return
-    setRate(value)
-    savePrefs({ usdRate: value })
+    if (next === 'usd') void refreshUsdRate()
   }
 
   const addWallet = () => {
@@ -70,20 +79,12 @@ export function DompetPanel({ state, update }: Props) {
 
       <div className="wallet-total">
         <span className="muted small">Total aset</span>
-        <strong className="wallet-total-value">{inUsd ? formatUSD(total / rate) : formatIDR(total)}</strong>
+        <strong className="wallet-total-value">{inUsd ? formatUSD(total / rateInfo.rate) : formatIDR(total)}</strong>
         {inUsd && (
-          <label className="muted small wallet-rate">
-            1 USD = Rp{' '}
-            <input
-              id="wallet-rate"
-              className="input rate-input"
-              type="number"
-              min={1}
-              value={rate}
-              onChange={(e) => changeRate(e.target.value)}
-            />
-            <span>kurs manual, disimpan di browser</span>
-          </label>
+          <span className="muted small wallet-rate" data-testid="rate-note">
+            1 USD = Rp {Math.round(rateInfo.rate).toLocaleString('id-ID')} ·{' '}
+            {rateInfo.at ? `kurs otomatis, diperbarui ${formatRateAt(rateInfo.at)}` : 'kurs terakhir, offline'}
+          </span>
         )}
       </div>
 

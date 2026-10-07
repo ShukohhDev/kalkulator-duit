@@ -12,7 +12,7 @@ async function installPrecache() {
   const cache = await caches.open(CACHE)
   const html = await (await fetch(ROOT)).text()
   const assets = [...new Set([...html.matchAll(/(?:src|href)="(\/assets\/[^"]+)"/g)].map((match) => match[1]))]
-  await cache.addAll([ROOT, '/manifest.webmanifest', '/favicon.svg', ...assets])
+  await cache.addAll([ROOT, '/manifest.webmanifest', '/favicon.svg', '/icon-192.png', '/icon-512.png', ...assets])
 }
 
 self.addEventListener('activate', (event) => {

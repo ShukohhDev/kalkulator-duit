@@ -4,6 +4,7 @@ import type { Updater } from '../hooks/useAppState'
 import { INCOME_SOURCES, SAVINGS_CATEGORY, primaryGoal } from '../lib/state'
 import { todayISO } from '../lib/money'
 import { uid } from '../lib/id'
+import { deleteReceipt, saveReceipt } from '../lib/receipts'
 import { MoneyInput } from './MoneyInput'
 
 interface Props {
@@ -26,6 +27,8 @@ export function QuickEntry({ mode, state, update, notify, onClose }: Props) {
   const [source, setSource] = useState(INCOME_SOURCES[0])
   const [note, setNote] = useState('')
   const [amount, setAmount] = useState(0)
+  const [receiptId, setReceiptId] = useState<string | null>(null)
+  const [receiptError, setReceiptError] = useState('')
   const rootRef = useRef<HTMLElement | null>(null)
 
   useLayoutEffect(() => {
@@ -58,9 +61,11 @@ export function QuickEntry({ mode, state, update, notify, onClose }: Props) {
         note: note.trim(),
         amount,
         goalId: categoryId === SAVINGS_CATEGORY ? primaryGoal(state.goals)?.id : undefined,
+        receiptId: receiptId ?? undefined,
       }
       update((s) => ({ ...s, expenses: [expense, ...s.expenses] }))
       notify('Pengeluaran dicatat')
+      setReceiptId(null)
     } else {
       const income: Income = { id: uid('inc'), date, source, amount }
       update((s) => ({ ...s, incomes: [income, ...s.incomes] }))
@@ -132,6 +137,43 @@ export function QuickEntry({ mode, state, update, notify, onClose }: Props) {
           <label htmlFor="qk-amount">Nominal</label>
           <MoneyInput value={amount} onValueChange={setAmount} id="qk-amount" autoFocus />
         </div>
+
+        {mode === 'expense' && (
+          <div className="field">
+            <label htmlFor="qk-receipt">Bukti (opsional)</label>
+            <input
+              id="qk-receipt"
+              className="input"
+              type="file"
+              accept="image/*"
+              onChange={(e) => {
+                const file = e.target.files?.[0]
+                e.target.value = ''
+                if (!file) return
+                setReceiptError('')
+                saveReceipt(file)
+                  .then((id) => setReceiptId(id))
+                  .catch(() => setReceiptError('Gagal menyimpan bukti di browser.'))
+              }}
+            />
+            {receiptId && (
+              <div className="inline-form">
+                <span className="chip">Bukti terlampir</span>
+                <button
+                  type="button"
+                  className="btn btn-ghost btn-sm"
+                  onClick={() => {
+                    void deleteReceipt(receiptId)
+                    setReceiptId(null)
+                  }}
+                >
+                  Lepas
+                </button>
+              </div>
+            )}
+            {receiptError && <span className="text-danger small">{receiptError}</span>}
+          </div>
+        )}
 
         <div className="form-actions">
           <button type="submit" className="btn" disabled={amount <= 0}>

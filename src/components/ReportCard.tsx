@@ -1,9 +1,9 @@
 import { useMemo, useState } from 'react'
-import type { AppState } from '../types'
+import type { AppState, Notify } from '../types'
 import { buildReport } from '../lib/report'
 import { formatIDR, formatShortDate, monthKey, monthLabel, todayISO } from '../lib/money'
 
-export function ReportCard({ state }: { state: AppState }) {
+export function ReportCard({ state, notify }: { state: AppState; notify: Notify }) {
   const [month, setMonth] = useState(() => monthKey(todayISO()))
 
   const months = useMemo(() => {
@@ -19,6 +19,27 @@ export function ReportCard({ state }: { state: AppState }) {
     [state.categories],
   )
   const empty = report.noteCount === 0 && report.byGoal.every((item) => item.logged === 0)
+
+  const copyReport = async () => {
+    const lines = [
+      `Laporan ${monthLabel(month)} · Kalkulator Uang Jajan`,
+      `Uang jajan: ${formatIDR(report.allowance)}`,
+      `Pemasukan lain: ${formatIDR(report.manualIncome)}`,
+      `Pengeluaran: ${formatIDR(report.expense)} (${report.noteCount} catatan)`,
+      `Sisa: ${formatIDR(report.net)}`,
+      ...report.byCategory.map(
+        ({ category, amount, share }) =>
+          `- ${category.name}: ${formatIDR(amount)} (${Math.round(share * 100)}%)`,
+      ),
+      ...report.topExpenses.map((item) => `- ${item.note || 'Pengeluaran'}: ${formatIDR(item.amount)}`),
+    ].join('\n')
+    try {
+      await navigator.clipboard.writeText(lines)
+      notify('Ringkasan laporan disalin')
+    } catch {
+      notify('Gagal menyalin ringkasan', { error: true })
+    }
+  }
 
   return (
     <section className="card report">
@@ -37,6 +58,9 @@ export function ReportCard({ state }: { state: AppState }) {
               </option>
             ))}
           </select>
+          <button type="button" className="btn btn-ghost btn-sm" onClick={() => void copyReport()}>
+            Salin ringkasan
+          </button>
           <button type="button" className="btn btn-sm" onClick={() => window.print()}>
             Cetak / Simpan PDF
           </button>

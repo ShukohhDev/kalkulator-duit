@@ -1,4 +1,5 @@
 import { uid } from './id'
+import { currentUser } from './auth'
 
 const DB_NAME = 'kalkulator-duitmu-bukti'
 const STORE = 'bukti'
@@ -57,7 +58,8 @@ export async function saveReceipt(file: Blob): Promise<string> {
   } catch {
     // gambar tidak bisa dikodekan ulang: simpan file apa adanya
   }
-  const id = uid('rcp')
+  const user = currentUser()
+  const id = user ? `${user}:${uid('rcp')}` : uid('rcp')
   await withStore('readwrite', (store) => store.put(blob, id))
   return id
 }

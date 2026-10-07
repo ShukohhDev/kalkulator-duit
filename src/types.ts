@@ -4,6 +4,10 @@ export type Theme = 'light' | 'dark'
 
 export type ProfileId = 'tinggal-rumah' | 'tinggal-kos'
 
+// jenis kategori untuk perilaku sisa uang: harian dibawa ke periode berikutnya,
+// keinginan disarankan pindah ke tabungan (konfirmasi manual), tabungan menumpuk natural
+export type CategoryKind = 'harian' | 'keinginan' | 'tabungan'
+
 export interface Category {
   id: string
   name: string
@@ -13,6 +17,7 @@ export interface Category {
   optional?: boolean
   off?: boolean
   baseRatio?: number
+  kind?: CategoryKind
 }
 
 export interface Expense {
@@ -23,8 +28,11 @@ export interface Expense {
   amount: number
   goalId?: string
   wishlistId?: string
+  seasonalId?: string
   receiptId?: string
 }
+
+export type IncomeDestination = { kind: 'jajan' } | { kind: 'pot' } | { kind: 'wallet'; walletId: string }
 
 export interface Income {
   id: string
@@ -32,6 +40,8 @@ export interface Income {
   source: string
   amount: number
   generated?: boolean
+  receiptId?: string
+  destination?: IncomeDestination
 }
 
 export interface Goal {
@@ -49,6 +59,15 @@ export interface WishlistItem {
   id: string
   name: string
   price: number
+  saved: number
+}
+
+// dana musiman: wadah terpisah dari target tabungan (tanpa bunga), opsional ada tanggal tujuan
+export interface SeasonalFund {
+  id: string
+  name: string
+  target: number
+  dueDate?: string
   saved: number
 }
 
@@ -75,28 +94,54 @@ export interface Wallet {
   balance: number
 }
 
-export interface CategoryPreset {
+export interface ShoppingItem {
   id: string
   name: string
-  categories: Category[]
+  estimatedPrice: number
+  checked: boolean
+  categoryId?: string
 }
 
 export interface AppState {
   version: 1
   mode: PeriodMode | null
   allowance: number
+  incomeVar: boolean
+  allowanceMax: number
+  bonusSplit: BonusSplit
   profile: ProfileId
+  lifestyle: string
   categories: Category[]
-  presets: CategoryPreset[]
   expenses: Expense[]
   incomes: Income[]
   goals: Goal[]
   wishlist: WishlistItem[]
+  seasonal: SeasonalFund[]
   debts: Debt[]
   bills: Bill[]
   wallets: Wallet[]
   currentAge: number
   theme: Theme
+  activity: ActivityEntry[]
+  endSavings: number
+  periodKey: string
+  shoppingList?: ShoppingItem[]
+}
+
+export type ActivityKind = 'pemasukan' | 'pengeluaran' | 'login' | 'logout'
+
+// persentase pembagian bonus pemasukan tidak tetap (jumlah 100)
+export interface BonusSplit {
+  savings: number
+  buffer: number
+  fun: number
+}
+
+export interface ActivityEntry {
+  id: string
+  ts: number
+  kind: ActivityKind
+  text: string
 }
 
 export type CashflowView = 'day' | 'week' | 'month' | 'year'

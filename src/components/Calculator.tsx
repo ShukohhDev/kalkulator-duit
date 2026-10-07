@@ -1,4 +1,7 @@
 import { useState } from 'react'
+import { reversePlan } from '../lib/reverse'
+import { formatIDR } from '../lib/money'
+import { MoneyInput } from './MoneyInput'
 
 const KEYS = [
   ['C', '±', '%', '÷'],
@@ -18,6 +21,10 @@ export function Calculator({ onUseNumber, onClose }: Props) {
   const [accumulator, setAccumulator] = useState<number | null>(null)
   const [pending, setPending] = useState<string | null>(null)
   const [fresh, setFresh] = useState(true)
+  const [mode, setMode] = useState<'standar' | 'terbalik'>('standar')
+  const [revTarget, setRevTarget] = useState(0)
+  const [revSaved, setRevSaved] = useState(0)
+  const [revMonths, setRevMonths] = useState(12)
 
   const current = Number(display.replace(',', '.')) || 0
 
@@ -86,39 +93,123 @@ export function Calculator({ onUseNumber, onClose }: Props) {
     setFresh(false)
   }
 
+  const reverse = reversePlan({ target: revTarget, saved: revSaved, months: revMonths })
+
   return (
     <section className="card">
       <header className="card-head">
         <h2>Kalkulator</h2>
-        <button
-          type="button"
-          className="btn btn-ghost btn-sm"
-          onClick={() => {
-            onUseNumber(Math.round(Math.abs(current)))
-            onClose?.()
-          }}
-          title="Pakai angka ini di form uang jajan"
-        >
-          Pakai angka
-        </button>
+        {mode === 'standar' && (
+          <button
+            type="button"
+            className="btn btn-ghost btn-sm"
+            onClick={() => {
+              onUseNumber(Math.round(Math.abs(current)))
+              onClose?.()
+            }}
+            title="Pakai angka ini di form uang jajan"
+          >
+            Pakai angka
+          </button>
+        )}
       </header>
 
-      <div className="calc-display" aria-live="polite">
-        {display}
+      <div className="calc-tabs" role="tablist">
+        <button
+          type="button"
+          role="tab"
+          aria-selected={mode === 'standar'}
+          className={`btn btn-ghost btn-sm${mode === 'standar' ? ' btn-active' : ''}`}
+          onClick={() => setMode('standar')}
+        >
+          Standar
+        </button>
+        <button
+          type="button"
+          role="tab"
+          aria-selected={mode === 'terbalik'}
+          className={`btn btn-ghost btn-sm${mode === 'terbalik' ? ' btn-active' : ''}`}
+          onClick={() => setMode('terbalik')}
+        >
+          Terbalik
+        </button>
       </div>
 
-      <div className="calc-keys">
-        {KEYS.flat().map((key) => (
-          <button
-            key={key}
-            type="button"
-            className={`calc-key${['÷', '×', '−', '+', '='].includes(key) ? ' calc-op' : ''}${key === 'C' ? ' calc-clear' : ''}`}
-            onClick={() => press(key)}
-          >
-            {key}
-          </button>
-        ))}
-      </div>
+      {mode === 'terbalik' ? (
+        <div className="reverse">
+          <p className="muted small">
+            Dari target dan tenggat, berapa yang harus disisihkan tiap bulan? Dibagi rata tanpa bunga.
+          </p>
+          <div className="field">
+            <label htmlFor="rev-target">Target (Rp)</label>
+            <MoneyInput id="rev-target" value={revTarget} onValueChange={setRevTarget} />
+          </div>
+          <div className="field">
+            <label htmlFor="rev-saved">Sudah punya (Rp)</label>
+            <MoneyInput id="rev-saved" value={revSaved} onValueChange={setRevSaved} />
+          </div>
+          <div className="field">
+            <label htmlFor="rev-months">Dalam waktu (bulan)</label>
+            <input
+              id="rev-months"
+              className="input"
+              type="number"
+              min={1}
+              max={600}
+              value={revMonths}
+              onChange={(e) => setRevMonths(Math.max(1, Number(e.target.value) || 1))}
+            />
+          </div>
+          {reverse !== null && (
+            <ul className="rec-list">
+              {reverse.achieved ? (
+                <li>
+                  <span>Status</span>
+                  <strong>Target sudah tercapai</strong>
+                </li>
+              ) : (
+                <>
+                  <li>
+                    <span>Sisa yang dibutuhkan</span>
+                    <strong>{formatIDR(reverse.gap)}</strong>
+                  </li>
+                  <li>
+                    <span>Setoran per bulan</span>
+                    <strong>{formatIDR(reverse.perMonth)}</strong>
+                  </li>
+                  <li>
+                    <span>Setoran per minggu</span>
+                    <strong>{formatIDR(reverse.perWeek)}</strong>
+                  </li>
+                  <li>
+                    <span>Setoran per hari</span>
+                    <strong>{formatIDR(reverse.perDay)}</strong>
+                  </li>
+                </>
+              )}
+            </ul>
+          )}
+        </div>
+      ) : (
+        <>
+          <div className="calc-display" aria-live="polite">
+            {display}
+          </div>
+
+          <div className="calc-keys">
+            {KEYS.flat().map((key) => (
+              <button
+                key={key}
+                type="button"
+                className={`calc-key${['÷', '×', '−', '+', '='].includes(key) ? ' calc-op' : ''}${key === 'C' ? ' calc-clear' : ''}`}
+                onClick={() => press(key)}
+              >
+                {key}
+              </button>
+            ))}
+          </div>
+        </>
+      )}
     </section>
   )
 }

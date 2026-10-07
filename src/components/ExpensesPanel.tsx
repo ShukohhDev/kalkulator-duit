@@ -2,7 +2,6 @@ import { useMemo, useState, type FormEvent } from 'react'
 import type { AppState, Category, Expense, Notify } from '../types'
 import type { Updater } from '../hooks/useAppState'
 import { CATEGORY_COLORS, SAVINGS_CATEGORY, primaryGoal } from '../lib/state'
-import { BUILTIN_PRESETS, applyPreset, savePreset } from '../lib/presets'
 import { deleteReceipt, saveReceipt } from '../lib/receipts'
 import { formatIDR, formatShortDate, monthKey, monthLabel, todayISO } from '../lib/money'
 import { uid } from '../lib/id'
@@ -30,12 +29,11 @@ export function ExpensesPanel({ state, update, notify }: Props) {
   const [query, setQuery] = useState('')
   const [filterCategory, setFilterCategory] = useState('all')
   const [filterMonth, setFilterMonth] = useState('all')
-  const [sortBy, setSortBy] = useState<'date' | 'amount'>('date')
+  const [timeRange, setTimeRange] = useState<'all' | 'this_month' | 'last_7_days'>('all')
+  const [sortBy, setSortBy] = useState<'date' | 'date_asc' | 'amount' | 'amount_asc'>('date')
 
   const [showCategoryForm, setShowCategoryForm] = useState(false)
   const [newCategory, setNewCategory] = useState('')
-  const [presetId, setPresetId] = useState('')
-
   const months = useMemo(() => {
     const keys = new Set(state.expenses.map((item) => monthKey(item.date)))
     return [...keys].sort().reverse()
@@ -49,22 +47,37 @@ export function ExpensesPanel({ state, update, notify }: Props) {
 
   const visible = useMemo(() => {
     const keyword = query.trim().toLowerCase()
+    const nowISO = todayISO()
+    const thisMonth = monthKey(nowISO)
+
     const list = state.expenses.filter((item) => {
       if (filterCategory !== 'all' && item.categoryId !== filterCategory) return false
       if (filterMonth !== 'all' && monthKey(item.date) !== filterMonth) return false
+      if (timeRange === 'this_month' && monthKey(item.date) !== thisMonth) return false
+      if (timeRange === 'last_7_days') {
+        const itemDate = new Date(item.date)
+        const diffMs = new Date().getTime() - itemDate.getTime()
+        const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24))
+        if (diffDays < 0 || diffDays > 7) return false
+      }
       if (keyword) {
-        const haystack = `${item.note} ${categoryMap.get(item.categoryId)?.name ?? ''}`.toLowerCase()
+        const catName = categoryMap.get(item.categoryId)?.name ?? ''
+        const haystack = `${item.note} ${catName} ${item.amount} ${formatIDR(item.amount)}`.toLowerCase()
         if (!haystack.includes(keyword)) return false
       }
       return true
     })
 
-    return list.sort((a, b) =>
-      sortBy === 'amount' ? b.amount - a.amount : b.date.localeCompare(a.date) || b.id.localeCompare(a.id),
-    )
-  }, [state.expenses, filterCategory, filterMonth, query, sortBy, categoryMap])
+    return list.sort((a, b) => {
+      if (sortBy === 'amount') return b.amount - a.amount
+      if (sortBy === 'amount_asc') return a.amount - b.amount
+      if (sortBy === 'date_asc') return a.date.localeCompare(b.date) || a.id.localeCompare(b.id)
+      return b.date.localeCompare(a.date) || b.id.localeCompare(a.id)
+    })
+  }, [state.expenses, filterCategory, filterMonth, timeRange, query, sortBy, categoryMap])
 
   const totalVisible = visible.reduce((sum, item) => sum + item.amount, 0)
+  const hasActiveFilter = query !== '' || filterCategory !== 'all' || filterMonth !== 'all' || timeRange !== 'all'
 
   const resetForm = () => {
     setNote('')
@@ -159,19 +172,6 @@ export function ExpensesPanel({ state, update, notify }: Props) {
     setShowCategoryForm(false)
   }
 
-  const applyPresetId = () => {
-    const preset = [...BUILTIN_PRESETS, ...state.presets].find((item) => item.id === presetId)
-    if (!preset) return
-    update((s) => ({ ...s, categories: applyPreset(s.categories, preset) }))
-    setPresetId('')
-  }
-
-  const saveCurrentAsPreset = () => {
-    const name = window.prompt('Nama preset baru', `Preset ${state.presets.length + 1}`)
-    if (name === null) return
-    update((s) => ({ ...s, presets: savePreset(s.presets, name, s.categories) }))
-  }
-
   return (
     <section className="card">
       <header className="card-head">
@@ -211,34 +211,7 @@ export function ExpensesPanel({ state, update, notify }: Props) {
               </button>
             </div>
           )}
-          <div className="inline-form">
-            <select
-              className="input"
-              aria-label="Preset kategori"
-              value={presetId}
-              onChange={(e) => setPresetId(e.target.value)}
-            >
-              <option value="">Preset kategori…</option>
-              {BUILTIN_PRESETS.map((preset) => (
-                <option key={preset.id} value={preset.id}>
-                  {preset.name} (bawaan)
-                </option>
-              ))}
-              {state.presets.map((preset) => (
-                <option key={preset.id} value={preset.id}>
-                  {preset.name}
-                </option>
-              ))}
-            </select>
-            <button type="button" className="btn btn-sm" disabled={presetId === ''} onClick={applyPresetId}>
-              Terapkan
-            </button>
-          </div>
-          <button type="button" className="link" onClick={saveCurrentAsPreset}>
-            Simpan kategori saat ini sebagai preset
-          </button>
         </div>
-
         {categoryId === SAVINGS_CATEGORY && (state.goals.length > 0 || state.wishlist.length > 0) && (
           <div className="field">
             <label htmlFor="exp-goal">Masukkan ke</label>
@@ -338,39 +311,96 @@ export function ExpensesPanel({ state, update, notify }: Props) {
         </div>
       </form>
 
-      <div className="filter-row">
-        <input
-          className="input input-search"
-          placeholder="Cari pengeluaran…"
-          value={query}
-          onChange={(e) => setQuery(e.target.value)}
-          aria-label="Cari pengeluaran"
-        />
-        <select className="input" value={filterCategory} onChange={(e) => setFilterCategory(e.target.value)} aria-label="Filter kategori">
-          <option value="all">Semua kategori</option>
-          {state.categories.map((category) => (
-            <option key={category.id} value={category.id}>
-              {category.name}
-            </option>
-          ))}
-        </select>
-        <select className="input" value={filterMonth} onChange={(e) => setFilterMonth(e.target.value)} aria-label="Filter bulan">
-          <option value="all">Semua bulan</option>
-          {months.map((key) => (
-            <option key={key} value={key}>
-              {monthLabel(key)}
-            </option>
-          ))}
-        </select>
-        <select className="input" value={sortBy} onChange={(e) => setSortBy(e.target.value as 'date' | 'amount')} aria-label="Urutan">
-          <option value="date">Terbaru</option>
-          <option value="amount">Nominal terbesar</option>
-        </select>
-      </div>
+      <div className="filter-panel-card">
+        <div className="filter-row">
+          <div className="search-input-wrap">
+            <input
+              className="input input-search"
+              placeholder="Cari catatan, kategori, atau nominal…"
+              value={query}
+              onChange={(e) => setQuery(e.target.value)}
+              aria-label="Cari pengeluaran"
+            />
+            {query && (
+              <button
+                type="button"
+                className="search-clear-btn"
+                onClick={() => setQuery('')}
+                aria-label="Bersihkan pencarian"
+                title="Hapus kata kunci"
+              >
+                ×
+              </button>
+            )}
+          </div>
+          <select className="input" value={filterCategory} onChange={(e) => setFilterCategory(e.target.value)} aria-label="Filter kategori">
+            <option value="all">Semua kategori</option>
+            {state.categories.map((category) => (
+              <option key={category.id} value={category.id}>
+                {category.name}
+              </option>
+            ))}
+          </select>
+          <select className="input" value={filterMonth} onChange={(e) => setFilterMonth(e.target.value)} aria-label="Filter bulan">
+            <option value="all">Semua bulan</option>
+            {months.map((key) => (
+              <option key={key} value={key}>
+                {monthLabel(key)}
+              </option>
+            ))}
+          </select>
+          <select className="input" value={sortBy} onChange={(e) => setSortBy(e.target.value as 'date' | 'date_asc' | 'amount' | 'amount_asc')} aria-label="Urutan">
+            <option value="date">Terbaru</option>
+            <option value="date_asc">Terlama</option>
+            <option value="amount">Nominal terbesar</option>
+            <option value="amount_asc">Nominal terkecil</option>
+          </select>
+        </div>
 
-      <p className="muted small">
-        Menampilkan {visible.length} dari {state.expenses.length} catatan · total {formatIDR(totalVisible)}
-      </p>
+        <div className="quick-filter-chips">
+          <button
+            type="button"
+            className={`filter-chip${timeRange === 'all' ? ' filter-chip-active' : ''}`}
+            onClick={() => setTimeRange('all')}
+          >
+            Semua Periode
+          </button>
+          <button
+            type="button"
+            className={`filter-chip${timeRange === 'this_month' ? ' filter-chip-active' : ''}`}
+            onClick={() => setTimeRange('this_month')}
+          >
+            Bulan Ini
+          </button>
+          <button
+            type="button"
+            className={`filter-chip${timeRange === 'last_7_days' ? ' filter-chip-active' : ''}`}
+            onClick={() => setTimeRange('last_7_days')}
+          >
+            7 Hari Terakhir
+          </button>
+        </div>
+
+        <div className="filter-summary-row">
+          <span className="muted small">
+            Menampilkan {visible.length} dari {state.expenses.length} catatan · Total <strong>{formatIDR(totalVisible)}</strong>
+          </span>
+          {hasActiveFilter && (
+            <button
+              type="button"
+              className="btn btn-ghost btn-sm filter-reset-btn"
+              onClick={() => {
+                setQuery('')
+                setFilterCategory('all')
+                setFilterMonth('all')
+                setTimeRange('all')
+              }}
+            >
+              Reset Filter
+            </button>
+          )}
+        </div>
+      </div>
 
       <ul className="tx-list">
         {visible.map((item) => {

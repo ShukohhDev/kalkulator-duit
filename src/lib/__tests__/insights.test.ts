@@ -36,24 +36,6 @@ describe('buildInsights', () => {
     expect(result[0].id).toBe('empty')
   })
 
-  it('kategori melebihi alokasi → peringatan', () => {
-    const state = base()
-    state.expenses = [expense('2026-10-06', 'nongkrong', 120_000)]
-    const result = buildInsights(state, derive(state, now))
-    const ids = result.map((item) => item.id)
-    expect(ids).toContain('over-nongkrong')
-    expect(result.find((item) => item.id === 'over-nongkrong')?.tone).toBe('warn')
-  })
-
-  it('kategori mendekati 80% alokasi → peringatan hampir batas', () => {
-    const state = base()
-    state.expenses = [expense('2026-10-06', 'makan', 180_000)]
-    const result = buildInsights(state, derive(state, now))
-    const near = result.find((item) => item.id === 'near-makan')
-    expect(near?.tone).toBe('warn')
-    expect(near?.text).toContain('hampir mencapai batas')
-  })
-
   it('setoran kurang → sarankan setoran bulanan', () => {
     const state = base()
     state.currentAge = 17

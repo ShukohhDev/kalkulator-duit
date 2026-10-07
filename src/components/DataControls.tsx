@@ -1,7 +1,8 @@
-import { useRef, type ReactNode } from 'react'
+import { useRef, useState, type ReactNode } from 'react'
 import type { AppState, Notify } from '../types'
 import { exportXlsx } from '../lib/xlsx'
 import { sanitize } from '../lib/storage'
+import type { CloudStatus } from '../hooks/useAppState'
 
 interface Props {
   state: AppState
@@ -9,6 +10,10 @@ interface Props {
   onImport: (state: AppState) => void
   onReset: () => void
   notify: Notify
+  cloudStatus?: CloudStatus
+  lastSyncTime?: string | null
+  onSyncNow?: () => Promise<boolean>
+  onPullNow?: () => Promise<boolean>
 }
 
 const svgProps = {
@@ -51,6 +56,12 @@ const TrashIcon = () => (
   </svg>
 )
 
+const CloudIcon = () => (
+  <svg {...svgProps}>
+    <path d="M17.5 19H9a7 7 0 1 1 6.71-9h1.79a4.5 4.5 0 1 1 0 9Z" />
+  </svg>
+)
+
 interface ActionProps {
   icon: ReactNode
   title: string
@@ -71,8 +82,19 @@ function DataAction({ icon, title, desc, danger, onClick }: ActionProps) {
   )
 }
 
-export function DataControls({ state, saved, onImport, onReset, notify }: Props) {
+export function DataControls({
+  state,
+  saved,
+  onImport,
+  onReset,
+  notify,
+  cloudStatus = 'idle',
+  lastSyncTime,
+  onSyncNow,
+  onPullNow,
+}: Props) {
   const fileRef = useRef<HTMLInputElement>(null)
+  const [syncBusy, setSyncBusy] = useState(false)
 
   const download = (filename: string, blob: Blob) => {
     const url = URL.createObjectURL(blob)
@@ -121,12 +143,89 @@ export function DataControls({ state, saved, onImport, onReset, notify }: Props)
     }
   }
 
+  const handleManualSync = async () => {
+    if (!onSyncNow || syncBusy) return
+    setSyncBusy(true)
+    const ok = await onSyncNow()
+    setSyncBusy(false)
+    if (ok) {
+      notify('Data berhasil disinkronkan ke cloud!')
+    } else {
+      notify('Gagal menyinkronkan data ke cloud.', { error: true })
+    }
+  }
+
+  const handleManualPull = async () => {
+    if (!onPullNow || syncBusy) return
+    if (!window.confirm('Muat data terbaru dari cloud? Data lokal yang belum terunggah akan digantikan.')) return
+    setSyncBusy(true)
+    const ok = await onPullNow()
+    setSyncBusy(false)
+    if (ok) {
+      notify('Data terbaru berhasil dimuat dari cloud!')
+    } else {
+      notify('Gagal memuat data dari cloud.', { error: true })
+    }
+  }
+
+  const formatLastSync = (iso: string | null | undefined) => {
+    if (!iso) return null
+    try {
+      return new Date(iso).toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit', second: '2-digit' })
+    } catch {
+      return null
+    }
+  }
+
   return (
     <section className="card">
       <header className="card-head">
         <h2>Data &amp; Cadangan</h2>
         <span className={`save-state${saved ? ' save-ok' : ''}`}>{saved ? 'Tersimpan otomatis' : 'Menyimpan…'}</span>
       </header>
+
+      {cloudStatus !== 'disabled' && (
+        <div className="cloud-sync-box">
+          <div className="cloud-sync-header">
+            <span className="cloud-sync-icon">
+              <CloudIcon />
+            </span>
+            <div className="cloud-sync-details">
+              <strong>Sinkronisasi Cloud Antar-Perangkat</strong>
+              <p className="muted small">
+                {cloudStatus === 'syncing' || syncBusy
+                  ? 'Sedang menyinkronkan data ke server...'
+                  : cloudStatus === 'synced'
+                  ? `Data tersinkron otomatis${lastSyncTime ? ` · Terakhir pkl ${formatLastSync(lastSyncTime)}` : ''}`
+                  : cloudStatus === 'error'
+                  ? 'Gagal menyinkronkan (periksa koneksi)'
+                  : 'Aktif otomatis setiap perubahan'}
+              </p>
+            </div>
+            <span className={`cloud-pill-status cloud-pill-${cloudStatus}`}>
+              {cloudStatus === 'synced' ? 'Tersinkron' : cloudStatus === 'syncing' ? 'Menyinkron' : 'Siap'}
+            </span>
+          </div>
+          <div className="cloud-sync-actions">
+            <button
+              type="button"
+              className="btn btn-sm"
+              onClick={handleManualSync}
+              disabled={syncBusy || cloudStatus === 'syncing'}
+            >
+              {syncBusy ? 'Menyinkronkan...' : 'Sinkronkan Sekarang'}
+            </button>
+            <button
+              type="button"
+              className="btn btn-ghost btn-sm"
+              onClick={handleManualPull}
+              disabled={syncBusy || cloudStatus === 'syncing'}
+            >
+              Unduh dari Cloud
+            </button>
+          </div>
+        </div>
+      )}
 
       <div className="data-list">
         <DataAction

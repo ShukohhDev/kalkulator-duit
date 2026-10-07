@@ -8,6 +8,7 @@ const DEFAULTS = {
   trendView: 'day',
   walletCurrency: 'idr',
   usdRate: 16_000,
+  usdRateAt: '',
   asetVisible: true,
   profilePicked: false,
 }
