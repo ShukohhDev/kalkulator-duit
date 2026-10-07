@@ -2,9 +2,14 @@
   <img src="public/logo.png" alt="Logo Kalkulator Uang Jajan" width="120" />
   <h1>Kalkulator Uang Jajan</h1>
   <p>Aplikasi web manajemen uang saku dan pencatatan keuangan pribadi harian, mingguan, serta bulanan.</p>
+  <p>
+    <a href="https://kalkulator-duit.vercel.app/"><strong>Website Resmi: kalkulator-duit.vercel.app</strong></a>
+  </p>
 </div>
 
 Aplikasi kalkulator keuangan pribadi yang dirancang cepat, simpel, dan bekerja secara offline (PWA). Membantu membagi anggaran uang saku, memantau pengeluaran, mencatat tagihan rutin, serta memonitor target tabungan.
+
+- **Link Website**: [https://kalkulator-duit.vercel.app](https://kalkulator-duit.vercel.app)
 
 ## Fitur Utama
 
