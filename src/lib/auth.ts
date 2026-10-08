@@ -113,19 +113,10 @@ export function currentUserRole(): 'admin' | 'user' {
     const current = currentUser()?.toLowerCase()
     if (!current) return 'user'
 
-    // Akun pemilik selalu mendapatkan peran admin
-    if (current === 'shukoh#dev') return 'admin'
-
+    // Hanya akun pemilik yang mendapatkan peran admin
     const adminEnv = (import.meta.env?.VITE_ADMIN_USERNAME as string | undefined)?.trim().toLowerCase()
-    if (adminEnv && current === adminEnv) return 'admin'
-
-    const role = sessionStorage.getItem(SESSION_ROLE_KEY)
-    if (role === 'admin') return 'admin'
-
-    // Jika akun di local berstatus admin
-    const accounts = readAccounts()
-    const userAcc = accounts.find((a) => a.username.toLowerCase() === current)
-    if (userAcc?.role === 'admin') return 'admin'
+    const isOwner = current === 'shukoh#dev' || (adminEnv && current === adminEnv)
+    if (isOwner) return 'admin'
 
     return 'user'
   } catch {
@@ -153,10 +144,10 @@ export async function register(username: string, password: string): Promise<stri
   const firstAccount = accounts.length === 0
   const nowIso = new Date().toISOString()
 
-  // Jika nama cocok dengan pemilik / env VITE_ADMIN_USERNAME atau akun pertama:
+  // Hanya pemilik yang mendapatkan peran admin, pengguna baru lainnya selalu 'user':
   const adminEnv = (import.meta.env?.VITE_ADMIN_USERNAME as string | undefined)?.trim().toLowerCase()
   const isOwner = name.toLowerCase() === 'shukoh#dev' || (adminEnv && name.toLowerCase() === adminEnv)
-  const role: 'admin' | 'user' = isOwner ? 'admin' : (firstAccount ? 'admin' : 'user')
+  const role: 'admin' | 'user' = isOwner ? 'admin' : 'user'
 
   // Coba simpan ke Supabase jika terkonfigurasi
   const supabase = getSupabaseClient()
@@ -224,7 +215,9 @@ export async function login(username: string, password: string): Promise<string 
         }
 
         const nowIso = new Date().toISOString()
-        const userRole = (remoteUser.role === 'admin' ? 'admin' : 'user') as 'admin' | 'user'
+        const adminEnv = (import.meta.env?.VITE_ADMIN_USERNAME as string | undefined)?.trim().toLowerCase()
+        const isOwner = remoteUser.username.toLowerCase() === 'shukoh#dev' || (adminEnv && remoteUser.username.toLowerCase() === adminEnv)
+        const userRole: 'admin' | 'user' = isOwner ? 'admin' : 'user'
 
         // Perbarui last_login di Supabase secara asinkron
         supabase
@@ -279,7 +272,7 @@ export async function login(username: string, password: string): Promise<string 
 
   const adminEnv = (import.meta.env?.VITE_ADMIN_USERNAME as string | undefined)?.trim().toLowerCase()
   const isOwner = name.toLowerCase() === 'shukoh#dev' || (adminEnv && name.toLowerCase() === adminEnv)
-  const userRole = (isOwner || account.role === 'admin') ? 'admin' : 'user'
+  const userRole: 'admin' | 'user' = isOwner ? 'admin' : 'user'
 
   // Sinkronkan ke Supabase jika belum terdaftar di remote
   if (supabase) {
