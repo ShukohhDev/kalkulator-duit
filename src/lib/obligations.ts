@@ -11,13 +11,21 @@ export function nowDate(): Date {
 }
 
 export function daysUntilDue(dueDay: number, now: Date): number {
-  const day = Math.min(28, Math.max(1, Math.round(dueDay)))
-  const thisMonth = new Date(now.getFullYear(), now.getMonth(), day)
+  const day = Math.min(31, Math.max(1, Math.round(dueDay)))
   const today = new Date(now.getFullYear(), now.getMonth(), now.getDate())
+
+  const maxThisMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0).getDate()
+  const targetThisMonth = Math.min(day, maxThisMonth)
+  const thisMonth = new Date(now.getFullYear(), now.getMonth(), targetThisMonth)
+
   if (thisMonth.getTime() >= today.getTime()) {
     return Math.round((thisMonth.getTime() - today.getTime()) / 86_400_000)
   }
-  const nextMonth = new Date(now.getFullYear(), now.getMonth() + 1, day)
+
+  const maxNextMonth = new Date(now.getFullYear(), now.getMonth() + 2, 0).getDate()
+  const targetNextMonth = Math.min(day, maxNextMonth)
+  const nextMonth = new Date(now.getFullYear(), now.getMonth() + 1, targetNextMonth)
+
   return Math.round((nextMonth.getTime() - today.getTime()) / 86_400_000)
 }
 

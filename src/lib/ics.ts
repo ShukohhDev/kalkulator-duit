@@ -22,12 +22,20 @@ function escapeText(text: string): string {
     .replace(/\r?\n/g, '\\n')
 }
 
-// jatuh tempo bulanan berikutnya (dueDay dikunci 1-28 supaya aman di semua bulan)
+// jatuh tempo bulanan berikutnya (dueDay dikunci 1-31, dengan penyesuaian hari terakhir bulan pendek)
 function nextDue(dueDay: number, now: Date): Date {
-  const day = Math.min(28, Math.max(1, Math.round(dueDay) || 1))
-  const candidate = new Date(now.getFullYear(), now.getMonth(), day)
+  const day = Math.min(31, Math.max(1, Math.round(dueDay) || 1))
   const midnight = new Date(now.getFullYear(), now.getMonth(), now.getDate())
-  if (candidate < midnight) return new Date(now.getFullYear(), now.getMonth() + 1, day)
+
+  const maxThisMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0).getDate()
+  const targetThisMonth = Math.min(day, maxThisMonth)
+  const candidate = new Date(now.getFullYear(), now.getMonth(), targetThisMonth)
+
+  if (candidate < midnight) {
+    const maxNextMonth = new Date(now.getFullYear(), now.getMonth() + 2, 0).getDate()
+    const targetNextMonth = Math.min(day, maxNextMonth)
+    return new Date(now.getFullYear(), now.getMonth() + 1, targetNextMonth)
+  }
   return candidate
 }
 

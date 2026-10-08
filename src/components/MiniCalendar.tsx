@@ -4,12 +4,12 @@ interface Props {
   onChange: (day: number) => void
 }
 
-const DAYS = Array.from({ length: 28 }, (_, index) => index + 1)
+const DAYS = Array.from({ length: 31 }, (_, index) => index + 1)
 
 export function MiniCalendar({ id, value, onChange }: Props) {
   return (
     <div className="field">
-      <label id={`${id}-label`}>Tgl jatuh tempo (1-28)</label>
+      <label id={`${id}-label`}>Tgl jatuh tempo (1-31)</label>
       <div id={id} className="mini-cal" role="radiogroup" aria-labelledby={`${id}-label`}>
         {DAYS.map((day) => (
           <button

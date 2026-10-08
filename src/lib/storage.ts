@@ -174,7 +174,7 @@ function sanitizeDebts(value: unknown): Debt[] {
       total: Math.max(0, num(item.total)),
       paid: Math.max(0, num(item.paid)),
       installment: Math.max(0, num(item.installment)),
-      dueDay: Math.min(28, Math.max(1, Math.round(num(item.dueDay, 1)))),
+      dueDay: Math.min(31, Math.max(1, Math.round(num(item.dueDay, 1)))),
     }))
     .filter((item) => item.total > 0 && item.installment > 0)
 }
@@ -187,7 +187,7 @@ function sanitizeBills(value: unknown): Bill[] {
       id: str(item.id, `bill-${index}`),
       name: str(item.name, 'Tagihan').trim() || 'Tagihan',
       amount: Math.max(0, num(item.amount)),
-      dueDay: Math.min(28, Math.max(1, Math.round(num(item.dueDay, 1)))),
+      dueDay: Math.min(31, Math.max(1, Math.round(num(item.dueDay, 1)))),
       lastPaid:
         typeof item.lastPaid === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(item.lastPaid) ? item.lastPaid : undefined,
     }))

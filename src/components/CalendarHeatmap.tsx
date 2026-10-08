@@ -30,7 +30,7 @@ export function CalendarHeatmap({ state, update }: Props) {
   const dueMarks = useMemo(() => {
     const map = new Map<number, DueMark[]>()
     const push = (day: number, mark: DueMark) => {
-      const clamped = Math.min(28, Math.max(1, day))
+      const clamped = Math.min(31, Math.max(1, day))
       map.set(clamped, [...(map.get(clamped) ?? []), mark])
     }
     for (const bill of state.bills) {
@@ -44,7 +44,7 @@ export function CalendarHeatmap({ state, update }: Props) {
 
   const dayExpenses = selected ? state.expenses.filter((item) => item.date === selected) : []
   const selectedDay = selected ? Number(selected.slice(8)) : 0
-  const dayMarks = selected && selectedDay <= 28 ? (dueMarks.get(selectedDay) ?? []) : []
+  const dayMarks = selected && selectedDay <= 31 ? (dueMarks.get(selectedDay) ?? []) : []
 
   const shift = (delta: number) => {
     const next = new Date(year, month + delta, 1)
@@ -93,7 +93,7 @@ export function CalendarHeatmap({ state, update }: Props) {
               const ratio = intensity(cell.total, max)
               const isToday = cell.iso === toISO(today)
               const day = Number(cell.iso.slice(8))
-              const marks = day <= 28 ? (dueMarks.get(day) ?? []) : undefined
+              const marks = day <= 31 ? (dueMarks.get(day) ?? []) : undefined
               const markNote = marks?.map((mark) => markText(mark, day)).join(' · ')
               return (
                 <button

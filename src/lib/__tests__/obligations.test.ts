@@ -17,9 +17,15 @@ describe('daysUntilDue', () => {
     expect(daysUntilDue(1, NOW)).toBe(27)
   })
 
-  it('clamp tanggal di luar 1-28', () => {
-    expect(daysUntilDue(99, NOW)).toBe(daysUntilDue(28, NOW))
+  it('clamp tanggal di luar 1-31', () => {
+    expect(daysUntilDue(99, NOW)).toBe(daysUntilDue(31, NOW))
     expect(daysUntilDue(0, NOW)).toBe(daysUntilDue(1, NOW))
+  })
+
+  it('penyesuaian hari terakhir pada bulan pendek (misal Februari)', () => {
+    const feb = new Date(2026, 1, 15) // 15 Februari 2026 (Februari ada 28 hari)
+    // Jatuh tempo tanggal 31 disesuaikan ke tanggal 28 Februari (13 hari lagi)
+    expect(daysUntilDue(31, feb)).toBe(13)
   })
 })
 
