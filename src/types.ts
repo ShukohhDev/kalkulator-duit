@@ -86,6 +86,7 @@ export interface Bill {
   amount: number
   dueDay: number
   lastPaid?: string
+  paidThisMonth?: number
 }
 
 export interface Wallet {

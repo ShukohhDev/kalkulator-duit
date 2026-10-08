@@ -183,14 +183,21 @@ function sanitizeBills(value: unknown): Bill[] {
   if (!Array.isArray(value)) return []
   return value
     .filter((item): item is Record<string, unknown> => !!item && typeof item === 'object')
-    .map((item, index) => ({
-      id: str(item.id, `bill-${index}`),
-      name: str(item.name, 'Tagihan').trim() || 'Tagihan',
-      amount: Math.max(0, num(item.amount)),
-      dueDay: Math.min(31, Math.max(1, Math.round(num(item.dueDay, 1)))),
-      lastPaid:
-        typeof item.lastPaid === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(item.lastPaid) ? item.lastPaid : undefined,
-    }))
+    .map((item, index) => {
+      const amount = Math.max(0, num(item.amount))
+      const rawPaid = typeof item.paidThisMonth === 'number' && Number.isFinite(item.paidThisMonth)
+        ? Math.max(0, item.paidThisMonth)
+        : undefined
+      return {
+        id: str(item.id, `bill-${index}`),
+        name: str(item.name, 'Tagihan').trim() || 'Tagihan',
+        amount,
+        dueDay: Math.min(31, Math.max(1, Math.round(num(item.dueDay, 1)))),
+        lastPaid:
+          typeof item.lastPaid === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(item.lastPaid) ? item.lastPaid : undefined,
+        paidThisMonth: rawPaid !== undefined ? Math.min(amount, rawPaid) : undefined,
+      }
+    })
     .filter((item) => item.amount > 0)
 }
 

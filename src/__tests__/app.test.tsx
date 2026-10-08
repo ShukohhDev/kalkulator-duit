@@ -165,6 +165,7 @@ describe('alur aplikasi', () => {
     expect(container.querySelector('.insight-list')?.textContent).toMatch(/jatuh tempo|H-\d/)
 
     clickText('.ob-row button', 'Bayar')
+    clickText('button', 'Konfirmasi Bayar')
     expect(container.textContent).toContain('Lunas bulan ini')
     expect(container.textContent).toContain('Menampilkan 1 dari 1 catatan')
 

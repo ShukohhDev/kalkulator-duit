@@ -29,17 +29,60 @@ export function daysUntilDue(dueDay: number, now: Date): number {
   return Math.round((nextMonth.getTime() - today.getTime()) / 86_400_000)
 }
 
+export function billPaidThisMonth(bill: Bill, now: Date = nowDate()): number {
+  if (!bill.lastPaid) return 0
+  const isCurrentMonth = bill.lastPaid.slice(0, 7) === toISO(now).slice(0, 7)
+  if (!isCurrentMonth) return 0
+  if (typeof bill.paidThisMonth === 'number') {
+    return Math.min(bill.amount, Math.max(0, bill.paidThisMonth))
+  }
+  return bill.amount
+}
+
+export function billRemainingThisMonth(bill: Bill, now: Date = nowDate()): number {
+  const paid = billPaidThisMonth(bill, now)
+  return Math.max(0, bill.amount - paid)
+}
+
+export function isBillFullyPaidThisMonth(bill: Bill, now: Date = nowDate()): boolean {
+  if (!bill.lastPaid) return false
+  const isCurrentMonth = bill.lastPaid.slice(0, 7) === toISO(now).slice(0, 7)
+  if (!isCurrentMonth) return false
+  return billRemainingThisMonth(bill, now) <= 0
+}
+
 export function dueThisMonth(lastPaid: string | undefined, now: Date): boolean {
   return typeof lastPaid === 'string' && lastPaid.slice(0, 7) === toISO(now).slice(0, 7)
 }
 
-export function markBillPaid(s: AppState, bill: Bill): AppState {
+export function markBillPaid(s: AppState, bill: Bill, customAmount?: number, now: Date = nowDate()): AppState {
   const date = todayISO()
+  const currentPaid = billPaidThisMonth(bill, now)
+  const remaining = Math.max(0, bill.amount - currentPaid)
+  const payAmount =
+    typeof customAmount === 'number' && customAmount > 0
+      ? Math.min(customAmount, remaining)
+      : remaining
+
+  if (payAmount <= 0) return s
+
+  const newTotalPaid = currentPaid + payAmount
+  const isFull = newTotalPaid >= bill.amount
+  const note = isFull && currentPaid === 0 ? bill.name : isFull ? `${bill.name} (Pelunasan)` : `${bill.name} (Cicil)`
+
   return {
     ...s,
-    bills: s.bills.map((item) => (item.id === bill.id ? { ...item, lastPaid: date } : item)),
+    bills: s.bills.map((item) =>
+      item.id === bill.id
+        ? {
+            ...item,
+            lastPaid: date,
+            paidThisMonth: newTotalPaid,
+          }
+        : item
+    ),
     expenses: [
-      { id: uid('exp'), date, categoryId: TAGIHAN_CATEGORY, note: bill.name, amount: bill.amount },
+      { id: uid('exp'), date, categoryId: TAGIHAN_CATEGORY, note, amount: payAmount },
       ...s.expenses,
     ],
   }
@@ -69,8 +112,10 @@ export interface UpcomingDue {
 export function upcomingDue(state: AppState, now: Date = new Date()): UpcomingDue | null {
   const candidates: UpcomingDue[] = []
   for (const bill of state.bills) {
+    if (isBillFullyPaidThisMonth(bill, now)) continue
     const days = daysUntilDue(bill.dueDay, now)
-    if (days <= REMIND_WINDOW) candidates.push({ id: bill.id, name: bill.name, amount: bill.amount, days })
+    const remaining = billRemainingThisMonth(bill, now)
+    if (days <= REMIND_WINDOW) candidates.push({ id: bill.id, name: bill.name, amount: remaining, days })
   }
   for (const debt of state.debts) {
     if (debt.paid >= debt.total) continue
@@ -98,8 +143,14 @@ function readRemindMap(): Record<string, string> {
 // notifikasi per tagihan maksimal 1x sehari; butuh izin notifikasi yang sudah diberikan
 export function notifyDue(state: AppState, now: Date = new Date()): number {
   if (typeof Notification === 'undefined' || Notification.permission !== 'granted') return 0
-  const upcoming = [...state.bills, ...state.debts.filter((debt) => debt.paid < debt.total)]
-    .map((item) => ({ item, days: daysUntilDue(item.dueDay, now) }))
+  const upcoming = [
+    ...state.bills
+      .filter((b) => !isBillFullyPaidThisMonth(b, now))
+      .map((item) => ({ item, days: daysUntilDue(item.dueDay, now) })),
+    ...state.debts
+      .filter((debt) => debt.paid < debt.total)
+      .map((item) => ({ item, days: daysUntilDue(item.dueDay, now) })),
+  ]
     .filter((entry) => entry.days <= REMIND_WINDOW)
     .sort((a, b) => a.days - b.days)
 
@@ -111,7 +162,10 @@ export function notifyDue(state: AppState, now: Date = new Date()): number {
   for (const { item, days } of upcoming) {
     if (map[item.id] === today) continue
     const when = days === 0 ? 'hari ini' : days === 1 ? 'besok' : `dalam ${days} hari`
-    const amount = 'amount' in item ? item.amount : Math.min(item.installment, Math.max(0, item.total - item.paid))
+    const amount =
+      'amount' in item
+        ? billRemainingThisMonth(item, now)
+        : Math.min(item.installment, Math.max(0, item.total - item.paid))
     new Notification('Pengingat Kalkulator Uang Jajan', {
       body: `${item.name} jatuh tempo ${when}, ${formatIDR(amount)}.`,
     })

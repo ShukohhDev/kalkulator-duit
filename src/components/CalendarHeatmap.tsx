@@ -4,7 +4,7 @@ import type { AppState, Bill, Debt } from '../types'
 import type { Updater } from '../hooks/useAppState'
 import { expenseTotalsByDay, intensity, monthGrid } from '../lib/calendar'
 import { formatIDR, formatShortDate, monthLabel, toISO } from '../lib/money'
-import { daysUntilDue, dueLabel, dueThisMonth, markBillPaid, markDebtPaid } from '../lib/obligations'
+import { daysUntilDue, dueLabel, isBillFullyPaidThisMonth, markBillPaid, markDebtPaid } from '../lib/obligations'
 
 interface Props {
   state: AppState
@@ -34,7 +34,7 @@ export function CalendarHeatmap({ state, update }: Props) {
       map.set(clamped, [...(map.get(clamped) ?? []), mark])
     }
     for (const bill of state.bills) {
-      push(bill.dueDay, { kind: 'bill', name: bill.name, paid: dueThisMonth(bill.lastPaid, today), item: bill })
+      push(bill.dueDay, { kind: 'bill', name: bill.name, paid: isBillFullyPaidThisMonth(bill, today), item: bill })
     }
     for (const debt of state.debts) {
       push(debt.dueDay, { kind: 'debt', name: debt.name, paid: debt.paid >= debt.total, item: debt })

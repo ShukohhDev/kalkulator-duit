@@ -3,10 +3,12 @@ import type { AppState, Bill, Debt, Notify } from '../types'
 import type { Updater } from '../hooks/useAppState'
 import { formatIDR } from '../lib/money'
 import {
+  billPaidThisMonth,
+  billRemainingThisMonth,
   daysUntilDue,
   dueDateLabel,
   dueLabel,
-  dueThisMonth,
+  isBillFullyPaidThisMonth,
   markBillPaid,
   markDebtPaid,
   nowDate,
@@ -27,6 +29,8 @@ export function ObligationsPanel({ state, update, notify }: Props) {
   const [billName, setBillName] = useState('')
   const [billAmount, setBillAmount] = useState(0)
   const [billDay, setBillDay] = useState(1)
+  const [payingBillId, setPayingBillId] = useState<string | null>(null)
+  const [payNominal, setPayNominal] = useState<number>(0)
   const [debtName, setDebtName] = useState('')
   const [debtTotal, setDebtTotal] = useState(0)
   const [debtInstallment, setDebtInstallment] = useState(0)
@@ -62,9 +66,36 @@ export function ObligationsPanel({ state, update, notify }: Props) {
     }
   }
 
-  const payBill = (bill: Bill) => update((s) => markBillPaid(s, bill))
+  const openPayBill = (bill: Bill) => {
+    const remaining = billRemainingThisMonth(bill, now)
+    setPayingBillId(bill.id)
+    setPayNominal(remaining)
+  }
+
+  const cancelPayBill = () => {
+    setPayingBillId(null)
+    setPayNominal(0)
+  }
+
+  const confirmPayBill = (bill: Bill) => {
+    if (payNominal <= 0) return
+    const remaining = billRemainingThisMonth(bill, now)
+    const actualPay = Math.min(payNominal, remaining)
+    update((s) => markBillPaid(s, bill, actualPay))
+    const nextRemaining = remaining - actualPay
+    if (nextRemaining <= 0) {
+      notify(`Tagihan ${bill.name} lunas bulan ini (${formatIDR(actualPay)}).`)
+    } else {
+      notify(
+        `Pembayaran ${bill.name} berhasil dicatat (${formatIDR(actualPay)}). Sisa tagihan: ${formatIDR(nextRemaining)}.`,
+      )
+    }
+    setPayingBillId(null)
+    setPayNominal(0)
+  }
 
   const removeBill = (id: string) => {
+    if (payingBillId === id) setPayingBillId(null)
     const index = state.bills.findIndex((item) => item.id === id)
     const target = state.bills[index]
     if (!target) return
@@ -127,27 +158,118 @@ export function ObligationsPanel({ state, update, notify }: Props) {
       <h3 className="section-title">Tagihan rutin</h3>
       <div className="goal-list">
         {state.bills.map((bill) => {
-          const paid = dueThisMonth(bill.lastPaid, now)
+          const isPaid = isBillFullyPaidThisMonth(bill, now)
+          const paidAmount = billPaidThisMonth(bill, now)
+          const remaining = billRemainingThisMonth(bill, now)
           const days = daysUntilDue(bill.dueDay, now)
+          const isPayingThis = payingBillId === bill.id
+
           return (
             <article key={bill.id} className="ob-row">
               <div className="ob-main">
                 <strong>{bill.name}</strong>
+                {paidAmount > 0 && remaining > 0 && (
+                  <ProgressBar value={paidAmount} max={bill.amount} />
+                )}
                 <span className="muted small">
-                  {formatIDR(bill.amount)} · tiap tgl {bill.dueDay} ({dueDateLabel(bill.dueDay)})
+                  {paidAmount > 0 && remaining > 0 ? (
+                    <>
+                      Terbayar {formatIDR(paidAmount)} dari {formatIDR(bill.amount)} · sisa {formatIDR(remaining)} · tiap tgl {bill.dueDay} ({dueDateLabel(bill.dueDay)})
+                    </>
+                  ) : (
+                    <>
+                      {formatIDR(bill.amount)} · tiap tgl {bill.dueDay} ({dueDateLabel(bill.dueDay)})
+                    </>
+                  )}
                 </span>
               </div>
-              <span className={`ob-badge ${paid ? 'ob-badge-ok' : days <= 3 ? 'ob-badge-due' : ''}`}>
-                {paid ? 'Lunas bulan ini' : dueLabel(days)}
+              <span
+                className={`ob-badge ${
+                  isPaid ? 'ob-badge-ok' : paidAmount > 0 ? 'ob-badge-warn' : days <= 3 ? 'ob-badge-due' : ''
+                }`}
+              >
+                {isPaid ? 'Lunas bulan ini' : paidAmount > 0 ? `Sisa ${formatIDR(remaining)}` : dueLabel(days)}
               </span>
               <div className="ob-actions">
-                <button type="button" className="btn btn-sm" disabled={paid} onClick={() => payBill(bill)}>
-                  Bayar
+                <button
+                  type="button"
+                  className="btn btn-sm"
+                  disabled={isPaid}
+                  onClick={() => (isPayingThis ? cancelPayBill() : openPayBill(bill))}
+                >
+                  {isPayingThis ? 'Batal' : 'Bayar'}
                 </button>
-                <button type="button" className="btn btn-ghost btn-sm btn-danger" onClick={() => removeBill(bill.id)}>
+                <button
+                  type="button"
+                  className="btn btn-ghost btn-sm btn-danger"
+                  onClick={() => removeBill(bill.id)}
+                >
                   Hapus
                 </button>
               </div>
+
+              {isPayingThis && (
+                <div className="ob-pay-drawer">
+                  <div className="ob-pay-info">
+                    <span className="small">
+                      Sisa tagihan: <strong>{formatIDR(remaining)}</strong>
+                    </span>
+                    <span className="muted small">Ketik nominal yang mau dibayar (bisa nyicil dulu)</span>
+                  </div>
+                  <div className="ob-pay-input-row">
+                    <div className="field ob-pay-field">
+                      <label htmlFor={`pay-amount-${bill.id}`}>Nominal bayar (Rp)</label>
+                      <MoneyInput
+                        id={`pay-amount-${bill.id}`}
+                        value={payNominal}
+                        onValueChange={setPayNominal}
+                        placeholder="Masukkan nominal bayar…"
+                        autoFocus
+                      />
+                    </div>
+                    <div className="ob-pay-actions">
+                      <button
+                        type="button"
+                        className="btn btn-sm"
+                        disabled={payNominal <= 0 || payNominal > remaining}
+                        onClick={() => confirmPayBill(bill)}
+                      >
+                        Konfirmasi Bayar
+                      </button>
+                      <button
+                        type="button"
+                        className="btn btn-ghost btn-sm"
+                        onClick={cancelPayBill}
+                      >
+                        Batal
+                      </button>
+                    </div>
+                  </div>
+                  <div className="ob-pay-chips">
+                    <button
+                      type="button"
+                      className="btn btn-ghost btn-xs"
+                      onClick={() => setPayNominal(remaining)}
+                    >
+                      Bayar lunas ({formatIDR(remaining)})
+                    </button>
+                    {remaining >= 50_000 && Math.round(remaining / 2) !== remaining && (
+                      <button
+                        type="button"
+                        className="btn btn-ghost btn-xs"
+                        onClick={() => setPayNominal(Math.round(remaining / 2))}
+                      >
+                        Cicil 50% ({formatIDR(Math.round(remaining / 2))})
+                      </button>
+                    )}
+                  </div>
+                  {payNominal > remaining && (
+                    <p className="small" style={{ color: 'var(--danger)', margin: 0 }}>
+                      Nominal melebihi sisa tagihan ({formatIDR(remaining)}).
+                    </p>
+                  )}
+                </div>
+              )}
             </article>
           )
         })}

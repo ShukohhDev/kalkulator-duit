@@ -1,7 +1,17 @@
 // @vitest-environment jsdom
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { initialState } from '../state'
-import { daysUntilDue, dueLabel, notifyDue, nowDate, upcomingDue } from '../obligations'
+import {
+  billPaidThisMonth,
+  billRemainingThisMonth,
+  daysUntilDue,
+  dueLabel,
+  isBillFullyPaidThisMonth,
+  markBillPaid,
+  notifyDue,
+  nowDate,
+  upcomingDue,
+} from '../obligations'
 
 const NOW = new Date(2026, 9, 5, 9, 0, 0) // Senin, 5 Oktober 2026
 
@@ -104,5 +114,57 @@ describe('notifyDue', () => {
     expect(notifyDue(state, NOW)).toBe(0)
     expect(calls).toHaveLength(0)
     expect(nowDate()).toBeInstanceOf(Date)
+  })
+})
+
+describe('markBillPaid dan pembayaran cicil tagihan', () => {
+  it('bayar lunas sekaligus mencatat pengeluaran penuh', () => {
+    const state = initialState()
+    const bill = { id: 'b1', name: 'Listrik', amount: 150_000, dueDay: 20 }
+    state.bills = [bill]
+
+    const next = markBillPaid(state, bill, undefined, NOW)
+    expect(next.bills[0]?.paidThisMonth).toBe(150_000)
+    expect(next.expenses).toHaveLength(1)
+    expect(next.expenses[0]?.amount).toBe(150_000)
+    expect(next.expenses[0]?.note).toBe('Listrik')
+    expect(isBillFullyPaidThisMonth(next.bills[0]!, NOW)).toBe(true)
+    expect(billRemainingThisMonth(next.bills[0]!, NOW)).toBe(0)
+  })
+
+  it('bayar sebagian (nyicil) mencatat nominal cicilan dan menyisakan sisa tagihan', () => {
+    const state = initialState()
+    const bill = { id: 'b1', name: 'Internet', amount: 300_000, dueDay: 15 }
+    state.bills = [bill]
+
+    // Bayar cicil pertama: Rp 100.000
+    const step1 = markBillPaid(state, bill, 100_000, NOW)
+    expect(step1.bills[0]?.paidThisMonth).toBe(100_000)
+    expect(step1.expenses).toHaveLength(1)
+    expect(step1.expenses[0]?.amount).toBe(100_000)
+    expect(step1.expenses[0]?.note).toBe('Internet (Cicil)')
+    expect(isBillFullyPaidThisMonth(step1.bills[0]!, NOW)).toBe(false)
+    expect(billPaidThisMonth(step1.bills[0]!, NOW)).toBe(100_000)
+    expect(billRemainingThisMonth(step1.bills[0]!, NOW)).toBe(200_000)
+
+    // Bayar cicil kedua / pelunasan: Rp 200.000
+    const step2 = markBillPaid(step1, step1.bills[0]!, 200_000, NOW)
+    expect(step2.bills[0]?.paidThisMonth).toBe(300_000)
+    expect(step2.expenses).toHaveLength(2)
+    expect(step2.expenses[0]?.amount).toBe(200_000)
+    expect(step2.expenses[0]?.note).toBe('Internet (Pelunasan)')
+    expect(isBillFullyPaidThisMonth(step2.bills[0]!, NOW)).toBe(true)
+    expect(billRemainingThisMonth(step2.bills[0]!, NOW)).toBe(0)
+  })
+
+  it('nominal pembayaran di atas sisa tagihan otomatis di-clamp ke sisa', () => {
+    const state = initialState()
+    const bill = { id: 'b1', name: 'Air', amount: 100_000, dueDay: 10 }
+    state.bills = [bill]
+
+    const next = markBillPaid(state, bill, 250_000, NOW)
+    expect(next.bills[0]?.paidThisMonth).toBe(100_000)
+    expect(next.expenses[0]?.amount).toBe(100_000)
+    expect(isBillFullyPaidThisMonth(next.bills[0]!, NOW)).toBe(true)
   })
 })

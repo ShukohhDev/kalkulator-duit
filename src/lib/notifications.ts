@@ -1,6 +1,6 @@
 import type { AppState } from '../types'
 import type { Derived } from './derive'
-import { daysUntilDue, dueThisMonth } from './obligations'
+import { billRemainingThisMonth, daysUntilDue, isBillFullyPaidThisMonth } from './obligations'
 import { fetchUserReports } from './reports'
 
 export type NotificationKind = 'finance' | 'report_status' | 'admin_reply'
@@ -102,15 +102,16 @@ export async function buildUserNotifications(
 
   // 2. Notifikasi Finansial: Tagihan & Cicilan Utang
   for (const bill of state.bills) {
-    const isPaid = dueThisMonth(bill.lastPaid, now)
+    const isPaid = isBillFullyPaidThisMonth(bill, now)
     if (isPaid) continue
     const days = daysUntilDue(bill.dueDay, now)
+    const remaining = billRemainingThisMonth(bill, now)
     if (days === 0) {
       items.push({
         id: `fin-bill-today-${bill.id}`,
         kind: 'finance',
         title: `Tagihan Jatuh Tempo Hari Ini: ${bill.name}`,
-        message: `Tagihan sebesar Rp ${bill.amount.toLocaleString('id-ID')} jatuh tempo hari ini.`,
+        message: `Tagihan sebesar Rp ${remaining.toLocaleString('id-ID')} jatuh tempo hari ini.`,
         timestamp: new Date(now.getTime() - 1000 * 60 * 10).toISOString(),
         read: readIds.has(`fin-bill-today-${bill.id}`),
         tag: 'Jatuh Tempo',
@@ -120,7 +121,7 @@ export async function buildUserNotifications(
         id: `fin-bill-soon-${bill.id}`,
         kind: 'finance',
         title: `Tagihan Mendekati Tenggat: ${bill.name}`,
-        message: `Tagihan sebesar Rp ${bill.amount.toLocaleString('id-ID')} jatuh tempo dalam ${days} hari lagi.`,
+        message: `Tagihan sebesar Rp ${remaining.toLocaleString('id-ID')} jatuh tempo dalam ${days} hari lagi.`,
         timestamp: new Date(now.getTime() - 1000 * 60 * 30).toISOString(),
         read: readIds.has(`fin-bill-soon-${bill.id}`),
         tag: 'Jatuh Tempo',
