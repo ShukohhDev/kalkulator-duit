@@ -464,7 +464,7 @@ function AppShell({ user, onLogout }: { user: string; onLogout: () => void }) {
         </div>
       )}
 
-      {(pickerOpen || state.mode === null) && (
+      {(pickerOpen || (state.mode === null && cloudStatus !== 'syncing')) && (
         <PeriodPicker
           current={state.mode}
           onPick={pickMode}

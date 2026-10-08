@@ -34,14 +34,21 @@ export function useAppState() {
         if (!isMounted) return
         if (res.success && res.state) {
           const local = loadState()
-          const isLocalFresh =
-            local.expenses.length === 0 && local.incomes.length === 0 && local.allowance === 0
-          if (
-            isLocalFresh &&
-            (res.state.expenses.length > 0 ||
-              res.state.incomes.length > 0 ||
-              res.state.allowance > 0)
-          ) {
+          const isLocalEmpty =
+            local.mode === null ||
+            (local.expenses.length === 0 && local.incomes.length === 0 && local.allowance === 0)
+          const cloudHasData =
+            res.state.mode !== null ||
+            res.state.expenses.length > 0 ||
+            res.state.incomes.length > 0 ||
+            res.state.allowance > 0
+
+          const cloudHasMore =
+            res.state.expenses.length > local.expenses.length ||
+            res.state.incomes.length > local.incomes.length ||
+            (res.state.activity?.length ?? 0) > (local.activity?.length ?? 0)
+
+          if ((isLocalEmpty && cloudHasData) || cloudHasMore) {
             saveState(res.state)
             setState(res.state)
           }

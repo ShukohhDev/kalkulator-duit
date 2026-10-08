@@ -2,6 +2,8 @@ import { useState, type FormEvent } from 'react'
 import { accountNames, hasAccounts, login, register } from '../lib/auth'
 import { loadState, saveState } from '../lib/storage'
 import { appendActivity } from '../lib/activity'
+import { getSupabaseClient } from '../lib/supabase'
+import { pullStateFromCloud } from '../lib/cloudSync'
 import { EYE_OFF, EYE_OPEN } from './icons'
 
 interface AuthGateProps {
@@ -24,13 +26,32 @@ export function AuthGate({ onAuthed }: AuthGateProps) {
     setError('')
     setBusy(true)
     const failure = mode === 'daftar' ? await register(username, password) : await login(username, password)
-    setBusy(false)
     if (failure) {
+      setBusy(false)
       setError(failure)
       return
     }
     const name = username.trim()
+
+    // Jika cloud aktif, tarik data pengguna dari cloud sebelum masuk ke aplikasi
+    const supabase = getSupabaseClient()
+    if (supabase) {
+      try {
+        const cloudRes = await pullStateFromCloud(name)
+        if (cloudRes.success && cloudRes.state) {
+          const withActivity = appendActivity(cloudRes.state, 'login', `Masuk ke akun ${name}`)
+          saveState(withActivity)
+          setBusy(false)
+          onAuthed(name)
+          return
+        }
+      } catch {
+        // fallback ke penyimpanan lokal jika jaringan terkendala
+      }
+    }
+
     saveState(appendActivity(loadState(), 'login', `Masuk ke akun ${name}`))
+    setBusy(false)
     onAuthed(name)
   }
 
