@@ -257,9 +257,14 @@ function AppShell({ user, onLogout }: { user: string; onLogout: () => void }) {
   const togglePanel = (id: string) => {
     if (id === 'nav-beranda') {
       setOpenPanel(null)
-      return
+    } else {
+      setOpenPanel((prev) => (prev === id ? null : id))
     }
-    setOpenPanel((prev) => (prev === id ? null : id))
+    try {
+      window.scrollTo({ top: 0, behavior: 'smooth' })
+    } catch {
+      // ignore
+    }
   }
 
   const toggleQuick = (mode: 'expense' | 'income') => {

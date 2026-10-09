@@ -283,6 +283,7 @@ button, input, select, textarea {
   padding: 4px 2px 8px;
   margin-bottom: 16px;
   scrollbar-width: none;
+  -webkit-overflow-scrolling: touch;
 }
 
 .section-nav::-webkit-scrollbar { display: none; }
@@ -2691,13 +2692,36 @@ button, input, select, textarea {
    RESPONSIVE
    ========================================================= */
 
+@media (max-width: 768px) {
+  .topbar {
+    position: static;
+    top: auto;
+    margin-bottom: 12px;
+    box-shadow: var(--shadow-xs);
+  }
+
+  .section-nav {
+    position: sticky;
+    top: 0;
+    z-index: 50;
+    background: var(--bg);
+    margin-left: -14px;
+    margin-right: -14px;
+    padding: 8px 14px 10px;
+    margin-bottom: 16px;
+    border-bottom: 1px solid var(--border);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+  }
+}
+
 @media (max-width: 640px) {
   .app { padding: 16px 14px 72px; }
 
   .topbar {
-    padding: 12px 16px;
+    padding: 12px 14px;
     gap: 10px;
-    top: 8px;
   }
 
   .brand { font-size: 17px; }
