@@ -57,7 +57,7 @@ import { WishlistPanel } from './components/WishlistPanel'
 import { PwaInstallCard } from './components/PwaInstallCard'
 import { ShoppingListCard } from './components/ShoppingListCard'
 import { WeekCard } from './components/WeekCard'
-import { ICON_BELL } from './components/icons'
+import { ICON_BELL, NAV_SVG_ICONS } from './components/icons'
 
 const SUN_ICON = (
   <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" aria-hidden="true">
@@ -434,6 +434,18 @@ function AppShell({ user, onLogout }: { user: string; onLogout: () => void }) {
 
       {!openPanel && (
         <main className="front" id="nav-beranda">
+          <div className="panel-hero-banner">
+            <div className="panel-hero-main">
+              <div className="panel-hero-icon">{NAV_SVG_ICONS['nav-beranda']}</div>
+              <div className="panel-hero-body">
+                <h2 className="panel-hero-title">Ringkasan Uang Jajan</h2>
+                <p className="panel-hero-desc">Pantau alokasi saku, batas aman belanja harian, dan kesehatan dompetmu.</p>
+              </div>
+            </div>
+            <div className="panel-hero-badge">
+              <span>{state.mode === 'week' ? 'Periode Mingguan' : 'Periode Bulanan'}</span>
+            </div>
+          </div>
           <TotalAsetCard state={state} />
           <AlertsPanel alerts={alerts} />
           <AllowanceCard state={state} derived={derived} update={update} notify={notify} onChangePeriod={() => setPickerOpen(true)} />
@@ -446,14 +458,50 @@ function AppShell({ user, onLogout }: { user: string; onLogout: () => void }) {
       )}
 
       <div id="nav-catat" className={sectionClass('nav-catat')}>
+        <div className="panel-hero-banner">
+          <div className="panel-hero-main">
+            <div className="panel-hero-icon">{NAV_SVG_ICONS['nav-catat']}</div>
+            <div className="panel-hero-body">
+              <h2 className="panel-hero-title">Catat Transaksi</h2>
+              <p className="panel-hero-desc">Kelola daftar belanja, catat pengeluaran harian, dan pemasukan uang jajan.</p>
+            </div>
+          </div>
+          <div className="panel-hero-badge">
+            <span>{state.expenses.length} pengeluaran · {state.incomes.length} pemasukan</span>
+          </div>
+        </div>
         <ShoppingListCard state={state} update={update} notify={notify} />
         <ExpensesPanel state={state} update={update} notify={notify} />
         <IncomePanel state={state} update={update} notify={notify} />
       </div>
       <div id="nav-kewajiban" className={sectionClass('nav-kewajiban')}>
+        <div className="panel-hero-banner">
+          <div className="panel-hero-main">
+            <div className="panel-hero-icon">{NAV_SVG_ICONS['nav-kewajiban']}</div>
+            <div className="panel-hero-body">
+              <h2 className="panel-hero-title">Kewajiban & Tagihan</h2>
+              <p className="panel-hero-desc">Pantau tagihan rutin bulanan dan angsuran utang berjalan tepat waktu.</p>
+            </div>
+          </div>
+          <div className="panel-hero-badge">
+            <span>{state.bills.length} tagihan · {state.debts.length} utang</span>
+          </div>
+        </div>
         <ObligationsPanel state={state} update={update} notify={notify} />
       </div>
       <div id="nav-analisis" className={sectionClass('nav-analisis')}>
+        <div className="panel-hero-banner">
+          <div className="panel-hero-main">
+            <div className="panel-hero-icon">{NAV_SVG_ICONS['nav-analisis']}</div>
+            <div className="panel-hero-body">
+              <h2 className="panel-hero-title">Analisis Finansial</h2>
+              <p className="panel-hero-desc">Evaluasi skor kesehatan keuangan, pola arus kas, dan tren pengeluaranmu.</p>
+            </div>
+          </div>
+          <div className="panel-hero-badge">
+            <span>Evaluasi otomatis</span>
+          </div>
+        </div>
         <HealthCard state={state} derived={derived} />
         <CashflowChart state={state} derived={derived} />
         <TrendPanel state={state} />
@@ -463,6 +511,18 @@ function AppShell({ user, onLogout }: { user: string; onLogout: () => void }) {
         <WhatIfPanel state={state} derived={derived} />
       </div>
       <div id="nav-tabungan" className={sectionClass('nav-tabungan')}>
+        <div className="panel-hero-banner">
+          <div className="panel-hero-main">
+            <div className="panel-hero-icon">{NAV_SVG_ICONS['nav-tabungan']}</div>
+            <div className="panel-hero-body">
+              <h2 className="panel-hero-title">Tabungan & Aset</h2>
+              <p className="panel-hero-desc">Pantau tabungan akhir periode, saldo dompet, target masa depan, dan dana musiman.</p>
+            </div>
+          </div>
+          <div className="panel-hero-badge">
+            <span>{state.wallets.length} dompet terdaftar</span>
+          </div>
+        </div>
         <EndSavingsCard state={state} />
         <DompetPanel state={state} update={update} />
         <SavingsPanel state={state} derived={derived} update={update} />
@@ -470,9 +530,33 @@ function AppShell({ user, onLogout }: { user: string; onLogout: () => void }) {
         <SeasonalPanel state={state} derived={derived} update={update} notify={notify} />
       </div>
       <div id="nav-laporan" className={sectionClass('nav-laporan')}>
+        <div className="panel-hero-banner">
+          <div className="panel-hero-main">
+            <div className="panel-hero-icon">{NAV_SVG_ICONS['nav-laporan']}</div>
+            <div className="panel-hero-body">
+              <h2 className="panel-hero-title">Laporan Keuangan</h2>
+              <p className="panel-hero-desc">Rekapitulasi lengkap pemasukan, pengeluaran, dan sisa uang jajan yang siap dicetak.</p>
+            </div>
+          </div>
+          <div className="panel-hero-badge">
+            <span>{state.mode === 'week' ? 'Mode 1 Minggu' : 'Mode 1 Bulan'}</span>
+          </div>
+        </div>
         <ReportCard state={state} notify={notify} />
       </div>
       <div id="nav-data" className={sectionClass('nav-data')}>
+        <div className="panel-hero-banner">
+          <div className="panel-hero-main">
+            <div className="panel-hero-icon">{NAV_SVG_ICONS['nav-data']}</div>
+            <div className="panel-hero-body">
+              <h2 className="panel-hero-title">Pengaturan & Akun</h2>
+              <p className="panel-hero-desc">Kelola preferensi, keamanan akun, cadangan data, dan riwayat aktivitas.</p>
+            </div>
+          </div>
+          <div className="panel-hero-badge">
+            <span>Akun: {user}</span>
+          </div>
+        </div>
         <ReportIssueCard notify={notify} />
         <AccountSecurityCard username={user} notify={notify} />
         <PwaInstallCard notify={notify} />
