@@ -55,7 +55,13 @@ export function dueThisMonth(lastPaid: string | undefined, now: Date): boolean {
   return typeof lastPaid === 'string' && lastPaid.slice(0, 7) === toISO(now).slice(0, 7)
 }
 
-export function markBillPaid(s: AppState, bill: Bill, customAmount?: number, now: Date = nowDate()): AppState {
+export function markBillPaid(
+  s: AppState,
+  bill: Bill,
+  customAmount?: number,
+  now: Date = nowDate(),
+  walletId?: string,
+): AppState {
   const date = todayISO()
   const currentPaid = billPaidThisMonth(bill, now)
   const remaining = Math.max(0, bill.amount - currentPaid)
@@ -70,8 +76,21 @@ export function markBillPaid(s: AppState, bill: Bill, customAmount?: number, now
   const isFull = newTotalPaid >= bill.amount
   const note = isFull && currentPaid === 0 ? bill.name : isFull ? `${bill.name} (Pelunasan)` : `${bill.name} (Cicil)`
 
+  let nextWallets = s.wallets
+  let nextEndSavings = s.endSavings
+  if (walletId === 'pot') {
+    nextEndSavings = Math.max(0, nextEndSavings - payAmount)
+  } else if (walletId) {
+    const targetId = walletId.startsWith('wallet:') ? walletId.slice(7) : walletId
+    nextWallets = s.wallets.map((w) =>
+      w.id === targetId ? { ...w, balance: Math.max(0, w.balance - payAmount) } : w,
+    )
+  }
+
   return {
     ...s,
+    endSavings: nextEndSavings,
+    wallets: nextWallets,
     bills: s.bills.map((item) =>
       item.id === bill.id
         ? {
@@ -88,15 +107,40 @@ export function markBillPaid(s: AppState, bill: Bill, customAmount?: number, now
   }
 }
 
-export function markDebtPaid(s: AppState, debt: Debt): AppState {
+export function markDebtPaid(
+  s: AppState,
+  debt: Debt,
+  customAmount?: number,
+  walletId?: string,
+): AppState {
   const remaining = Math.max(0, debt.total - debt.paid)
-  const amount = Math.min(debt.installment, remaining)
-  if (amount <= 0) return s
+  const payAmount =
+    typeof customAmount === 'number' && customAmount > 0
+      ? Math.min(customAmount, remaining)
+      : Math.min(debt.installment, remaining)
+  if (payAmount <= 0) return s
+
+  let nextWallets = s.wallets
+  let nextEndSavings = s.endSavings
+  if (walletId === 'pot') {
+    nextEndSavings = Math.max(0, nextEndSavings - payAmount)
+  } else if (walletId) {
+    const targetId = walletId.startsWith('wallet:') ? walletId.slice(7) : walletId
+    nextWallets = s.wallets.map((w) =>
+      w.id === targetId ? { ...w, balance: Math.max(0, w.balance - payAmount) } : w,
+    )
+  }
+
+  const isFull = debt.paid + payAmount >= debt.total
+  const note = isFull ? `${debt.name} (Lunas)` : `${debt.name} (Angsuran)`
+
   return {
     ...s,
-    debts: s.debts.map((item) => (item.id === debt.id ? { ...item, paid: item.paid + amount } : item)),
+    endSavings: nextEndSavings,
+    wallets: nextWallets,
+    debts: s.debts.map((item) => (item.id === debt.id ? { ...item, paid: item.paid + payAmount } : item)),
     expenses: [
-      { id: uid('exp'), date: todayISO(), categoryId: CICILAN_CATEGORY, note: debt.name, amount },
+      { id: uid('exp'), date: todayISO(), categoryId: CICILAN_CATEGORY, note, amount: payAmount },
       ...s.expenses,
     ],
   }

@@ -178,6 +178,7 @@ describe('alur aplikasi', () => {
     expect(container.textContent).toContain('6.000.000')
 
     clickText('.ob-row button', 'Bayar angsuran')
+    clickText('button', 'Konfirmasi Bayar')
     expect(container.textContent).toContain('500.000')
     expect(container.textContent).toContain('Menampilkan 2 dari 2 catatan')
   })
@@ -1200,5 +1201,64 @@ describe('fase 6: bukti catat cepat, skor kesehatan, tantangan, .ics, salin lapo
     expect(text).toContain('Halaman: Dompet')
     expect(text).toContain('Pesan: Tombol setor tidak muncul di HP.')
     expect(container.querySelector('.toast')?.textContent).toContain('Laporan disalin')
+  })
+
+  it('pengeluaran kategori tabungan dan dana darurat memotong saldo Tabungan akhir periode', () => {
+    seed({
+      endSavings: 500_000,
+    })
+
+    // Catat pengeluaran kategori dana darurat
+    setValue('#exp-note', 'Beli obat darurat')
+    setSelect('#exp-cat', 'dana-darurat')
+    setValue('#exp-amount', '150000')
+    const expForm = container.querySelector('#exp-note')!.closest('form') as HTMLFormElement
+    act(() => {
+      expForm.dispatchEvent(new Event('submit', { bubbles: true, cancelable: true }))
+    })
+
+    // Saldo pot berkurang: 500.000 - 150.000 = 350.000
+    const pot = container.querySelector('[aria-label="Tabungan akhir periode"]')!
+    expect(pot.textContent).toContain(formatIDR(350_000))
+
+    // Hapus catatan pengeluaran, saldo pot kembali pulih
+    clickText('.tx-actions button', 'Hapus')
+    expect(pot.textContent).toContain(formatIDR(500_000))
+  })
+
+  it('pembayaran tagihan dan utang dapat memotong saldo dompet yang dipilih', () => {
+    seed({
+      wallets: [
+        { id: 'w-test', name: 'GoPay', balance: 400_000 },
+      ],
+      bills: [
+        { id: 'b-test', name: 'Paket Data', amount: 100_000, dueDay: 15 },
+      ],
+      debts: [
+        { id: 'd-test', name: 'Kasbon', total: 200_000, paid: 0, installment: 50_000, dueDay: 20 },
+      ],
+    })
+
+    // Bayar tagihan via GoPay
+    clickText('.ob-row button', 'Bayar')
+    setSelect('#pay-source-b-test', 'wallet:w-test')
+    clickText('button', 'Konfirmasi Bayar')
+
+    // Tagihan lunas dan toast via GoPay tampil
+    expect(container.textContent).toContain('Lunas bulan ini')
+    expect(container.querySelector('.toast')?.textContent).toContain('via GoPay')
+
+    // Bayar angsuran utang via GoPay
+    const debtRow = [...container.querySelectorAll('.ob-row')].find((row) => row.textContent?.includes('Kasbon'))!
+    const debtPayBtn = [...debtRow.querySelectorAll('button')].find((btn) => btn.textContent === 'Bayar angsuran')!
+    act(() => {
+      debtPayBtn.dispatchEvent(new MouseEvent('click', { bubbles: true }))
+    })
+    setSelect('#debt-source-d-test', 'wallet:w-test')
+    clickText('button', 'Konfirmasi Bayar')
+
+    // Sisa utang berkurang dan toast via GoPay tampil
+    expect(container.textContent).toContain('150.000')
+    expect(container.querySelector('.toast')?.textContent).toContain('via GoPay')
   })
 })

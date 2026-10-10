@@ -1,8 +1,8 @@
 import { useLayoutEffect, useRef, useState, type FormEvent } from 'react'
 import type { AppState, Expense, Income, Notify } from '../types'
 import type { Updater } from '../hooks/useAppState'
-import { INCOME_SOURCES, SAVINGS_CATEGORY, primaryGoal } from '../lib/state'
-import { todayISO } from '../lib/money'
+import { INCOME_SOURCES, SAVINGS_CATEGORY, primaryGoal, isSavingsOrEmergencyCategory } from '../lib/state'
+import { formatIDR, todayISO } from '../lib/money'
 import { uid } from '../lib/id'
 import { deleteReceipt, saveReceipt } from '../lib/receipts'
 import { MoneyInput } from './MoneyInput'
@@ -54,6 +54,7 @@ export function QuickEntry({ mode, state, update, notify, onClose }: Props) {
     event.preventDefault()
     if (amount <= 0) return
     if (mode === 'expense') {
+      const isSavings = isSavingsOrEmergencyCategory(categoryId, state.categories)
       const expense: Expense = {
         id: uid('exp'),
         date,
@@ -63,7 +64,11 @@ export function QuickEntry({ mode, state, update, notify, onClose }: Props) {
         goalId: categoryId === SAVINGS_CATEGORY ? primaryGoal(state.goals)?.id : undefined,
         receiptId: receiptId ?? undefined,
       }
-      update((s) => ({ ...s, expenses: [expense, ...s.expenses] }))
+      update((s) => ({
+        ...s,
+        endSavings: isSavings ? Math.max(0, s.endSavings - amount) : s.endSavings,
+        expenses: [expense, ...s.expenses],
+      }))
       notify('Pengeluaran dicatat')
       setReceiptId(null)
     } else {
@@ -106,6 +111,11 @@ export function QuickEntry({ mode, state, update, notify, onClose }: Props) {
                 </option>
               ))}
             </select>
+            {isSavingsOrEmergencyCategory(categoryId, state.categories) && (
+              <p className="small" style={{ color: 'var(--primary)', margin: '4px 0 0 0' }}>
+                Memotong Tabungan Akhir Periode ({formatIDR(state.endSavings)}).
+              </p>
+            )}
           </div>
         ) : (
           <div className="field">

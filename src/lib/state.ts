@@ -35,6 +35,18 @@ export function categoryKind(category: Pick<Category, 'id' | 'kind'>): CategoryK
   return category.kind ?? BUILTIN_KINDS[category.id] ?? 'harian'
 }
 
+export function isSavingsOrEmergencyCategory(categoryId: string, categories?: Category[]): boolean {
+  if (categoryId === SAVINGS_CATEGORY || categoryId === 'dana-darurat') return true
+  if (categories) {
+    const cat = categories.find((c) => c.id === categoryId)
+    if (cat) {
+      const lower = cat.name.toLowerCase()
+      if (lower.includes('tabung') || lower.includes('darurat')) return true
+    }
+  }
+  return false
+}
+
 export function effectiveSaved(goal: Goal, savingsByGoal: Record<string, number>): number {
   return goal.saved + (savingsByGoal[goal.id] ?? 0)
 }

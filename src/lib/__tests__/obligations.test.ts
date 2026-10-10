@@ -8,6 +8,7 @@ import {
   dueLabel,
   isBillFullyPaidThisMonth,
   markBillPaid,
+  markDebtPaid,
   notifyDue,
   nowDate,
   upcomingDue,
@@ -166,5 +167,56 @@ describe('markBillPaid dan pembayaran cicil tagihan', () => {
     expect(next.bills[0]?.paidThisMonth).toBe(100_000)
     expect(next.expenses[0]?.amount).toBe(100_000)
     expect(isBillFullyPaidThisMonth(next.bills[0]!, NOW)).toBe(true)
+  })
+
+  it('bayar tagihan memotong saldo dompet yang dipilih', () => {
+    const state = initialState()
+    state.wallets = [
+      { id: 'w1', name: 'BCA', balance: 500_000 },
+      { id: 'w2', name: 'GoPay', balance: 100_000 },
+    ]
+    const bill = { id: 'b1', name: 'Wifi', amount: 300_000, dueDay: 10 }
+    state.bills = [bill]
+
+    const next = markBillPaid(state, bill, 200_000, NOW, 'wallet:w1')
+    expect(next.wallets.find((w) => w.id === 'w1')?.balance).toBe(300_000)
+    expect(next.wallets.find((w) => w.id === 'w2')?.balance).toBe(100_000)
+    expect(next.bills[0]?.paidThisMonth).toBe(200_000)
+  })
+
+  it('bayar tagihan memotong Saku Tabungan (pot)', () => {
+    const state = initialState()
+    state.endSavings = 250_000
+    const bill = { id: 'b1', name: 'Listrik', amount: 100_000, dueDay: 10 }
+    state.bills = [bill]
+
+    const next = markBillPaid(state, bill, 100_000, NOW, 'pot')
+    expect(next.endSavings).toBe(150_000)
+  })
+})
+
+describe('markDebtPaid dan pembayaran angsuran dengan dompet', () => {
+  it('bayar angsuran utang memotong saldo dompet', () => {
+    const state = initialState()
+    state.wallets = [{ id: 'w1', name: 'Mandiri', balance: 1_000_000 }]
+    const debt = { id: 'd1', name: 'Cicilan Laptop', total: 5_000_000, paid: 0, installment: 500_000, dueDay: 15 }
+    state.debts = [debt]
+
+    const next = markDebtPaid(state, debt, 500_000, 'wallet:w1')
+    expect(next.wallets[0]?.balance).toBe(500_000)
+    expect(next.debts[0]?.paid).toBe(500_000)
+    expect(next.expenses[0]?.note).toBe('Cicilan Laptop (Angsuran)')
+  })
+
+  it('bayar angsuran utang memotong Saku Tabungan (pot)', () => {
+    const state = initialState()
+    state.endSavings = 600_000
+    const debt = { id: 'd1', name: 'Pinjaman', total: 500_000, paid: 0, installment: 500_000, dueDay: 15 }
+    state.debts = [debt]
+
+    const next = markDebtPaid(state, debt, 500_000, 'pot')
+    expect(next.endSavings).toBe(100_000)
+    expect(next.debts[0]?.paid).toBe(500_000)
+    expect(next.expenses[0]?.note).toBe('Pinjaman (Lunas)')
   })
 })

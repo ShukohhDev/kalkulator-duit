@@ -1,7 +1,7 @@
 import { useMemo, useState, type FormEvent } from 'react'
 import type { AppState, Category, Expense, Notify } from '../types'
 import type { Updater } from '../hooks/useAppState'
-import { CATEGORY_COLORS, SAVINGS_CATEGORY, primaryGoal } from '../lib/state'
+import { CATEGORY_COLORS, SAVINGS_CATEGORY, primaryGoal, isSavingsOrEmergencyCategory } from '../lib/state'
 import { deleteReceipt, saveReceipt } from '../lib/receipts'
 import { formatIDR, formatShortDate, monthKey, monthLabel, todayISO } from '../lib/money'
 import { uid } from '../lib/id'
@@ -102,16 +102,33 @@ export function ExpensesPanel({ state, update, notify }: Props) {
 
     if (editingId) {
       const previous = state.expenses.find((item) => item.id === editingId)
-      update((s) => ({
-        ...s,
-        expenses: s.expenses.map((item) =>
-          item.id === editingId
-            ? { ...item, date, categoryId, note, amount, goalId, wishlistId, receiptId: receiptId ?? undefined }
-            : item,
-        ),
-      }))
+      const wasSavings = previous ? isSavingsOrEmergencyCategory(previous.categoryId, state.categories) : false
+      const isSavings = isSavingsOrEmergencyCategory(categoryId, state.categories)
+
+      update((s) => {
+        let nextEndSavings = s.endSavings
+        if (wasSavings && isSavings) {
+          const delta = amount - (previous?.amount ?? 0)
+          nextEndSavings = Math.max(0, nextEndSavings - delta)
+        } else if (wasSavings && !isSavings) {
+          nextEndSavings = nextEndSavings + (previous?.amount ?? 0)
+        } else if (!wasSavings && isSavings) {
+          nextEndSavings = Math.max(0, nextEndSavings - amount)
+        }
+
+        return {
+          ...s,
+          endSavings: nextEndSavings,
+          expenses: s.expenses.map((item) =>
+            item.id === editingId
+              ? { ...item, date, categoryId, note, amount, goalId, wishlistId, receiptId: receiptId ?? undefined }
+              : item,
+          ),
+        }
+      })
       if (previous?.receiptId && previous.receiptId !== receiptId) void deleteReceipt(previous.receiptId)
     } else {
+      const isSavings = isSavingsOrEmergencyCategory(categoryId, state.categories)
       const expense: Expense = {
         id: uid('exp'),
         date,
@@ -122,7 +139,11 @@ export function ExpensesPanel({ state, update, notify }: Props) {
         wishlistId,
         receiptId: receiptId ?? undefined,
       }
-      update((s) => ({ ...s, expenses: [expense, ...s.expenses] }))
+      update((s) => ({
+        ...s,
+        endSavings: isSavings ? Math.max(0, s.endSavings - amount) : s.endSavings,
+        expenses: [expense, ...s.expenses],
+      }))
     }
     resetForm()
   }
@@ -143,7 +164,13 @@ export function ExpensesPanel({ state, update, notify }: Props) {
     const index = state.expenses.findIndex((item) => item.id === id)
     const target = state.expenses[index]
     if (!target) return
-    update((s) => ({ ...s, expenses: s.expenses.filter((item) => item.id !== id) }))
+    const wasSavings = isSavingsOrEmergencyCategory(target.categoryId, state.categories)
+
+    update((s) => ({
+      ...s,
+      endSavings: wasSavings ? s.endSavings + target.amount : s.endSavings,
+      expenses: s.expenses.filter((item) => item.id !== id),
+    }))
     if (target.receiptId) void deleteReceipt(target.receiptId)
     if (editingId === id) resetForm()
     notify('Catatan dihapus.', {
@@ -151,7 +178,11 @@ export function ExpensesPanel({ state, update, notify }: Props) {
         update((s) => {
           const next = [...s.expenses]
           next.splice(Math.min(index, next.length), 0, { ...target, receiptId: undefined })
-          return { ...s, expenses: next }
+          return {
+            ...s,
+            endSavings: wasSavings ? Math.max(0, s.endSavings - target.amount) : s.endSavings,
+            expenses: next,
+          }
         }),
     })
   }
@@ -195,6 +226,11 @@ export function ExpensesPanel({ state, update, notify }: Props) {
               </option>
             ))}
           </select>
+          {isSavingsOrEmergencyCategory(categoryId, state.categories) && (
+            <p className="small" style={{ color: 'var(--primary)', margin: '4px 0 0 0' }}>
+              Pengeluaran kategori ini memotong saldo Tabungan Akhir Periode (saldo saat ini: {formatIDR(state.endSavings)}).
+            </p>
+          )}
           <button type="button" className="link" onClick={() => setShowCategoryForm((v) => !v)}>
             {showCategoryForm ? 'Batal tambah kategori' : '+ Tambah kategori sendiri'}
           </button>
