@@ -1,6 +1,16 @@
 // @vitest-environment jsdom
 import { beforeEach, describe, expect, it } from 'vitest'
-import { accountNames, currentUser, hasAccounts, login, logout, register } from '../auth'
+import {
+  accountNames,
+  currentUser,
+  hasAccounts,
+  login,
+  logout,
+  register,
+  touchSession,
+  SESSION_TIME_KEY,
+  SESSION_TIMEOUT_MS,
+} from '../auth'
 
 const STATE_KEY = 'kalkulator-duitmu:v1'
 const PREFS_KEY = 'kalkulator-duitmu:prefs'
@@ -60,5 +70,40 @@ describe('akun & sesi', () => {
     expect(currentUser()).toBe('adi')
     logout()
     expect(currentUser()).toBeNull()
+  })
+
+  it('sesi bertahan saat browser ditutup sebentar (sessionStorage kosong tapi di bawah 30 menit)', async () => {
+    await register('adi', 'kata123')
+    expect(currentUser()).toBe('adi')
+
+    // Simulasi tutup tab/browser: sessionStorage dibersihkan
+    window.sessionStorage.clear()
+
+    // Buka kembali 5 menit kemudian
+    const fiveMinutesAgo = Date.now() - 5 * 60 * 1000
+    window.localStorage.setItem(SESSION_TIME_KEY, String(fiveMinutesAgo))
+
+    expect(currentUser()).toBe('adi')
+  })
+
+  it('sesi otomatis hangus jika pengguna keluar lebih dari 30 menit', async () => {
+    await register('adi', 'kata123')
+    expect(currentUser()).toBe('adi')
+
+    // Simulasi waktu berlalu lebih dari 30 menit
+    const expiredTime = Date.now() - (SESSION_TIMEOUT_MS + 1000)
+    window.localStorage.setItem(SESSION_TIME_KEY, String(expiredTime))
+
+    expect(currentUser()).toBeNull()
+  })
+
+  it('touchSession memperbarui timestamp aktivitas sesi', async () => {
+    await register('adi', 'kata123')
+    const initialTime = Date.now() - 10 * 60 * 1000
+    window.localStorage.setItem(SESSION_TIME_KEY, String(initialTime))
+
+    touchSession()
+    const updated = Number(window.localStorage.getItem(SESSION_TIME_KEY))
+    expect(updated).toBeGreaterThan(initialTime)
   })
 })

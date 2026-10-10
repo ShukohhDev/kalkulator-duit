@@ -9,7 +9,7 @@ import { applyProfile as applyProfileToCategories, findProfile } from './lib/pro
 import { applyLifestyle } from './lib/lifestyles'
 import { initialState } from './lib/state'
 import { clearState, saveState } from './lib/storage'
-import { currentUser, isAdmin, logout as endSession } from './lib/auth'
+import { currentUser, isAdmin, logout as endSession, touchSession } from './lib/auth'
 import { appendActivity } from './lib/activity'
 import { sweepTransition } from './lib/sweep'
 import { refreshUsdRate } from './lib/rates'
@@ -162,6 +162,54 @@ function AppShell({ user, onLogout }: { user: string; onLogout: () => void }) {
   useEffect(() => {
     void refreshUsdRate()
   }, [])
+
+  // Deteksi aktivitas pengguna untuk memperpanjang sesi aktif
+  useEffect(() => {
+    let lastTouch = Date.now()
+    const handleActivity = () => {
+      const now = Date.now()
+      // Throttle pembaruan storage setiap 15 detik agar tidak membebani performa
+      if (now - lastTouch > 15000) {
+        lastTouch = now
+        touchSession()
+      }
+    }
+
+    window.addEventListener('click', handleActivity, { passive: true })
+    window.addEventListener('keydown', handleActivity, { passive: true })
+    window.addEventListener('touchstart', handleActivity, { passive: true })
+
+    return () => {
+      window.removeEventListener('click', handleActivity)
+      window.removeEventListener('keydown', handleActivity)
+      window.removeEventListener('touchstart', handleActivity)
+    }
+  }, [])
+
+  // Cek batas kedaluwarsa sesi (inaktivitas > 30 menit) saat kembali ke tab atau berkala
+  useEffect(() => {
+    const checkSessionExpiry = () => {
+      if (!currentUser()) {
+        onLogout()
+      }
+    }
+
+    const onVisibilityChange = () => {
+      if (document.visibilityState === 'visible') {
+        checkSessionExpiry()
+      }
+    }
+
+    const timer = setInterval(checkSessionExpiry, 30000)
+    document.addEventListener('visibilitychange', onVisibilityChange)
+    window.addEventListener('focus', checkSessionExpiry)
+
+    return () => {
+      clearInterval(timer)
+      document.removeEventListener('visibilitychange', onVisibilityChange)
+      window.removeEventListener('focus', checkSessionExpiry)
+    }
+  }, [onLogout])
 
   useEffect(() => {
     notifyDue(state)
@@ -512,7 +560,30 @@ function AppShell({ user, onLogout }: { user: string; onLogout: () => void }) {
 
 export default function App() {
   const [user, setUser] = useState(() => currentUser())
+
+  useEffect(() => {
+    const handleSyncSession = () => {
+      const active = currentUser()
+      setUser((prev) => (prev !== active ? active : prev))
+    }
+    window.addEventListener('focus', handleSyncSession)
+    document.addEventListener('visibilitychange', handleSyncSession)
+    return () => {
+      window.removeEventListener('focus', handleSyncSession)
+      document.removeEventListener('visibilitychange', handleSyncSession)
+    }
+  }, [])
+
   if (!user) return <AuthGate onAuthed={setUser} />
   // key=user: pindah akun memuat ulang seluruh state dari storage miliknya
-  return <AppShell key={user} user={user} onLogout={() => setUser(null)} />
+  return (
+    <AppShell
+      key={user}
+      user={user}
+      onLogout={() => {
+        endSession()
+        setUser(null)
+      }}
+    />
+  )
 }

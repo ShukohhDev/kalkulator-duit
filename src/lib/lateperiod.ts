@@ -1,7 +1,8 @@
-import type { AppState, CategoryKind } from '../types'
+import type { AppState, Category, CategoryKind } from '../types'
 import type { Derived } from './derive'
 import { categoryKind } from './state'
 import { formatIDR } from './money'
+import { findProfile } from './profiles'
 
 export interface LateChange {
   id: string
@@ -30,16 +31,23 @@ export function latePlan(state: AppState, derived: Derived): LatePlan | null {
   if (!(pace > 0) || pace * period.totalDays <= state.allowance) return null
 
   const daysLeft = Math.max(1, period.totalDays - derived.elapsedDays)
-  const planPerDay = (kinds: CategoryKind[]) =>
-    (state.categories
-      .filter((category) => kinds.includes(categoryKind(category)))
-      .reduce((sum, category) => sum + category.ratio, 0) *
-      state.allowance) /
-    period.totalDays
+  const rawHarianRatio = state.categories
+    .filter((category) => categoryKind(category) === 'harian')
+    .reduce((sum, category) => sum + category.ratio, 0)
 
-  const need = planPerDay(['harian']) * daysLeft
+  // Jika keinginan sudah dipotong / bernilai 0, rasio harian di state tereskalasi bersama tabungan.
+  // Gunakan rasio dasar profil agar ambang kebutuhan harian tidak mendadak membengkak semu.
+  const profileHarianRatio = findProfile(state.profile).ratios
+    .filter((r) => categoryKind({ id: r.id } as Category) === 'harian')
+    .reduce((sum, r) => sum + r.ratio, 0)
+
+  const effectiveHarianRatio =
+    profileHarianRatio > 0 ? Math.min(rawHarianRatio, profileHarianRatio) : rawHarianRatio
+
+  const needPerDay = (effectiveHarianRatio * state.allowance) / period.totalDays
+  const need = needPerDay * daysLeft
   const remaining = derived.remainingInPeriod
-  // kritis = kebutuhan harian saja belum kecakup → tabungan juga dipotong (kebutuhan dulu)
+  // kritis = kebutuhan harian saja belum kecakup (tabungan juga dipotong)
   const cut: CategoryKind[] = remaining < need ? ['keinginan', 'tabungan'] : ['keinginan']
 
   const ratios: Record<string, number> = {}
@@ -66,7 +74,6 @@ export function latePlan(state: AppState, derived: Derived): LatePlan | null {
   // rekomendasi sudah diterapkan (atau memang tidak ada yang perlu diubah): jangan tampilkan lagi
   if (changes.length === 0) return null
 
-  const needPerDay = planPerDay(['harian'])
   return {
     remaining,
     daysLeft,

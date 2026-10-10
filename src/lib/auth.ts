@@ -3,6 +3,8 @@ import { getSupabaseClient } from './supabase'
 const ACCOUNTS_KEY = 'kalkulator-duitmu:accounts'
 const SESSION_KEY = 'kalkulator-duitmu:session'
 const SESSION_ROLE_KEY = 'kalkulator-duitmu:session_role'
+export const SESSION_TIME_KEY = 'kalkulator-duitmu:session_time'
+export const SESSION_TIMEOUT_MS = 30 * 60 * 1000 // 30 menit
 
 export interface Account {
   username: string
@@ -91,6 +93,43 @@ function migrateLegacy(username: string): void {
   }
 }
 
+function getRawSessionUser(): string | null {
+  try {
+    const name = localStorage.getItem(SESSION_KEY) || sessionStorage.getItem(SESSION_KEY)
+    return name && name.trim() !== '' ? name.trim() : null
+  } catch {
+    return null
+  }
+}
+
+function saveSession(username: string, role: 'admin' | 'user'): void {
+  const now = Date.now()
+  try {
+    localStorage.setItem(SESSION_KEY, username)
+    localStorage.setItem(SESSION_ROLE_KEY, role)
+    localStorage.setItem(SESSION_TIME_KEY, String(now))
+  } catch {
+    // localStorage diblokir
+  }
+  try {
+    sessionStorage.setItem(SESSION_KEY, username)
+    sessionStorage.setItem(SESSION_ROLE_KEY, role)
+  } catch {
+    // sessionStorage diblokir
+  }
+}
+
+export function touchSession(): void {
+  try {
+    const user = getRawSessionUser()
+    if (user) {
+      localStorage.setItem(SESSION_TIME_KEY, String(Date.now()))
+    }
+  } catch {
+    // abaikan kesalahan storage
+  }
+}
+
 export function hasAccounts(): boolean {
   return readAccounts().length > 0
 }
@@ -101,8 +140,29 @@ export function accountNames(): string[] {
 
 export function currentUser(): string | null {
   try {
-    const name = sessionStorage.getItem(SESSION_KEY)
-    return name && name.trim() !== '' ? name : null
+    const user = getRawSessionUser()
+    if (!user) return null
+
+    const timeRaw = localStorage.getItem(SESSION_TIME_KEY)
+    if (timeRaw) {
+      const lastActive = Number(timeRaw)
+      if (Number.isFinite(lastActive) && lastActive > 0) {
+        const elapsed = Date.now() - lastActive
+        if (elapsed > SESSION_TIMEOUT_MS) {
+          logout()
+          return null
+        }
+      }
+    }
+
+    // Perbarui waktu aktivitas terakhir
+    try {
+      localStorage.setItem(SESSION_TIME_KEY, String(Date.now()))
+    } catch {
+      // storage bermasalah
+    }
+
+    return user
   } catch {
     return null
   }
@@ -186,12 +246,7 @@ export async function register(username: string, password: string): Promise<stri
   writeAccounts(accounts)
   if (firstAccount) migrateLegacy(name)
 
-  try {
-    sessionStorage.setItem(SESSION_KEY, name)
-    sessionStorage.setItem(SESSION_ROLE_KEY, role)
-  } catch {
-    // sessionStorage diblokir
-  }
+  saveSession(name, role)
   return null
 }
 
@@ -249,12 +304,7 @@ export async function login(username: string, password: string): Promise<string 
         }
         writeAccounts(accounts)
 
-        try {
-          sessionStorage.setItem(SESSION_KEY, remoteUser.username)
-          sessionStorage.setItem(SESSION_ROLE_KEY, userRole)
-        } catch {
-          // ignore
-        }
+        saveSession(remoteUser.username, userRole)
         return null
       }
     } catch (err) {
@@ -290,16 +340,18 @@ export async function login(username: string, password: string): Promise<string 
       .then()
   }
 
-  try {
-    sessionStorage.setItem(SESSION_KEY, account.username)
-    sessionStorage.setItem(SESSION_ROLE_KEY, userRole)
-  } catch {
-    // sessionStorage diblokir
-  }
+  saveSession(account.username, userRole)
   return null
 }
 
 export function logout(): void {
+  try {
+    localStorage.removeItem(SESSION_KEY)
+    localStorage.removeItem(SESSION_ROLE_KEY)
+    localStorage.removeItem(SESSION_TIME_KEY)
+  } catch {
+    // no-op
+  }
   try {
     sessionStorage.removeItem(SESSION_KEY)
     sessionStorage.removeItem(SESSION_ROLE_KEY)
