@@ -3,6 +3,7 @@ import type { AppState } from '../types'
 import type { Derived } from '../lib/derive'
 import { whatIf } from '../lib/whatif'
 import { formatIDR } from '../lib/money'
+import { CustomSelect } from './CustomSelect'
 
 interface Props {
   state: AppState
@@ -35,33 +36,35 @@ export function WhatIfPanel({ state, derived }: Props) {
       <div className="form-grid form-grid-2">
         <div className="field">
           <label htmlFor="whatif-allowance">Uang jajan berubah</label>
-          <select
+          <CustomSelect
             id="whatif-allowance"
             className="input"
             value={allowancePct}
             onChange={(e) => setAllowancePct(Number(e.target.value))}
+            title="Pilih Perubahan Uang Jajan"
           >
             {ALLOWANCE_STEPS.map((step) => (
               <option key={step} value={step}>
                 {step === 0 ? 'Tetap (100%)' : `${step > 0 ? '+' : ''}${step}%`}
               </option>
             ))}
-          </select>
+          </CustomSelect>
         </div>
         <div className="field">
           <label htmlFor="whatif-pace">Laju pengeluaran</label>
-          <select
+          <CustomSelect
             id="whatif-pace"
             className="input"
             value={pacePct}
             onChange={(e) => setPacePct(Number(e.target.value))}
+            title="Pilih Laju Pengeluaran"
           >
             {PACE_STEPS.map((step) => (
               <option key={step} value={step}>
                 {step === 0 ? 'Sama seperti sekarang' : `${step > 0 ? 'naik' : 'turun'} ${Math.abs(step)}%`}
               </option>
             ))}
-          </select>
+          </CustomSelect>
         </div>
       </div>
 

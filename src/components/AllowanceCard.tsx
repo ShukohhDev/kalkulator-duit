@@ -10,6 +10,7 @@ import { LIFESTYLES, applyLifestyle, findLifestyle } from '../lib/lifestyles'
 import { MoneyInput } from './MoneyInput'
 import { ProgressBar } from './ProgressBar'
 import { AllocationEditor } from './AllocationEditor'
+import { CustomSelect } from './CustomSelect'
 
 interface Props {
   state: AppState
@@ -129,19 +130,20 @@ export function AllowanceCard({ state, derived, update, notify, onChangePeriod }
           >
             Pemasukan tidak tetap
           </button>
-          <select
+          <CustomSelect
             className="input"
             aria-label="Gaya hidup"
             value={lifestyleId}
             onChange={(event) => setLifestyleId(event.target.value)}
+            title="Pilih Gaya Hidup"
           >
-            <option value="">Gaya hidup…</option>
+            <option value="">Gaya hidup...</option>
             {LIFESTYLES.map((item) => (
               <option key={item.id} value={item.id}>
                 {item.name}: {item.blurb}
               </option>
             ))}
-          </select>
+          </CustomSelect>
           <button type="button" className="btn btn-sm" disabled={lifestyleId === ''} onClick={applyLifestyleChoice}>
             Terapkan
           </button>

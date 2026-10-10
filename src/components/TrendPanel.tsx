@@ -6,6 +6,7 @@ import { CHART_FONT, EXPENSE_COLOR, MUTED_COLOR } from '../lib/chartSetup'
 import { loadPrefs, savePrefs } from '../lib/prefs'
 import { formatIDR } from '../lib/money'
 import { nowDate } from '../lib/obligations'
+import { CustomSelect } from './CustomSelect'
 
 const VIEWS: { id: CashflowView; label: string }[] = [
   { id: 'day', label: 'Harian' },
@@ -89,18 +90,19 @@ export function TrendPanel({ state }: Props) {
       </header>
 
       <div className="filter-row">
-        <select
+        <CustomSelect
           className="input"
           aria-label="Kategori tren"
           value={categoryId}
           onChange={(e) => setCategoryId(e.target.value)}
+          title="Pilih Kategori Tren"
         >
           {state.categories.map((category) => (
             <option key={category.id} value={category.id}>
               {category.name}
             </option>
           ))}
-        </select>
+        </CustomSelect>
         <span className="muted small">Total terlihat {formatIDR(total)}</span>
       </div>
 

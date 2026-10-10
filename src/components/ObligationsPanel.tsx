@@ -18,6 +18,7 @@ import { buildICS } from '../lib/ics'
 import { MiniCalendar } from './MiniCalendar'
 import { MoneyInput } from './MoneyInput'
 import { ProgressBar } from './ProgressBar'
+import { CustomSelect } from './CustomSelect'
 
 interface Props {
   state: AppState
@@ -290,11 +291,12 @@ export function ObligationsPanel({ state, update, notify }: Props) {
                     </div>
                     <div className="field ob-pay-field">
                       <label htmlFor={`pay-source-${bill.id}`}>Sumber pembayaran</label>
-                      <select
+                      <CustomSelect
                         id={`pay-source-${bill.id}`}
                         className="input"
                         value={paySource}
                         onChange={(e) => setPaySource(e.target.value)}
+                        title="Pilih Sumber Pembayaran Tagihan"
                       >
                         <option value="none">Tanpa potong dompet (catat pengeluaran saja)</option>
                         <option value="pot">Saku Tabungan (saldo: {formatIDR(state.endSavings)})</option>
@@ -303,7 +305,7 @@ export function ObligationsPanel({ state, update, notify }: Props) {
                             {w.name} (saldo: {formatIDR(w.balance)})
                           </option>
                         ))}
-                      </select>
+                      </CustomSelect>
                     </div>
                     <div className="ob-pay-actions">
                       <button
@@ -449,11 +451,12 @@ export function ObligationsPanel({ state, update, notify }: Props) {
                     </div>
                     <div className="field ob-pay-field">
                       <label htmlFor={`debt-source-${debt.id}`}>Sumber pembayaran</label>
-                      <select
+                      <CustomSelect
                         id={`debt-source-${debt.id}`}
                         className="input"
                         value={debtPaySource}
                         onChange={(e) => setDebtPaySource(e.target.value)}
+                        title="Pilih Sumber Pembayaran Angsuran"
                       >
                         <option value="none">Tanpa potong dompet (catat pengeluaran saja)</option>
                         <option value="pot">Saku Tabungan (saldo: {formatIDR(state.endSavings)})</option>
@@ -462,7 +465,7 @@ export function ObligationsPanel({ state, update, notify }: Props) {
                             {w.name} (saldo: {formatIDR(w.balance)})
                           </option>
                         ))}
-                      </select>
+                      </CustomSelect>
                     </div>
                     <div className="ob-pay-actions">
                       <button

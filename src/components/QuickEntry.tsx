@@ -6,6 +6,7 @@ import { formatIDR, todayISO } from '../lib/money'
 import { uid } from '../lib/id'
 import { deleteReceipt, saveReceipt } from '../lib/receipts'
 import { MoneyInput } from './MoneyInput'
+import { CustomSelect } from './CustomSelect'
 
 interface Props {
   mode: 'expense' | 'income'
@@ -103,14 +104,14 @@ export function QuickEntry({ mode, state, update, notify, onClose }: Props) {
         {mode === 'expense' ? (
           <div className="field">
             <label htmlFor="qk-cat">Kategori</label>
-            <select id="qk-cat" className="input" value={categoryId} onChange={(e) => setCategoryId(e.target.value)}>
+            <CustomSelect id="qk-cat" className="input" value={categoryId} onChange={(e) => setCategoryId(e.target.value)} title="Pilih Kategori">
               {state.categories.map((category) => (
                 <option key={category.id} value={category.id}>
                   {category.name}
                   {category.ratio > 0 ? ` (${Math.round(category.ratio * 100)}%)` : ''}
                 </option>
               ))}
-            </select>
+            </CustomSelect>
             {isSavingsOrEmergencyCategory(categoryId, state.categories) && (
               <p className="small" style={{ color: 'var(--primary)', margin: '4px 0 0 0' }}>
                 Memotong Tabungan Akhir Periode ({formatIDR(state.endSavings)}).
@@ -120,13 +121,13 @@ export function QuickEntry({ mode, state, update, notify, onClose }: Props) {
         ) : (
           <div className="field">
             <label htmlFor="qk-source">Sumber</label>
-            <select id="qk-source" className="input" value={source} onChange={(e) => setSource(e.target.value)}>
+            <CustomSelect id="qk-source" className="input" value={source} onChange={(e) => setSource(e.target.value)} title="Pilih Sumber">
               {INCOME_SOURCES.map((item) => (
                 <option key={item} value={item}>
                   {item}
                 </option>
               ))}
-            </select>
+            </CustomSelect>
           </div>
         )}
 

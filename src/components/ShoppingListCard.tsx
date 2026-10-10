@@ -5,6 +5,7 @@ import { formatIDR, todayISO } from '../lib/money'
 import { uid } from '../lib/id'
 import { ICON_CART, ICON_CHECKLIST } from './icons'
 import { MoneyInput } from './MoneyInput'
+import { CustomSelect } from './CustomSelect'
 
 interface Props {
   state: AppState
@@ -247,18 +248,19 @@ export function ShoppingListCard({ state, update, notify }: Props) {
 
           <div className="field-group flex-1">
             <label htmlFor="shopping-category-select" className="small">Kategori</label>
-            <select
+            <CustomSelect
               id="shopping-category-select"
               className="input select"
               value={categoryId}
               onChange={(e) => setCategoryId(e.target.value)}
+              title="Pilih Kategori Belanja"
             >
               {state.categories.map((cat) => (
                 <option key={cat.id} value={cat.id}>
                   {cat.name}
                 </option>
               ))}
-            </select>
+            </CustomSelect>
           </div>
 
           <div className="shopping-form-submit">

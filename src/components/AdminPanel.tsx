@@ -19,6 +19,7 @@ import {
   type ReportStatus,
 } from '../lib/reports'
 import type { Notify } from '../types'
+import { CustomSelect } from './CustomSelect'
 
 interface Props {
   currentUser: string
@@ -480,28 +481,30 @@ create policy "Allow manage reports" on public.user_reports for all using (true)
 
           <div className="admin-toolbar">
             <div className="admin-actions-left">
-              <select
+              <CustomSelect
                 className="input input-sm"
                 value={filterType}
                 onChange={(e) => setFilterType(e.target.value)}
                 aria-label="Filter jenis laporan"
+                title="Filter Jenis Laporan"
               >
                 <option value="all">Semua Jenis Laporan</option>
                 <option value="Bug">Khusus Bug</option>
                 <option value="Saran">Khusus Saran</option>
                 <option value="Kritik">Khusus Kritik</option>
-              </select>
-              <select
+              </CustomSelect>
+              <CustomSelect
                 className="input input-sm"
                 value={filterStatus}
                 onChange={(e) => setFilterStatus(e.target.value)}
                 aria-label="Filter status laporan"
+                title="Filter Status Laporan"
               >
                 <option value="all">Semua Status</option>
                 <option value="baru">Status: Baru</option>
                 <option value="diproses">Status: Diproses</option>
                 <option value="selesai">Status: Selesai</option>
-              </select>
+              </CustomSelect>
             </div>
             <div className="admin-actions-right">
               <button
@@ -561,18 +564,19 @@ create policy "Allow manage reports" on public.user_reports for all using (true)
                             ? 'Diproses'
                             : 'Selesai'}
                         </span>
-                        <select
+                        <CustomSelect
                           className="input input-sm report-status-select"
                           value={r.status}
                           onChange={(e) =>
                             handleChangeReportStatus(r.id, e.target.value as ReportStatus)
                           }
                           aria-label={`Ubah status laporan ${r.id}`}
+                          title={`Ubah Status Laporan #${r.id}`}
                         >
                           <option value="baru">Tandai Baru</option>
                           <option value="diproses">Tandai Diproses</option>
                           <option value="selesai">Tandai Selesai</option>
-                        </select>
+                        </CustomSelect>
                         <button
                           type="button"
                           className="btn btn-ghost btn-sm"

@@ -2,6 +2,7 @@ import { useState } from 'react'
 import type { Notify } from '../types'
 import { sendUserReport, type ReportType } from '../lib/reports'
 import { currentUser } from '../lib/auth'
+import { CustomSelect } from './CustomSelect'
 
 const TYPES = ['Bug', 'Kritik', 'Saran'] as const
 
@@ -75,18 +76,19 @@ export function ReportIssueCard({ notify }: { notify: Notify }) {
       <div className="form-grid">
         <div className="field">
           <label htmlFor="issue-type">Jenis</label>
-          <select
+          <CustomSelect
             id="issue-type"
             className="input"
             value={type}
             onChange={(e) => setType(e.target.value as (typeof TYPES)[number])}
+            title="Pilih Jenis Laporan"
           >
             {TYPES.map((item) => (
               <option key={item} value={item}>
                 {item}
               </option>
             ))}
-          </select>
+          </CustomSelect>
         </div>
         <div className="field">
           <label htmlFor="issue-page">Halaman (opsional)</label>

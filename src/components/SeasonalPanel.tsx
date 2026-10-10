@@ -7,6 +7,7 @@ import { SAVINGS_CATEGORY } from '../lib/state'
 import { uid } from '../lib/id'
 import { MoneyInput } from './MoneyInput'
 import { ProgressBar } from './ProgressBar'
+import { CustomSelect } from './CustomSelect'
 
 interface Props {
   state: AppState
@@ -154,11 +155,12 @@ export function SeasonalPanel({ state, derived, update, notify }: Props) {
               </div>
 
               <div className="inline-form">
-                <select
+                <CustomSelect
                   className="input"
                   aria-label={`Sumber setoran ${item.name}`}
                   value={sources[item.id] ?? `wallet:${state.wallets[0]?.id ?? ''}`}
                   onChange={(e) => setSources((prev) => ({ ...prev, [item.id]: e.target.value }))}
+                  title={`Pilih Sumber Setoran ${item.name}`}
                 >
                   <option value="pot">Saku Tabungan ({formatIDR(state.endSavings)})</option>
                   {state.wallets.map((wallet) => (
@@ -166,7 +168,7 @@ export function SeasonalPanel({ state, derived, update, notify }: Props) {
                       {wallet.name} ({formatIDR(wallet.balance)})
                     </option>
                   ))}
-                </select>
+                </CustomSelect>
                 <MoneyInput
                   value={deposits[item.id] ?? 0}
                   onValueChange={(value) => setDeposits((prev) => ({ ...prev, [item.id]: value }))}

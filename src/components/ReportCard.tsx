@@ -2,6 +2,7 @@ import { useMemo, useState } from 'react'
 import type { AppState, Notify } from '../types'
 import { buildReport } from '../lib/report'
 import { formatIDR, formatShortDate, monthKey, monthLabel, todayISO } from '../lib/money'
+import { CustomSelect } from './CustomSelect'
 
 export function ReportCard({ state, notify }: { state: AppState; notify: Notify }) {
   const [month, setMonth] = useState(() => monthKey(todayISO()))
@@ -46,18 +47,19 @@ export function ReportCard({ state, notify }: { state: AppState; notify: Notify 
       <header className="card-head">
         <h2>Laporan Bulanan</h2>
         <div className="report-actions no-print">
-          <select
+          <CustomSelect
             className="input"
             value={month}
             onChange={(e) => setMonth(e.target.value)}
             aria-label="Bulan laporan"
+            title="Pilih Bulan Laporan"
           >
             {months.map((key) => (
               <option key={key} value={key}>
                 {monthLabel(key)}
               </option>
             ))}
-          </select>
+          </CustomSelect>
           <button type="button" className="btn btn-ghost btn-sm" onClick={() => void copyReport()}>
             Salin ringkasan
           </button>

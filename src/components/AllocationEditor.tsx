@@ -5,6 +5,7 @@ import { CATEGORY_COLORS, categoryKind } from '../lib/state'
 import { PROFILES, applyProfile, findProfile } from '../lib/profiles'
 import { applyLifestyle } from '../lib/lifestyles'
 import { uid } from '../lib/id'
+import { CustomSelect } from './CustomSelect'
 
 interface Props {
   state: AppState
@@ -226,7 +227,7 @@ export function AllocationEditor({ state, update, onDone }: Props) {
                     )}
                   </td>
                   <td>
-                    <select
+                    <CustomSelect
                       className="input alloc-kind"
                       aria-label={`Jenis ${row.name}`}
                       value={row.kind}
@@ -239,11 +240,12 @@ export function AllocationEditor({ state, update, onDone }: Props) {
                           ),
                         )
                       }
+                      title={`Pilih Jenis Kategori ${row.name}`}
                     >
                       <option value="harian">Harian</option>
                       <option value="keinginan">Keinginan</option>
                       <option value="tabungan">Tabungan</option>
-                    </select>
+                    </CustomSelect>
                   </td>
                   <td className="alloc-action-cell">
                     <button

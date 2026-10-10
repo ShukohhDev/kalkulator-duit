@@ -7,6 +7,7 @@ import { formatIDR, formatShortDate, monthKey, monthLabel, todayISO } from '../l
 import { uid } from '../lib/id'
 import { MoneyInput } from './MoneyInput'
 import { ReceiptView } from './ReceiptView'
+import { CustomSelect } from './CustomSelect'
 
 interface Props {
   state: AppState
@@ -218,14 +219,14 @@ export function ExpensesPanel({ state, update, notify }: Props) {
 
         <div className="field">
           <label htmlFor="exp-cat">Kategori</label>
-          <select id="exp-cat" className="input" value={categoryId} onChange={(e) => setCategoryId(e.target.value)}>
+          <CustomSelect id="exp-cat" className="input" value={categoryId} onChange={(e) => setCategoryId(e.target.value)} title="Pilih Kategori Pengeluaran">
             {state.categories.map((category) => (
               <option key={category.id} value={category.id}>
                 {category.name}
                 {category.ratio > 0 ? ` (${Math.round(category.ratio * 100)}%)` : ''}
               </option>
             ))}
-          </select>
+          </CustomSelect>
           {isSavingsOrEmergencyCategory(categoryId, state.categories) && (
             <p className="small" style={{ color: 'var(--primary)', margin: '4px 0 0 0' }}>
               Pengeluaran kategori ini memotong saldo Tabungan Akhir Periode (saldo saat ini: {formatIDR(state.endSavings)}).
@@ -251,7 +252,7 @@ export function ExpensesPanel({ state, update, notify }: Props) {
         {categoryId === SAVINGS_CATEGORY && (state.goals.length > 0 || state.wishlist.length > 0) && (
           <div className="field">
             <label htmlFor="exp-goal">Masukkan ke</label>
-            <select id="exp-goal" className="input" value={goalTarget} onChange={(e) => setGoalTarget(e.target.value)}>
+            <CustomSelect id="exp-goal" className="input" value={goalTarget} onChange={(e) => setGoalTarget(e.target.value)} title="Masukkan ke Target Tabungan">
               {state.goals.length > 0 && <option value="auto">Target utama (otomatis)</option>}
               <option value="none">Tidak masuk target/incaran</option>
               {state.goals.map((goal) => (
@@ -264,7 +265,7 @@ export function ExpensesPanel({ state, update, notify }: Props) {
                   {item.name} · incaran
                 </option>
               ))}
-            </select>
+            </CustomSelect>
             <span className="muted small">Saldo tabungan/incaran yang dipilih ikut bertambah.</span>
           </div>
         )}
@@ -369,28 +370,28 @@ export function ExpensesPanel({ state, update, notify }: Props) {
               </button>
             )}
           </div>
-          <select className="input" value={filterCategory} onChange={(e) => setFilterCategory(e.target.value)} aria-label="Filter kategori">
+          <CustomSelect className="input" value={filterCategory} onChange={(e) => setFilterCategory(e.target.value)} aria-label="Filter kategori" title="Filter Kategori">
             <option value="all">Semua kategori</option>
             {state.categories.map((category) => (
               <option key={category.id} value={category.id}>
                 {category.name}
               </option>
             ))}
-          </select>
-          <select className="input" value={filterMonth} onChange={(e) => setFilterMonth(e.target.value)} aria-label="Filter bulan">
+          </CustomSelect>
+          <CustomSelect className="input" value={filterMonth} onChange={(e) => setFilterMonth(e.target.value)} aria-label="Filter bulan" title="Filter Bulan">
             <option value="all">Semua bulan</option>
             {months.map((key) => (
               <option key={key} value={key}>
                 {monthLabel(key)}
               </option>
             ))}
-          </select>
-          <select className="input" value={sortBy} onChange={(e) => setSortBy(e.target.value as 'date' | 'date_asc' | 'amount' | 'amount_asc')} aria-label="Urutan">
+          </CustomSelect>
+          <CustomSelect className="input" value={sortBy} onChange={(e) => setSortBy(e.target.value as 'date' | 'date_asc' | 'amount' | 'amount_asc')} aria-label="Urutan" title="Urutan Catatan">
             <option value="date">Terbaru</option>
             <option value="date_asc">Terlama</option>
             <option value="amount">Nominal terbesar</option>
             <option value="amount_asc">Nominal terkecil</option>
-          </select>
+          </CustomSelect>
         </div>
 
         <div className="quick-filter-chips">

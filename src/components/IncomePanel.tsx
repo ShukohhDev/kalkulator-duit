@@ -9,6 +9,7 @@ import { deleteReceipt, saveReceipt } from '../lib/receipts'
 import { uid } from '../lib/id'
 import { MoneyInput } from './MoneyInput'
 import { ReceiptView } from './ReceiptView'
+import { CustomSelect } from './CustomSelect'
 
 const SOURCES = INCOME_SOURCES
 
@@ -186,14 +187,14 @@ export function IncomePanel({ state, update, notify }: Props) {
         </div>
         <div className="field">
           <label htmlFor="inc-source">Sumber</label>
-          <select id="inc-source" className="input" value={source} onChange={(e) => setSource(e.target.value)}>
+          <CustomSelect id="inc-source" className="input" value={source} onChange={(e) => setSource(e.target.value)} title="Pilih Sumber Pemasukan">
             {!SOURCES.includes(source) && <option value={source}>{source}</option>}
             {SOURCES.map((item) => (
               <option key={item} value={item}>
                 {item}
               </option>
             ))}
-          </select>
+          </CustomSelect>
         </div>
         <div className="field">
           <label htmlFor="inc-amount">Nominal</label>
@@ -201,7 +202,7 @@ export function IncomePanel({ state, update, notify }: Props) {
         </div>
         <div className="field">
           <label htmlFor="inc-dest">Masukkan ke</label>
-          <select id="inc-dest" className="input" value={destKey} onChange={(e) => setDestKey(e.target.value)}>
+          <CustomSelect id="inc-dest" className="input" value={destKey} onChange={(e) => setDestKey(e.target.value)} title="Pilih Tujuan Pemasukan">
             <option value="jajan">Uang jajan</option>
             <option value="pot">Saku Tabungan</option>
             {state.wallets.map((wallet) => (
@@ -209,7 +210,7 @@ export function IncomePanel({ state, update, notify }: Props) {
                 {wallet.name}
               </option>
             ))}
-          </select>
+          </CustomSelect>
         </div>
         <div className="field">
           <label htmlFor="inc-receipt">Bukti (opsional)</label>
@@ -280,20 +281,20 @@ export function IncomePanel({ state, update, notify }: Props) {
               </button>
             )}
           </div>
-          <select className="input" value={filterMonth} onChange={(e) => setFilterMonth(e.target.value)} aria-label="Filter bulan">
+          <CustomSelect className="input" value={filterMonth} onChange={(e) => setFilterMonth(e.target.value)} aria-label="Filter bulan" title="Filter Bulan">
             <option value="all">Semua bulan</option>
             {months.map((key) => (
               <option key={key} value={key}>
                 {monthLabel(key)}
               </option>
             ))}
-          </select>
-          <select className="input" value={sortBy} onChange={(e) => setSortBy(e.target.value as 'date' | 'date_asc' | 'amount' | 'amount_asc')} aria-label="Urutan">
+          </CustomSelect>
+          <CustomSelect className="input" value={sortBy} onChange={(e) => setSortBy(e.target.value as 'date' | 'date_asc' | 'amount' | 'amount_asc')} aria-label="Urutan" title="Urutan Catatan">
             <option value="date">Terbaru</option>
             <option value="date_asc">Terlama</option>
             <option value="amount">Nominal terbesar</option>
             <option value="amount_asc">Nominal terkecil</option>
-          </select>
+          </CustomSelect>
         </div>
 
         <div className="quick-filter-chips">
