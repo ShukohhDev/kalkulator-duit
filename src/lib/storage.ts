@@ -118,6 +118,7 @@ function sanitizeExpenses(value: unknown): Expense[] {
       wishlistId: typeof item.wishlistId === 'string' && item.wishlistId !== '' ? item.wishlistId : undefined,
       seasonalId: typeof item.seasonalId === 'string' && item.seasonalId !== '' ? item.seasonalId : undefined,
       receiptId: typeof item.receiptId === 'string' && item.receiptId !== '' ? item.receiptId : undefined,
+      walletId: typeof item.walletId === 'string' && item.walletId !== '' ? item.walletId : undefined,
     }))
     .filter((item) => item.date !== '')
 }

@@ -28,6 +28,7 @@ export function QuickEntry({ mode, state, update, notify, onClose }: Props) {
   const [source, setSource] = useState(INCOME_SOURCES[0])
   const [note, setNote] = useState('')
   const [amount, setAmount] = useState(0)
+  const [walletId, setWalletId] = useState('')
   const [receiptId, setReceiptId] = useState<string | null>(null)
   const [receiptError, setReceiptError] = useState('')
   const rootRef = useRef<HTMLElement | null>(null)
@@ -64,14 +65,25 @@ export function QuickEntry({ mode, state, update, notify, onClose }: Props) {
         amount,
         goalId: categoryId === SAVINGS_CATEGORY ? primaryGoal(state.goals)?.id : undefined,
         receiptId: receiptId ?? undefined,
+        walletId: walletId || undefined,
       }
-      update((s) => ({
-        ...s,
-        endSavings: isSavings ? Math.max(0, s.endSavings - amount) : s.endSavings,
-        expenses: [expense, ...s.expenses],
-      }))
+      update((s) => {
+        let nextWallets = s.wallets
+        if (walletId) {
+          nextWallets = s.wallets.map((w) =>
+            w.id === walletId ? { ...w, balance: Math.max(0, w.balance - amount) } : w,
+          )
+        }
+        return {
+          ...s,
+          endSavings: isSavings ? Math.max(0, s.endSavings - amount) : s.endSavings,
+          wallets: nextWallets,
+          expenses: [expense, ...s.expenses],
+        }
+      })
       notify('Pengeluaran dicatat')
       setReceiptId(null)
+      setWalletId('')
     } else {
       const income: Income = { id: uid('inc'), date, source, amount }
       update((s) => ({ ...s, incomes: [income, ...s.incomes] }))
@@ -125,6 +137,26 @@ export function QuickEntry({ mode, state, update, notify, onClose }: Props) {
               {INCOME_SOURCES.map((item) => (
                 <option key={item} value={item}>
                   {item}
+                </option>
+              ))}
+            </CustomSelect>
+          </div>
+        )}
+
+        {mode === 'expense' && (
+          <div className="field">
+            <label htmlFor="qk-wallet">Sumber dana / Dompet</label>
+            <CustomSelect
+              id="qk-wallet"
+              className="input"
+              value={walletId}
+              onChange={(e) => setWalletId(e.target.value)}
+              title="Pilih Dompet / E-Wallet"
+            >
+              <option value="">Tanpa potong dompet</option>
+              {state.wallets.map((wallet) => (
+                <option key={wallet.id} value={wallet.id}>
+                  {wallet.name} (Saldo: {formatIDR(wallet.balance)})
                 </option>
               ))}
             </CustomSelect>

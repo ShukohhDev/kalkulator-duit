@@ -101,7 +101,19 @@ export function markBillPaid(
         : item
     ),
     expenses: [
-      { id: uid('exp'), date, categoryId: TAGIHAN_CATEGORY, note, amount: payAmount },
+      {
+        id: uid('exp'),
+        date,
+        categoryId: TAGIHAN_CATEGORY,
+        note,
+        amount: payAmount,
+        walletId:
+          walletId && walletId !== 'none' && walletId !== 'pot'
+            ? walletId.startsWith('wallet:')
+              ? walletId.slice(7)
+              : walletId
+            : undefined,
+      },
       ...s.expenses,
     ],
   }
@@ -140,7 +152,19 @@ export function markDebtPaid(
     wallets: nextWallets,
     debts: s.debts.map((item) => (item.id === debt.id ? { ...item, paid: item.paid + payAmount } : item)),
     expenses: [
-      { id: uid('exp'), date: todayISO(), categoryId: CICILAN_CATEGORY, note, amount: payAmount },
+      {
+        id: uid('exp'),
+        date: todayISO(),
+        categoryId: CICILAN_CATEGORY,
+        note,
+        amount: payAmount,
+        walletId:
+          walletId && walletId !== 'none' && walletId !== 'pot'
+            ? walletId.startsWith('wallet:')
+              ? walletId.slice(7)
+              : walletId
+            : undefined,
+      },
       ...s.expenses,
     ],
   }

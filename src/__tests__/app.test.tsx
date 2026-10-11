@@ -1261,4 +1261,33 @@ describe('fase 6: bukti catat cepat, skor kesehatan, tantangan, .ics, salin lapo
     expect(container.textContent).toContain('150.000')
     expect(container.querySelector('.toast')?.textContent).toContain('via GoPay')
   })
+
+  it('pencatatan pengeluaran dapat memilih sumber dompet/e-wallet dan memotong saldonya', () => {
+    seed({
+      wallets: [
+        { id: 'w-test', name: 'GoPay', balance: 250_000 },
+      ],
+      expenses: [],
+    })
+
+    const gopayInput = container.querySelector('#w-bal-w-test') as HTMLInputElement
+    expect(gopayInput.value).toBe('250.000')
+
+    // Catat pengeluaran dengan dompet GoPay
+    setValue('#exp-amount', '50000')
+    setValue('#exp-note', 'Kopi Kenangan')
+    setSelect('#exp-wallet', 'w-test')
+    clickText('button', 'Catat pengeluaran')
+
+    // Pengeluaran tercatat dan menampilkan GoPay
+    expect(container.textContent).toContain('Kopi Kenangan')
+    expect(container.textContent).toContain('GoPay')
+
+    // Saldo GoPay terpotong menjadi 200.000
+    expect(gopayInput.value).toBe('200.000')
+
+    // Hapus pengeluaran dan saldo GoPay kembali menjadi 250.000
+    clickText('.tx-actions button', 'Hapus')
+    expect(gopayInput.value).toBe('250.000')
+  })
 })

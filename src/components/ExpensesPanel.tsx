@@ -22,6 +22,7 @@ export function ExpensesPanel({ state, update, notify }: Props) {
   const [categoryId, setCategoryId] = useState(() => state.categories[0]?.id ?? 'makan')
   const [note, setNote] = useState('')
   const [amount, setAmount] = useState(0)
+  const [walletId, setWalletId] = useState('')
   const [goalTarget, setGoalTarget] = useState('auto')
   const [editingId, setEditingId] = useState<string | null>(null)
   const [receiptId, setReceiptId] = useState<string | null>(null)
@@ -63,7 +64,8 @@ export function ExpensesPanel({ state, update, notify }: Props) {
       }
       if (keyword) {
         const catName = categoryMap.get(item.categoryId)?.name ?? ''
-        const haystack = `${item.note} ${catName} ${item.amount} ${formatIDR(item.amount)}`.toLowerCase()
+        const walletName = item.walletId ? state.wallets.find((w) => w.id === item.walletId)?.name ?? '' : ''
+        const haystack = `${item.note} ${catName} ${walletName} ${item.amount} ${formatIDR(item.amount)}`.toLowerCase()
         if (!haystack.includes(keyword)) return false
       }
       return true
@@ -84,6 +86,7 @@ export function ExpensesPanel({ state, update, notify }: Props) {
     setNote('')
     setAmount(0)
     setGoalTarget('auto')
+    setWalletId('')
     setEditingId(null)
     setReceiptId(null)
     setReceiptError('')
@@ -117,12 +120,45 @@ export function ExpensesPanel({ state, update, notify }: Props) {
           nextEndSavings = Math.max(0, nextEndSavings - amount)
         }
 
+        let nextWallets = s.wallets
+        const prevWalletId = previous?.walletId
+        const prevAmount = previous?.amount ?? 0
+
+        if (prevWalletId === walletId && walletId) {
+          const delta = amount - prevAmount
+          nextWallets = nextWallets.map((w) =>
+            w.id === walletId ? { ...w, balance: Math.max(0, w.balance - delta) } : w,
+          )
+        } else {
+          if (prevWalletId) {
+            nextWallets = nextWallets.map((w) =>
+              w.id === prevWalletId ? { ...w, balance: w.balance + prevAmount } : w,
+            )
+          }
+          if (walletId) {
+            nextWallets = nextWallets.map((w) =>
+              w.id === walletId ? { ...w, balance: Math.max(0, w.balance - amount) } : w,
+            )
+          }
+        }
+
         return {
           ...s,
           endSavings: nextEndSavings,
+          wallets: nextWallets,
           expenses: s.expenses.map((item) =>
             item.id === editingId
-              ? { ...item, date, categoryId, note, amount, goalId, wishlistId, receiptId: receiptId ?? undefined }
+              ? {
+                  ...item,
+                  date,
+                  categoryId,
+                  note,
+                  amount,
+                  goalId,
+                  wishlistId,
+                  receiptId: receiptId ?? undefined,
+                  walletId: walletId || undefined,
+                }
               : item,
           ),
         }
@@ -139,12 +175,22 @@ export function ExpensesPanel({ state, update, notify }: Props) {
         goalId,
         wishlistId,
         receiptId: receiptId ?? undefined,
+        walletId: walletId || undefined,
       }
-      update((s) => ({
-        ...s,
-        endSavings: isSavings ? Math.max(0, s.endSavings - amount) : s.endSavings,
-        expenses: [expense, ...s.expenses],
-      }))
+      update((s) => {
+        let nextWallets = s.wallets
+        if (walletId) {
+          nextWallets = s.wallets.map((w) =>
+            w.id === walletId ? { ...w, balance: Math.max(0, w.balance - amount) } : w,
+          )
+        }
+        return {
+          ...s,
+          endSavings: isSavings ? Math.max(0, s.endSavings - amount) : s.endSavings,
+          wallets: nextWallets,
+          expenses: [expense, ...s.expenses],
+        }
+      })
     }
     resetForm()
   }
@@ -153,6 +199,7 @@ export function ExpensesPanel({ state, update, notify }: Props) {
     setEditingId(expense.id)
     setDate(expense.date)
     setCategoryId(expense.categoryId)
+    setWalletId(expense.walletId ?? '')
     setNote(expense.note)
     setAmount(expense.amount)
     setGoalTarget(expense.wishlistId ? `wish:${expense.wishlistId}` : (expense.goalId ?? 'auto'))
@@ -166,12 +213,22 @@ export function ExpensesPanel({ state, update, notify }: Props) {
     const target = state.expenses[index]
     if (!target) return
     const wasSavings = isSavingsOrEmergencyCategory(target.categoryId, state.categories)
+    const targetWalletId = target.walletId
 
-    update((s) => ({
-      ...s,
-      endSavings: wasSavings ? s.endSavings + target.amount : s.endSavings,
-      expenses: s.expenses.filter((item) => item.id !== id),
-    }))
+    update((s) => {
+      let nextWallets = s.wallets
+      if (targetWalletId) {
+        nextWallets = nextWallets.map((w) =>
+          w.id === targetWalletId ? { ...w, balance: w.balance + target.amount } : w,
+        )
+      }
+      return {
+        ...s,
+        endSavings: wasSavings ? s.endSavings + target.amount : s.endSavings,
+        wallets: nextWallets,
+        expenses: s.expenses.filter((item) => item.id !== id),
+      }
+    })
     if (target.receiptId) void deleteReceipt(target.receiptId)
     if (editingId === id) resetForm()
     notify('Catatan dihapus.', {
@@ -179,9 +236,16 @@ export function ExpensesPanel({ state, update, notify }: Props) {
         update((s) => {
           const next = [...s.expenses]
           next.splice(Math.min(index, next.length), 0, { ...target, receiptId: undefined })
+          let nextWallets = s.wallets
+          if (targetWalletId) {
+            nextWallets = nextWallets.map((w) =>
+              w.id === targetWalletId ? { ...w, balance: Math.max(0, w.balance - target.amount) } : w,
+            )
+          }
           return {
             ...s,
             endSavings: wasSavings ? Math.max(0, s.endSavings - target.amount) : s.endSavings,
+            wallets: nextWallets,
             expenses: next,
           }
         }),
@@ -269,6 +333,34 @@ export function ExpensesPanel({ state, update, notify }: Props) {
             <span className="muted small">Saldo tabungan/incaran yang dipilih ikut bertambah.</span>
           </div>
         )}
+
+        <div className="field">
+          <label htmlFor="exp-wallet">Sumber dana / Dompet</label>
+          <CustomSelect
+            id="exp-wallet"
+            className="input"
+            value={walletId}
+            onChange={(e) => setWalletId(e.target.value)}
+            title="Pilih Sumber Dana Pengeluaran"
+          >
+            <option value="">Tanpa potong dompet</option>
+            {state.wallets.map((wallet) => (
+              <option key={wallet.id} value={wallet.id}>
+                {wallet.name} (Saldo: {formatIDR(wallet.balance)})
+              </option>
+            ))}
+          </CustomSelect>
+          {walletId && (() => {
+            const selected = state.wallets.find((w) => w.id === walletId)
+            if (!selected) return null
+            const sisa = Math.max(0, selected.balance - amount)
+            return (
+              <p className="small" style={{ color: 'var(--primary)', margin: '4px 0 0 0' }}>
+                Saldo {selected.name} saat ini: {formatIDR(selected.balance)} (sisa setelah dicatat: {formatIDR(sisa)}).
+              </p>
+            )
+          })()}
+        </div>
 
         <div className="field">
           <label htmlFor="exp-note">Untuk apa</label>
@@ -442,6 +534,7 @@ export function ExpensesPanel({ state, update, notify }: Props) {
       <ul className="tx-list">
         {visible.map((item) => {
           const category = categoryMap.get(item.categoryId)
+          const wallet = item.walletId ? state.wallets.find((w) => w.id === item.walletId) : undefined
           return (
             <li key={item.id} className={`tx${editingId === item.id ? ' tx-active' : ''}`}>
               <span className="tx-dot" style={{ background: category?.color ?? '#868e96' }} />
@@ -449,6 +542,7 @@ export function ExpensesPanel({ state, update, notify }: Props) {
                 <strong>{item.note || category?.name || 'Pengeluaran'}</strong>
                 <span className="muted small">
                   {formatShortDate(item.date)} · {category?.name ?? 'Tanpa kategori'}
+                  {wallet && ` · ${wallet.name}`}
                 </span>
               </span>
               <span className="tx-amount">−{formatIDR(item.amount)}</span>

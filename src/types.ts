@@ -30,6 +30,7 @@ export interface Expense {
   wishlistId?: string
   seasonalId?: string
   receiptId?: string
+  walletId?: string
 }
 
 export type IncomeDestination = { kind: 'jajan' } | { kind: 'pot' } | { kind: 'wallet'; walletId: string }
