@@ -16,9 +16,24 @@ export function ReportIssueCard({ notify }: { notify: Notify }) {
   const [type, setType] = useState<(typeof TYPES)[number]>('Bug')
   const [message, setMessage] = useState('')
   const [page, setPage] = useState('')
+  const [honeypot, setHoneypot] = useState('')
+  const [lastSubmitTime, setLastSubmitTime] = useState(0)
   const [submitting, setSubmitting] = useState(false)
 
   const handleSend = async () => {
+    // Anti-spam honeypot check: bot otomatis mengisi input tersembunyi
+    if (honeypot) {
+      notify('Laporan diproses.')
+      return
+    }
+
+    // Rate-limit anti spam: jeda minimal 5 detik antar laporan
+    const now = Date.now()
+    if (now - lastSubmitTime < 5000) {
+      notify('Mohon tunggu beberapa detik sebelum mengirim laporan lagi.', { error: true })
+      return
+    }
+
     if (!message.trim()) {
       notify('Tulis dulu masalahnya.', { error: true })
       return
@@ -40,6 +55,7 @@ export function ReportIssueCard({ notify }: { notify: Notify }) {
         notify('Laporan berhasil dikirim ke pemilik website!')
         setMessage('')
         setPage('')
+        setLastSubmitTime(now)
       }
     } catch {
       notify('Gagal mengirim laporan.', { error: true })
@@ -109,6 +125,18 @@ export function ReportIssueCard({ notify }: { notify: Notify }) {
             placeholder="Apa yang terjadi, langkah untuk mengulanginya, apa yang kamu harapkan"
             value={message}
             onChange={(e) => setMessage(e.target.value)}
+          />
+        </div>
+        {/* Anti-spam honeypot - tersembunyi dari pengguna manusia */}
+        <div style={{ display: 'none' }} aria-hidden="true">
+          <label htmlFor="issue-website">Website</label>
+          <input
+            id="issue-website"
+            type="text"
+            value={honeypot}
+            tabIndex={-1}
+            autoComplete="off"
+            onChange={(e) => setHoneypot(e.target.value)}
           />
         </div>
         <div className="form-actions" style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>

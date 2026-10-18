@@ -30,6 +30,7 @@ import { Calculator } from './components/Calculator'
 import { CashflowChart } from './components/CashflowChart'
 import { DataControls } from './components/DataControls'
 import { ReportIssueCard } from './components/ReportIssueCard'
+import { FaqPrivacyCard } from './components/FaqPrivacyCard'
 import { AccountSecurityCard } from './components/AccountSecurityCard'
 import { DompetPanel } from './components/DompetPanel'
 import { EndSavingsCard } from './components/EndSavingsCard'
@@ -571,6 +572,7 @@ function AppShell({ user, onLogout }: { user: string; onLogout: () => void }) {
           onReset={resetAll}
           notify={notify}
         />
+        <FaqPrivacyCard />
         <ActivityPanel state={state} />
       </div>
       {isUserAdmin && (
