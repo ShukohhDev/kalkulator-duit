@@ -22,6 +22,7 @@ export interface Derived {
   totalExpense: number
   spentInPeriod: number
   spentByCategory: Record<string, number>
+  allTimeSpentByCategory: Record<string, number>
   savingsByGoal: Record<string, number>
   wishlistSavings: Record<string, number>
   seasonalSavings: Record<string, number>
@@ -65,19 +66,28 @@ export function derive(state: AppState, now: Date = new Date()): Derived {
   const totalExpense = state.expenses.reduce((sum, item) => sum + item.amount, 0)
 
   const spentByCategory: Record<string, number> = {}
+  const allTimeSpentByCategory: Record<string, number> = {}
   const savingsByGoal: Record<string, number> = {}
   const wishlistSavings: Record<string, number> = {}
   const seasonalSavings: Record<string, number> = {}
   let spentInPeriod = 0
 
   for (const expense of state.expenses) {
-    spentByCategory[expense.categoryId] = (spentByCategory[expense.categoryId] ?? 0) + expense.amount
+    allTimeSpentByCategory[expense.categoryId] =
+      (allTimeSpentByCategory[expense.categoryId] ?? 0) + expense.amount
+
     if (expense.categoryId === SAVINGS_CATEGORY) {
       if (expense.goalId) savingsByGoal[expense.goalId] = (savingsByGoal[expense.goalId] ?? 0) + expense.amount
       if (expense.wishlistId) wishlistSavings[expense.wishlistId] = (wishlistSavings[expense.wishlistId] ?? 0) + expense.amount
       if (expense.seasonalId) seasonalSavings[expense.seasonalId] = (seasonalSavings[expense.seasonalId] ?? 0) + expense.amount
     }
-    if (period && expense.date >= period.startISO && expense.date <= period.endISO) {
+
+    const inPeriod = period
+      ? expense.date >= period.startISO && expense.date <= period.endISO
+      : true
+
+    if (inPeriod) {
+      spentByCategory[expense.categoryId] = (spentByCategory[expense.categoryId] ?? 0) + expense.amount
       spentInPeriod += expense.amount
     }
   }
@@ -109,6 +119,7 @@ export function derive(state: AppState, now: Date = new Date()): Derived {
     totalExpense,
     spentInPeriod,
     spentByCategory,
+    allTimeSpentByCategory,
     savingsByGoal,
     wishlistSavings,
     seasonalSavings,

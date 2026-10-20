@@ -54,7 +54,7 @@ export function healthScore(state: AppState, derived: Derived, now: Date = new D
 
   // 2. Cadangan tabungan: total setoran kategori Ditabung (sepanjang masa) / target 3× pengeluaran wajib
   const target = emergencyTarget(state)
-  const saved = derived.spentByCategory[SAVINGS_CATEGORY] ?? 0
+  const saved = (derived.allTimeSpentByCategory?.[SAVINGS_CATEGORY] ?? derived.spentByCategory[SAVINGS_CATEGORY]) ?? 0
   const cadangan = target > 0 ? Math.round(100 * clamp01(saved / target)) : 100
 
   // 3. Beban kewajiban: wajib/bulan vs pemasukan bulanan (uang jajan setara bulanan + pemasukan bulan ini)
@@ -69,18 +69,10 @@ export function healthScore(state: AppState, derived: Derived, now: Date = new D
 
   // 4. Kepatuhan alokasi: berapa kategori aktif yang belanja periode ini melewati alokasinya
   const active = state.categories.filter((category) => category.ratio > 0)
-  const spentByCategory: Record<string, number> = {}
-  if (period) {
-    for (const item of state.expenses) {
-      if (item.date >= period.startISO && item.date <= period.endISO) {
-        spentByCategory[item.categoryId] = (spentByCategory[item.categoryId] ?? 0) + item.amount
-      }
-    }
-  }
   const over = active.filter(
     (category) =>
       derived.allocationByCategory[category.id] > 0 &&
-      (spentByCategory[category.id] ?? 0) > derived.allocationByCategory[category.id],
+      (derived.spentByCategory[category.id] ?? 0) > derived.allocationByCategory[category.id],
   )
   const patuh = active.length > 0 ? Math.round(100 * (1 - over.length / active.length)) : 100
 

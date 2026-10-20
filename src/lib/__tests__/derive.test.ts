@@ -136,3 +136,61 @@ describe('expenseLast7Days', () => {
     expect(week.today.byCategory).toEqual([])
   })
 })
+
+describe('spentByCategory & reset periode baru', () => {
+  it('kembali ke awal (kosong/0) saat masuk periode mingguan baru', () => {
+    const state = base('week', 700_000)
+    // Pengeluaran di minggu lama (Senin 5 Okt - Minggu 11 Okt 2026)
+    state.expenses = [
+      { id: 'e1', date: '2026-10-06', categoryId: 'makan', note: 'nasi lama', amount: 50_000 },
+      { id: 'e2', date: '2026-10-07', categoryId: 'transport', note: 'bensin lama', amount: 20_000 },
+    ]
+
+    // Saat masih di minggu lama (10 Okt 2026)
+    const derivedOldWeek = derive(state, new Date(2026, 9, 10))
+    expect(derivedOldWeek.spentByCategory['makan']).toBe(50_000)
+    expect(derivedOldWeek.spentByCategory['transport']).toBe(20_000)
+    expect(derivedOldWeek.spentInPeriod).toBe(70_000)
+
+    // Saat masuk minggu baru (Rabu 14 Okt 2026) -> Kartu Saku kembali ke awal (0)
+    const derivedNewWeek = derive(state, new Date(2026, 9, 14))
+    expect(derivedNewWeek.spentByCategory['makan']).toBeUndefined()
+    expect(derivedNewWeek.spentByCategory['transport']).toBeUndefined()
+    expect(derivedNewWeek.spentInPeriod).toBe(0)
+
+    // allTimeSpentByCategory tetap menyimpan data historis sepanjang masa
+    expect(derivedNewWeek.allTimeSpentByCategory['makan']).toBe(50_000)
+    expect(derivedNewWeek.allTimeSpentByCategory['transport']).toBe(20_000)
+
+    // Jika ada pengeluaran baru di minggu baru, hanya pengeluaran baru yang tercatat di kartu saku
+    state.expenses.push({ id: 'e3', date: '2026-10-13', categoryId: 'makan', note: 'nasi baru', amount: 15_000 })
+    const derivedAfterNewExpense = derive(state, new Date(2026, 9, 14))
+    expect(derivedAfterNewExpense.spentByCategory['makan']).toBe(15_000)
+    expect(derivedAfterNewExpense.allTimeSpentByCategory['makan']).toBe(65_000)
+  })
+
+  it('kembali ke awal (kosong/0) saat masuk periode bulanan baru', () => {
+    const state = base('month', 3_000_000)
+    // Pengeluaran bulan Oktober 2026
+    state.expenses = [
+      { id: 'e1', date: '2026-10-15', categoryId: 'makan', note: 'makan okt', amount: 100_000 },
+      { id: 'e2', date: '2026-10-20', categoryId: 'nongkrong', note: 'kopi okt', amount: 50_000 },
+    ]
+
+    // Di bulan Oktober 2026
+    const derivedOkt = derive(state, new Date(2026, 9, 25))
+    expect(derivedOkt.spentByCategory['makan']).toBe(100_000)
+    expect(derivedOkt.spentByCategory['nongkrong']).toBe(50_000)
+    expect(derivedOkt.spentInPeriod).toBe(150_000)
+
+    // Masuk bulan November 2026 (2 Nov 2026) -> Kartu Saku reset bersih ke awal
+    const derivedNov = derive(state, new Date(2026, 10, 2))
+    expect(derivedNov.spentByCategory['makan']).toBeUndefined()
+    expect(derivedNov.spentByCategory['nongkrong']).toBeUndefined()
+    expect(derivedNov.spentInPeriod).toBe(0)
+
+    // Total sepanjang masa tetap aman
+    expect(derivedNov.allTimeSpentByCategory['makan']).toBe(100_000)
+    expect(derivedNov.allTimeSpentByCategory['nongkrong']).toBe(50_000)
+  })
+})

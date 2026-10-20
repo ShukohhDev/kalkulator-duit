@@ -12,27 +12,14 @@ export interface Alert {
 const MAX_ALERTS = 4
 const ALERT_REMIND_KEY = 'kalkulator-duitmu:remind-alerts'
 
-// belanja per kategori di periode berjalan (bukan sepanjang masa)
-function spentInPeriodByCategory(state: AppState, derived: Derived): Map<string, number> {
-  const out = new Map<string, number>()
-  const period = derived.period
-  if (!period) return out
-  for (const expense of state.expenses) {
-    if (expense.date < period.startISO || expense.date > period.endISO) continue
-    out.set(expense.categoryId, (out.get(expense.categoryId) ?? 0) + expense.amount)
-  }
-  return out
-}
-
 export function buildAlerts(state: AppState, derived: Derived): Alert[] {
   const out: Alert[] = []
   if (!state.mode || state.allowance <= 0 || !derived.period) return out
 
-  const spentByCategory = spentInPeriodByCategory(state, derived)
   const rows = state.categories
     .map((category) => {
       const alloc = derived.allocationByCategory[category.id] ?? 0
-      const spent = spentByCategory.get(category.id) ?? 0
+      const spent = derived.spentByCategory[category.id] ?? 0
       return { category, alloc, spent, over: spent - alloc, pct: alloc > 0 ? Math.round((spent / alloc) * 100) : 0 }
     })
     .filter((item) => item.alloc > 0)
