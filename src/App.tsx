@@ -134,13 +134,33 @@ function AppShell({ user, onLogout }: { user: string; onLogout: () => void }) {
 
   useEffect(() => {
     if (typeof window === 'undefined') return
-    const onScroll = () => {
-      // Threshold 45px (saat topbar mulai tergulung dan SectionNav menempel di atas)
-      setIsScrolled((window.scrollY || 0) > 45)
+    let rafId: number | null = null
+
+    const checkScroll = () => {
+      const y = window.scrollY || 0
+      // Hysteresis: aktivasi saat scroll melewati batas topbar (>= 75px), kembali saat mendekati atas (<= 55px)
+      setIsScrolled((prev) => {
+        if (!prev && y >= 75) return true
+        if (prev && y <= 55) return false
+        return prev
+      })
     }
+
+    const onScroll = () => {
+      if (rafId !== null) return
+      rafId = window.requestAnimationFrame(() => {
+        rafId = null
+        checkScroll()
+      })
+    }
+
     window.addEventListener('scroll', onScroll, { passive: true })
-    onScroll()
-    return () => window.removeEventListener('scroll', onScroll)
+    checkScroll()
+
+    return () => {
+      window.removeEventListener('scroll', onScroll)
+      if (rafId !== null) window.cancelAnimationFrame(rafId)
+    }
   }, [])
 
   const isUserAdmin = isAdmin()

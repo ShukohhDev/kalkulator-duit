@@ -282,19 +282,18 @@ button, input, select, textarea {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 12px;
-  flex-wrap: wrap;
+  gap: 10px;
+  flex-wrap: nowrap;
   margin-bottom: 16px;
   min-height: 48px;
-  padding: 8px 16px;
+  height: 48px;
+  padding: 0 14px;
   background: var(--surface);
   border: 1px solid var(--border);
   border-radius: var(--radius);
   box-shadow: var(--shadow-sm);
   position: relative; /* Di desktop: tergulung ke atas secara natural */
   z-index: 30;
-  contain: paint;
-  transform: translateZ(0);
 }
 
 [data-theme='dark'] .topbar {
@@ -303,14 +302,16 @@ button, input, select, textarea {
 
 .brand {
   font-family: inherit;
-  font-size: 18px;
+  font-size: 16px;
   font-weight: 600;
   margin: 0;
   letter-spacing: -0.01em;
   color: var(--text);
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 8px;
+  white-space: nowrap;
+  flex-shrink: 0;
 }
 
 .brand-logo-img {
@@ -325,8 +326,16 @@ button, input, select, textarea {
 .topbar-actions {
   display: flex;
   align-items: center;
-  gap: 8px;
-  flex-wrap: wrap;
+  gap: 6px;
+  flex-wrap: nowrap;
+  flex-shrink: 0;
+}
+
+.topbar-actions .btn {
+  padding: 4px 8px;
+  font-size: 12px;
+  height: 30px;
+  min-height: 30px;
 }
 
 /* =========================================================
@@ -909,39 +918,33 @@ select.input {
    ANIMATIONS FOR MOVING ACTION BUTTONS (+ Pengeluaran & + Pemasukan)
    ========================================================= */
 
-@keyframes quick-move-to-nav {
+@keyframes quick-slide-in-nav {
   0% {
     opacity: 0;
-    transform: translateY(-16px) scale(0.92);
-  }
-  60% {
-    transform: translateY(2px) scale(1.02);
+    transform: translateY(-4px);
   }
   100% {
     opacity: 1;
-    transform: translateY(0) scale(1);
+    transform: translateY(0);
   }
 }
 
-@keyframes quick-move-to-topbar {
+@keyframes quick-slide-in-topbar {
   0% {
     opacity: 0;
-    transform: translateY(16px) scale(0.92);
-  }
-  60% {
-    transform: translateY(-2px) scale(1.02);
+    transform: translateY(4px);
   }
   100% {
     opacity: 1;
-    transform: translateY(0) scale(1);
+    transform: translateY(0);
   }
 }
 
 .topbar-quick-wrapper {
   display: inline-flex;
   align-items: center;
-  gap: 8px;
-  animation: quick-move-to-topbar 0.32s cubic-bezier(0.16, 1, 0.3, 1) both;
+  gap: 6px;
+  animation: quick-slide-in-topbar 0.18s cubic-bezier(0, 0, 0.2, 1) both;
 }
 
 /* =========================================================
@@ -952,8 +955,8 @@ select.input {
   display: flex;
   align-items: center;
   justify-content: flex-start;
-  gap: 8px;
-  padding: 6px 10px;
+  gap: 6px;
+  padding: 6px 8px;
   margin-bottom: 20px;
   background: var(--surface);
   border: 1px solid var(--border-2);
@@ -962,12 +965,11 @@ select.input {
   position: sticky;
   top: 8px;
   z-index: 60;
-  contain: paint;
-  transform: translateZ(0);
-  -webkit-transform: translateZ(0);
-  transition: all var(--t-fast);
+  min-height: 44px;
+  height: 44px;
   overflow-x: auto;
   scrollbar-width: none;
+  transition: border-color var(--t-fast), box-shadow var(--t-fast);
 }
 
 .section-nav::-webkit-scrollbar {
@@ -980,9 +982,8 @@ select.input {
 }
 
 .section-nav.section-nav-sticky {
-  box-shadow: 0 4px 18px rgba(0, 0, 0, 0.12);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.10);
   border-color: var(--accent);
-  padding: 4px 8px;
   background: var(--surface) !important;
 }
 
@@ -1002,32 +1003,32 @@ select.input {
 .section-nav-actions {
   display: inline-flex;
   align-items: center;
-  gap: 6px;
-  margin-left: 6px;
-  padding-left: 8px;
+  gap: 4px;
+  margin-left: 4px;
+  padding-left: 6px;
   border-left: 1px solid var(--border-2);
   flex-shrink: 0;
   flex-wrap: nowrap !important; /* WAJIB 1 baris saja */
-  animation: quick-move-to-nav 0.32s cubic-bezier(0.16, 1, 0.3, 1) both;
+  animation: quick-slide-in-nav 0.18s cubic-bezier(0, 0, 0.2, 1) both;
 }
 
 .nav-chip {
   display: inline-flex;
   align-items: center;
-  gap: 6px;
+  gap: 5px;
   border: 1px solid var(--border-2);
   background: var(--surface);
   color: var(--text-2);
   border-radius: var(--radius-xs);
-  padding: 5px 9px;
-  font-size: 13px;
+  padding: 4px 8px;
+  font-size: 12px;
   font-weight: 600;
-  height: 32px;
-  min-height: 32px;
+  height: 30px;
+  min-height: 30px;
   white-space: nowrap;
   cursor: pointer;
   box-shadow: var(--shadow-xs);
-  transition: all var(--t-fast);
+  transition: background var(--t-fast), border-color var(--t-fast), color var(--t-fast);
   flex-shrink: 0;
 }
 
@@ -1039,8 +1040,8 @@ select.input {
 }
 
 .nav-chip-icon svg {
-  width: 15px;
-  height: 15px;
+  width: 14px;
+  height: 14px;
 }
 
 .nav-chip:hover {
@@ -1060,27 +1061,7 @@ select.input {
   color: #FFFFFF !important;
 }
 
-/* Ukuran kompak saat scroll (sticky) agar muat 1 baris di semua laptop */
-.section-nav-sticky .nav-chip {
-  padding: 4px 8px;
-  font-size: 12px;
-  height: 30px;
-  min-height: 30px;
-  gap: 4px;
-}
-
-.section-nav-sticky .nav-chip-icon svg {
-  width: 14px;
-  height: 14px;
-}
-
-.section-nav-sticky .section-nav-actions {
-  gap: 4px;
-  padding-left: 6px;
-  margin-left: 4px;
-}
-
-.section-nav-sticky .section-nav-actions .btn {
+.section-nav-actions .btn {
   padding: 4px 8px;
   font-size: 12px;
   height: 30px;
