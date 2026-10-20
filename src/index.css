@@ -13,60 +13,60 @@
 [data-theme='dark'] ::-webkit-scrollbar-thumb { background: rgba(255, 255, 255, 0.16); }
 [data-theme='dark'] ::-webkit-scrollbar-thumb:hover { background: rgba(255, 255, 255, 0.32); }
 
-/* ---- Light Theme (Microsoft Fluent Light) ---- */
+/* ---- Light Theme (Emerald Fintech) ---- */
 :root {
   /* Surface & Canvas tokens */
-  --bg:        #F5F5F5;
-  --bg-2:      #EBEBEB;
+  --bg:        #F4F7F6;
+  --bg-2:      #E8EEEC;
   --surface:   #FFFFFF;
-  --surface-2: #FAFAFA;
-  --surface-3: #F0F0F0;
+  --surface-2: #F0FDFA;
+  --surface-3: #E6F4F1;
   
   /* Text tokens */
-  --text:      #242424;
-  --text-2:    #424242;
-  --muted:     #616161;
+  --text:      #1A2E2B;
+  --text-2:    #354E4A;
+  --muted:     #5E7773;
   
   /* 1px clean strokes */
-  --border:    rgba(0, 0, 0, 0.08);
-  --border-2:  rgba(0, 0, 0, 0.14);
+  --border:    rgba(15, 118, 110, 0.12);
+  --border-2:  rgba(15, 118, 110, 0.22);
 
-  /* Functional Brand Accent (Microsoft Blue) */
-  --accent:       #0078D4;
-  --accent-hover: #106EBE;
-  --accent-press: #005A9E;
-  --accent-2:     #106EBE;
-  --accent-3:     #2886DE;
-  --accent-soft:  rgba(0, 120, 212, 0.08);
-  --accent-glow:  rgba(0, 120, 212, 0.22);
+  /* Functional Brand Accent (Emerald Fintech #0F766E) */
+  --accent:       #0F766E;
+  --accent-hover: #115E59;
+  --accent-press: #134E4A;
+  --accent-2:     #0D9488;
+  --accent-3:     #14B8A6;
+  --accent-soft:  rgba(15, 118, 110, 0.08);
+  --accent-glow:  rgba(15, 118, 110, 0.22);
 
   /* Semantic status tokens */
-  --danger:      #D13438;
-  --danger-soft: rgba(209, 52, 56, 0.08);
-  --danger-glow: rgba(209, 52, 56, 0.20);
-  --ok:          #107C10;
-  --ok-soft:     rgba(16, 124, 16, 0.08);
-  --ok-glow:     rgba(16, 124, 16, 0.20);
-  --warn:        #D83B01;
-  --warn-soft:   rgba(216, 59, 1, 0.08);
-  --warn-glow:   rgba(216, 59, 1, 0.20);
-  --pct-blue:    #0078D4;
-  --pct-blue-soft: rgba(0, 120, 212, 0.08);
+  --danger:      #E11D48;
+  --danger-soft: rgba(225, 29, 72, 0.08);
+  --danger-glow: rgba(225, 29, 72, 0.20);
+  --ok:          #059669;
+  --ok-soft:     rgba(5, 150, 105, 0.08);
+  --ok-glow:     rgba(5, 150, 105, 0.20);
+  --warn:        #D97706;
+  --warn-soft:   rgba(217, 119, 6, 0.08);
+  --warn-glow:   rgba(217, 119, 6, 0.20);
+  --pct-blue:    #0F766E;
+  --pct-blue-soft: rgba(15, 118, 110, 0.08);
 
   /* Solid colors - strictly NO gradients */
-  --gradient-brand: #0078D4;
+  --gradient-brand: #0F766E;
   --gradient-hero:  var(--surface);
-  --gradient-ok:    #107C10;
-  --gradient-danger: #D13438;
-  --gradient-warn:  #D83B01;
+  --gradient-ok:    #059669;
+  --gradient-danger: #E11D48;
+  --gradient-warn:  #D97706;
 
   /* Fluent Depth: Soft subtle elevation shadows */
-  --shadow-xs: 0 1px 2px rgba(0, 0, 0, 0.04);
-  --shadow-sm: 0 2px 4px rgba(0, 0, 0, 0.04), 0 0 1px rgba(0, 0, 0, 0.06);
-  --shadow:    0 2px 6px rgba(0, 0, 0, 0.05), 0 0 1px rgba(0, 0, 0, 0.06);
-  --shadow-lg: 0 4px 12px rgba(0, 0, 0, 0.08), 0 0 1px rgba(0, 0, 0, 0.06);
-  --shadow-xl: 0 8px 24px rgba(0, 0, 0, 0.12), 0 0 2px rgba(0, 0, 0, 0.08);
-  --shadow-accent: 0 4px 12px rgba(0, 120, 212, 0.20);
+  --shadow-xs: 0 1px 2px rgba(15, 118, 110, 0.04);
+  --shadow-sm: 0 2px 4px rgba(15, 118, 110, 0.04), 0 0 1px rgba(0, 0, 0, 0.06);
+  --shadow:    0 2px 6px rgba(15, 118, 110, 0.05), 0 0 1px rgba(0, 0, 0, 0.06);
+  --shadow-lg: 0 4px 12px rgba(15, 118, 110, 0.08), 0 0 1px rgba(0, 0, 0, 0.06);
+  --shadow-xl: 0 8px 24px rgba(15, 118, 110, 0.12), 0 0 2px rgba(0, 0, 0, 0.08);
+  --shadow-accent: 0 4px 12px rgba(15, 118, 110, 0.24);
   --shadow-glow:   0 0 0 2px var(--accent-glow);
 
   /* Radii scale: Fluent 4px controls / 8px containers */
@@ -84,60 +84,60 @@
   color-scheme: light;
 }
 
-/* ---- Dark Theme (Microsoft Fluent Dark) ---- */
+/* ---- Dark Theme (Emerald Fintech Dark) ---- */
 [data-theme='dark'] {
   /* Surface & Canvas tokens */
-  --bg:        #202020;
-  --bg-2:      #1A1A1A;
-  --surface:   #2B2B2B;
-  --surface-2: #333333;
-  --surface-3: #3D3D3D;
+  --bg:        #111A18;
+  --bg-2:      #0B1311;
+  --surface:   #1A2624;
+  --surface-2: #233330;
+  --surface-3: #2D403D;
 
   /* Text tokens */
-  --text:      #FFFFFF;
-  --text-2:    #D1D1D1;
-  --muted:     #9E9E9E;
+  --text:      #F0FDFA;
+  --text-2:    #CCFBF1;
+  --muted:     #8FA6A2;
 
   /* 1px clean strokes */
-  --border:    rgba(255, 255, 255, 0.08);
-  --border-2:  rgba(255, 255, 255, 0.14);
+  --border:    rgba(20, 184, 166, 0.14);
+  --border-2:  rgba(20, 184, 166, 0.24);
 
-  /* Functional Brand Accent (Microsoft Blue) */
-  --accent:       #0078D4;
-  --accent-hover: #106EBE;
-  --accent-press: #005A9E;
-  --accent-2:     #2886DE;
-  --accent-3:     #4BA0EB;
-  --accent-soft:  rgba(0, 120, 212, 0.16);
-  --accent-glow:  rgba(0, 120, 212, 0.30);
+  /* Functional Brand Accent (Vibrant Teal in Dark mode) */
+  --accent:       #14B8A6;
+  --accent-hover: #2DD4BF;
+  --accent-press: #0D9488;
+  --accent-2:     #2DD4BF;
+  --accent-3:     #5EEAD4;
+  --accent-soft:  rgba(20, 184, 166, 0.16);
+  --accent-glow:  rgba(20, 184, 166, 0.30);
 
   /* Semantic status tokens */
-  --danger:      #D13438;
-  --danger-soft: rgba(209, 52, 56, 0.16);
-  --danger-glow: rgba(209, 52, 56, 0.25);
-  --ok:          #107C10;
-  --ok-soft:     rgba(16, 124, 16, 0.16);
-  --ok-glow:     rgba(16, 124, 16, 0.25);
-  --warn:        #D83B01;
-  --warn-soft:   rgba(216, 59, 1, 0.16);
-  --warn-glow:   rgba(216, 59, 1, 0.25);
-  --pct-blue:    #2886DE;
-  --pct-blue-soft: rgba(40, 134, 222, 0.16);
+  --danger:      #FB7185;
+  --danger-soft: rgba(251, 113, 133, 0.16);
+  --danger-glow: rgba(251, 113, 133, 0.25);
+  --ok:          #34D399;
+  --ok-soft:     rgba(52, 211, 153, 0.16);
+  --ok-glow:     rgba(52, 211, 153, 0.25);
+  --warn:        #FBBF24;
+  --warn-soft:   rgba(251, 191, 36, 0.16);
+  --warn-glow:   rgba(251, 191, 36, 0.25);
+  --pct-blue:    #2DD4BF;
+  --pct-blue-soft: rgba(45, 212, 191, 0.16);
 
   /* Solid colors - strictly NO gradients */
-  --gradient-brand: #0078D4;
+  --gradient-brand: #14B8A6;
   --gradient-hero:  var(--surface);
-  --gradient-ok:    #107C10;
-  --gradient-danger: #D13438;
-  --gradient-warn:  #D83B01;
+  --gradient-ok:    #34D399;
+  --gradient-danger: #FB7185;
+  --gradient-warn:  #FBBF24;
 
   /* Fluent Depth Dark */
-  --shadow-xs: 0 1px 2px rgba(0, 0, 0, 0.25);
-  --shadow-sm: 0 2px 4px rgba(0, 0, 0, 0.30), 0 0 1px rgba(0, 0, 0, 0.40);
-  --shadow:    0 2px 6px rgba(0, 0, 0, 0.35), 0 0 1px rgba(0, 0, 0, 0.40);
-  --shadow-lg: 0 4px 12px rgba(0, 0, 0, 0.45), 0 0 1px rgba(0, 0, 0, 0.40);
-  --shadow-xl: 0 8px 24px rgba(0, 0, 0, 0.55), 0 0 2px rgba(0, 0, 0, 0.50);
-  --shadow-accent: 0 4px 12px rgba(0, 120, 212, 0.30);
+  --shadow-xs: 0 1px 2px rgba(0, 0, 0, 0.35);
+  --shadow-sm: 0 2px 4px rgba(0, 0, 0, 0.40), 0 0 1px rgba(0, 0, 0, 0.40);
+  --shadow:    0 2px 6px rgba(0, 0, 0, 0.45), 0 0 1px rgba(0, 0, 0, 0.40);
+  --shadow-lg: 0 4px 12px rgba(0, 0, 0, 0.55), 0 0 1px rgba(0, 0, 0, 0.40);
+  --shadow-xl: 0 8px 24px rgba(0, 0, 0, 0.65), 0 0 2px rgba(0, 0, 0, 0.50);
+  --shadow-accent: 0 4px 12px rgba(20, 184, 166, 0.30);
   --shadow-glow:   0 0 0 2px var(--accent-glow);
 
   color-scheme: dark;
@@ -690,7 +690,7 @@ select.input {
   -webkit-appearance: none;
   -moz-appearance: none;
   padding-right: 32px;
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%230078D4' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%230F766E' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
   background-repeat: no-repeat;
   background-position: right 10px center;
   background-size: 14px 14px;
@@ -698,7 +698,7 @@ select.input {
 }
 
 [data-theme='dark'] select.input {
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%232886DE' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%2314B8A6' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
 }
 
 /* =========================================================

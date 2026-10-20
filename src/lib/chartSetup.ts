@@ -32,6 +32,6 @@ export const CHART_FONT = {
   size: 12,
 }
 
-export const INCOME_COLOR = '#107C10'
-export const EXPENSE_COLOR = '#0078D4'
-export const MUTED_COLOR = '#616161'
+export const INCOME_COLOR = '#059669'
+export const EXPENSE_COLOR = '#0F766E'
+export const MUTED_COLOR = '#64748B'
