@@ -12,6 +12,9 @@ interface Props {
 export function WalletCards({ state, derived }: Props) {
   if (state.mode === null || state.allowance <= 0) return null
 
+  const activeCategories = state.categories.filter((category) => category.ratio > 0)
+  if (activeCategories.length === 0) return null
+
   return (
     <section className="card">
       <header className="card-head">
@@ -20,11 +23,10 @@ export function WalletCards({ state, derived }: Props) {
       </header>
 
       <div className="wallet-grid">
-        {state.categories.map((category) => {
+        {activeCategories.map((category) => {
           const allocated = state.allowance * category.ratio
           const spent = derived.spentByCategory[category.id] ?? 0
           const over = allocated > 0 && spent > allocated
-          const free = allocated === 0
 
           return (
             <article key={category.id} className="wallet" style={{ '--wallet-color': category.color } as CSSProperties}>
@@ -34,11 +36,11 @@ export function WalletCards({ state, derived }: Props) {
               </header>
               <p className="wallet-amount">{formatIDR(spent)}</p>
               <p className="muted small">
-                {free ? 'Tanpa batas alokasi' : `Alokasi ${formatIDR(allocated)} · sisa ${formatIDR(Math.max(0, allocated - spent))}`}
+                Alokasi {formatIDR(allocated)} · sisa {formatIDR(Math.max(0, allocated - spent))}
               </p>
-              {!free && <ProgressBar value={spent} max={allocated} />}
+              <ProgressBar value={spent} max={allocated} />
               {over && <span className="badge badge-danger">Melebihi alokasi {Math.round((spent / allocated) * 100)}%</span>}
-              {!free && !over && spent >= allocated * 0.8 && (
+              {!over && spent >= allocated * 0.8 && (
                 <span className="badge badge-warn">Hampir mencapai batas ({Math.round((spent / allocated) * 100)}%)</span>
               )}
             </article>
