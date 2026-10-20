@@ -284,21 +284,21 @@ button, input, select, textarea {
   justify-content: space-between;
   gap: 12px;
   flex-wrap: wrap;
-  margin-bottom: 24px;
+  margin-bottom: 16px;
   min-height: 48px;
   padding: 8px 16px;
-  background: rgba(255, 255, 255, 0.88);
+  background: var(--surface);
   border: 1px solid var(--border);
   border-radius: var(--radius);
   box-shadow: var(--shadow-sm);
   position: relative; /* Di desktop: tergulung ke atas secara natural */
   z-index: 30;
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
+  contain: paint;
+  transform: translateZ(0);
 }
 
 [data-theme='dark'] .topbar {
-  background: rgba(22, 27, 34, 0.88);
+  background: var(--surface);
 }
 
 .brand {
@@ -330,66 +330,8 @@ button, input, select, textarea {
 }
 
 /* =========================================================
-   SECTION NAVIGATION
+   NAV SECTION DISPLAY
    ========================================================= */
-
-.section-nav {
-  display: flex;
-  gap: 6px;
-  overflow-x: auto;
-  padding: 4px 2px 10px;
-  margin-bottom: 20px;
-  scrollbar-width: none;
-  -webkit-overflow-scrolling: touch;
-}
-
-.section-nav::-webkit-scrollbar { display: none; }
-
-.nav-chip {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  border: 1px solid var(--border);
-  background: var(--surface);
-  color: var(--text-2);
-  border-radius: var(--radius-sm);
-  padding: 6px 14px;
-  height: 32px;
-  font-size: 13px;
-  font-weight: 600;
-  white-space: nowrap;
-  cursor: pointer;
-  box-shadow: var(--shadow-xs);
-  transition: all var(--t-fast);
-}
-
-.nav-chip-icon {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.nav-chip:hover {
-  border-color: var(--border-2);
-  color: var(--text);
-  background: var(--surface-3);
-  transform: none;
-}
-
-.nav-chip-on {
-  background: var(--accent);
-  border-color: var(--accent);
-  color: #fff !important;
-  font-weight: 600;
-  box-shadow: var(--shadow-sm);
-}
-
-.nav-chip-on:hover {
-  background: var(--accent-hover);
-  border-color: var(--accent-hover);
-  color: #fff !important;
-  transform: none;
-}
 
 .nav-section {
   display: none;
@@ -964,6 +906,45 @@ select.input {
 }
 
 /* =========================================================
+   ANIMATIONS FOR MOVING ACTION BUTTONS (+ Pengeluaran & + Pemasukan)
+   ========================================================= */
+
+@keyframes quick-move-to-nav {
+  0% {
+    opacity: 0;
+    transform: translateY(-16px) scale(0.92);
+  }
+  60% {
+    transform: translateY(2px) scale(1.02);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes quick-move-to-topbar {
+  0% {
+    opacity: 0;
+    transform: translateY(16px) scale(0.92);
+  }
+  60% {
+    transform: translateY(-2px) scale(1.02);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.topbar-quick-wrapper {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  animation: quick-move-to-topbar 0.32s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+/* =========================================================
    SECTION NAV & DESKTOP STICKY NAVIGATION (Window Switcher)
    ========================================================= */
 
@@ -971,65 +952,95 @@ select.input {
   display: flex;
   align-items: center;
   justify-content: flex-start;
-  gap: 12px;
-  padding: 8px 12px;
-  margin-bottom: 24px;
-  background: rgba(255, 255, 255, 0.92);
+  gap: 8px;
+  padding: 6px 10px;
+  margin-bottom: 20px;
+  background: var(--surface);
   border: 1px solid var(--border-2);
   border-radius: var(--radius);
   box-shadow: var(--shadow-sm);
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
   position: sticky;
   top: 8px;
   z-index: 60;
-  transition: all var(--t-normal);
+  contain: paint;
+  transform: translateZ(0);
+  -webkit-transform: translateZ(0);
+  transition: all var(--t-fast);
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+
+.section-nav::-webkit-scrollbar {
+  display: none;
 }
 
 [data-theme='dark'] .section-nav {
-  background: rgba(22, 27, 34, 0.92);
+  background: var(--surface);
   box-shadow: 0 4px 16px rgba(0, 0, 0, 0.35);
 }
 
 .section-nav.section-nav-sticky {
-  box-shadow: var(--shadow-lg);
+  box-shadow: 0 4px 18px rgba(0, 0, 0, 0.12);
   border-color: var(--accent);
+  padding: 4px 8px;
+  background: var(--surface) !important;
 }
 
+[data-theme='dark'] .section-nav.section-nav-sticky {
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.5);
+}
+
+/* Section Nav Items: STRICTLY 1 ROW (flex-wrap: nowrap) */
 .section-nav-items {
   display: flex;
   align-items: center;
-  gap: 8px;
-  flex-wrap: wrap;
+  gap: 4px;
+  flex-wrap: nowrap !important; /* WAJIB 1 baris saja */
+  flex-shrink: 0;
 }
 
 .section-nav-actions {
   display: inline-flex;
   align-items: center;
-  gap: 8px;
-  margin-left: 4px;
-  padding-left: 12px;
+  gap: 6px;
+  margin-left: 6px;
+  padding-left: 8px;
   border-left: 1px solid var(--border-2);
-  animation: fade-in var(--t-fast) ease both;
   flex-shrink: 0;
+  flex-wrap: nowrap !important; /* WAJIB 1 baris saja */
+  animation: quick-move-to-nav 0.32s cubic-bezier(0.16, 1, 0.3, 1) both;
 }
 
 .nav-chip {
   display: inline-flex;
   align-items: center;
-  gap: 8px;
+  gap: 6px;
   border: 1px solid var(--border-2);
   background: var(--surface);
   color: var(--text-2);
-  border-radius: var(--radius-sm);
-  padding: 8px 14px;
-  font-size: 14px;
+  border-radius: var(--radius-xs);
+  padding: 5px 9px;
+  font-size: 13px;
   font-weight: 600;
-  min-height: 40px;
+  height: 32px;
+  min-height: 32px;
   white-space: nowrap;
   cursor: pointer;
   box-shadow: var(--shadow-xs);
   transition: all var(--t-fast);
+  flex-shrink: 0;
+}
+
+.nav-chip-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 1;
+}
+
+.nav-chip-icon svg {
+  width: 15px;
+  height: 15px;
 }
 
 .nav-chip:hover {
@@ -1047,6 +1058,33 @@ select.input {
 
 .nav-chip-on .nav-chip-icon {
   color: #FFFFFF !important;
+}
+
+/* Ukuran kompak saat scroll (sticky) agar muat 1 baris di semua laptop */
+.section-nav-sticky .nav-chip {
+  padding: 4px 8px;
+  font-size: 12px;
+  height: 30px;
+  min-height: 30px;
+  gap: 4px;
+}
+
+.section-nav-sticky .nav-chip-icon svg {
+  width: 14px;
+  height: 14px;
+}
+
+.section-nav-sticky .section-nav-actions {
+  gap: 4px;
+  padding-left: 6px;
+  margin-left: 4px;
+}
+
+.section-nav-sticky .section-nav-actions .btn {
+  padding: 4px 8px;
+  font-size: 12px;
+  height: 30px;
+  min-height: 30px;
 }
 
 /* Quick Entry Popover & Anchor */
@@ -3599,29 +3637,7 @@ select.input {
    RESPONSIVE
    ========================================================= */
 
-@media (max-width: 768px) {
-  .topbar {
-    position: static;
-    top: auto;
-    margin-bottom: 12px;
-    box-shadow: var(--shadow-xs);
-  }
 
-  .section-nav {
-    position: sticky;
-    top: 0;
-    z-index: 50;
-    background: var(--bg);
-    margin-left: -14px;
-    margin-right: -14px;
-    padding: 8px 14px 10px;
-    margin-bottom: 16px;
-    border-bottom: 1px solid var(--border);
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
-    backdrop-filter: blur(12px);
-    -webkit-backdrop-filter: blur(12px);
-  }
-}
 
 @media (max-width: 640px) {
   .app { padding: 16px 14px 72px; }

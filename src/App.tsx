@@ -135,8 +135,8 @@ function AppShell({ user, onLogout }: { user: string; onLogout: () => void }) {
   useEffect(() => {
     if (typeof window === 'undefined') return
     const onScroll = () => {
-      // Threshold 60px (ketika topbar mulai tergulung ke atas)
-      setIsScrolled((window.scrollY || 0) > 60)
+      // Threshold 45px (saat topbar mulai tergulung dan SectionNav menempel di atas)
+      setIsScrolled((window.scrollY || 0) > 45)
     }
     window.addEventListener('scroll', onScroll, { passive: true })
     onScroll()
@@ -441,7 +441,11 @@ function AppShell({ user, onLogout }: { user: string; onLogout: () => void }) {
               />
             )}
           </div>
-          {showQuickInTopbar && renderQuickButtons('topbar-quick')}
+          {showQuickInTopbar && (
+            <div className="topbar-quick-wrapper">
+              {renderQuickButtons('topbar-quick')}
+            </div>
+          )}
           {state.mode && (
             <button type="button" className="btn btn-ghost btn-sm" onClick={() => setPickerOpen(true)}>
               Periode: {state.mode === 'week' ? '1 Minggu' : '1 Bulan'}
