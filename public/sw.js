@@ -1,5 +1,5 @@
 // honey: ganti CACHE hanya jika strategi cache berubah; entri lama dibersihkan saat activate.
-const CACHE = 'kalkulator-duitmu-v1'
+const CACHE = 'kalkulator-duitmu-v2'
 const ROOT = '/'
 
 self.addEventListener('install', (event) => {
@@ -12,7 +12,20 @@ async function installPrecache() {
   const cache = await caches.open(CACHE)
   const html = await (await fetch(ROOT)).text()
   const assets = [...new Set([...html.matchAll(/(?:src|href)="(\/assets\/[^"]+)"/g)].map((match) => match[1]))]
-  await cache.addAll([ROOT, '/manifest.webmanifest', '/favicon.png', '/logo.png', '/icon-192.png', '/icon-512.png', ...assets])
+  await cache.addAll([
+    ROOT,
+    '/manifest.webmanifest',
+    '/favicon.png',
+    '/favicon.svg',
+    '/logo.png',
+    '/logo.webp',
+    '/icon-192.png',
+    '/icon-512.png',
+    '/icon-maskable-192.png',
+    '/icon-maskable-512.png',
+    '/apple-touch-icon.png',
+    ...assets,
+  ])
 }
 
 self.addEventListener('activate', (event) => {
