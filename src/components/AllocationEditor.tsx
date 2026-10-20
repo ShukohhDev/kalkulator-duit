@@ -157,6 +157,54 @@ export function AllocationEditor({ state, update, onDone }: Props) {
     setOff({})
   }
 
+  const remaining = Math.round((100 - activeSum) * 10) / 10
+
+  const autoBalance = () => {
+    const activeRows = rows.filter((r) => !off[r.id])
+    if (activeRows.length === 0) return
+
+    const currentTotal = activeRows.reduce((sum, r) => sum + pct(r.id), 0)
+    if (currentTotal <= 0) {
+      const equalShare = Math.floor((100 / activeRows.length) * 10) / 10
+      const remainder = Math.round((100 - equalShare * activeRows.length) * 10) / 10
+      setDraft((prev) => {
+        const next = { ...prev }
+        activeRows.forEach((r, idx) => {
+          next[r.id] = fmtPct(equalShare + (idx === 0 ? remainder : 0))
+        })
+        return next
+      })
+      return
+    }
+
+    const factor = 100 / currentTotal
+    let distributed = 0
+    const calculated: { id: string; val: number }[] = []
+
+    activeRows.forEach((r) => {
+      const scaled = Math.round(pct(r.id) * factor * 10) / 10
+      calculated.push({ id: r.id, val: scaled })
+      distributed += scaled
+    })
+
+    const delta = Math.round((100 - distributed) * 10) / 10
+    if (Math.abs(delta) > 0.01 && calculated.length > 0) {
+      let maxIdx = 0
+      calculated.forEach((c, idx) => {
+        if (c.val > calculated[maxIdx]!.val) maxIdx = idx
+      })
+      calculated[maxIdx]!.val = Math.round((calculated[maxIdx]!.val + delta) * 10) / 10
+    }
+
+    setDraft((prev) => {
+      const next = { ...prev }
+      calculated.forEach((c) => {
+        next[c.id] = fmtPct(c.val)
+      })
+      return next
+    })
+  }
+
   const addRow = () => {
     const name = newName.trim()
     if (name === '' || rows.some((row) => row.name.trim().toLowerCase() === name.toLowerCase())) return
@@ -175,6 +223,31 @@ export function AllocationEditor({ state, update, onDone }: Props) {
 
   return (
     <div className="alloc-edit">
+      {/* Live Allocation & Auto-balance Banner */}
+      <div className={`alloc-status-banner ${sumOk ? 'status-ok' : remaining > 0 ? 'status-under' : 'status-over'}`}>
+        <div className="alloc-status-info">
+          <span className="alloc-status-label">Total Alokasi Berjalan:</span>
+          <strong className="alloc-status-pct">{sumText(activeSum)}%</strong>
+          <span className="alloc-status-badge">
+            {sumOk
+              ? 'Pas 100%'
+              : remaining > 0
+              ? `Sisa ${sumText(remaining)}% belum dialokasikan`
+              : `Kelebihan ${sumText(Math.abs(remaining))}% dari 100%`}
+          </span>
+        </div>
+        {!sumOk && (
+          <button
+            type="button"
+            className="btn btn-sm btn-ghost alloc-autobalance-btn"
+            onClick={autoBalance}
+            title="Seimbangkan semua persen secara proporsional agar tepat 100%"
+          >
+            Seimbangkan Otomatis
+          </button>
+        )}
+      </div>
+
       <div className="alloc-table-wrap">
         <table className="alloc-table">
           <thead>

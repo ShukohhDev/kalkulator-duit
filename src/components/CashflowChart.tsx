@@ -65,26 +65,27 @@ export function CashflowChart({ state, derived }: Props) {
     labels: series.labels,
     datasets: [
       {
-        label: 'Pemasukan',
+        label: 'Pemasukan (+)',
         data: series.income,
         borderColor: INCOME_COLOR,
         backgroundColor: INCOME_COLOR,
         tension: 0.25,
-        pointRadius: 2,
+        pointRadius: 3,
       },
       {
-        label: 'Pengeluaran',
+        label: 'Pengeluaran (−)',
         data: series.expense,
         borderColor: EXPENSE_COLOR,
         backgroundColor: EXPENSE_COLOR,
         tension: 0.25,
-        pointRadius: 2,
+        pointRadius: 3,
+        borderDash: [5, 5],
       },
     ],
   }
 
   return (
-    <section className="card">
+    <section className="card" aria-label="Grafik arus kas pemasukan dan pengeluaran">
       <header className="card-head">
         <h2>Pemasukan vs Pengeluaran</h2>
         <div className="seg">
@@ -119,13 +120,13 @@ export function CashflowChart({ state, derived }: Props) {
       ) : (
         <>
           {chartType === 'bar' && (
-            <div className="chart-box chart-box-bar">
+            <div className="chart-box chart-box-bar" role="img" aria-label="Grafik batang perbandingan pemasukan dan pengeluaran">
               <Bar
                 data={{
                   labels: series.labels,
                   datasets: [
-                    { label: 'Pemasukan', data: series.income, backgroundColor: INCOME_COLOR, borderRadius: 4 },
-                    { label: 'Pengeluaran', data: series.expense, backgroundColor: EXPENSE_COLOR, borderRadius: 4 },
+                    { label: 'Pemasukan (+)', data: series.income, backgroundColor: INCOME_COLOR, borderRadius: 4 },
+                    { label: 'Pengeluaran (−)', data: series.expense, backgroundColor: EXPENSE_COLOR, borderRadius: 4 },
                   ],
                 }}
                 options={{

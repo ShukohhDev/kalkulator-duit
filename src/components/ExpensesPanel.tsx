@@ -546,7 +546,12 @@ export function ExpensesPanel({ state, update, notify }: Props) {
                   {wallet && ` · ${wallet.name}`}
                 </span>
               </span>
-              <span className="tx-amount">−{formatIDR(item.amount)}</span>
+              <span className="tx-amount tx-out tabular-nums">
+                <span className="tx-kind-badge tx-kind-out" aria-label="Pengeluaran">
+                  <span aria-hidden="true">↓</span> Keluar
+                </span>
+                −{formatIDR(item.amount)}
+              </span>
               <span className="tx-actions">
                 {item.receiptId && <ReceiptView id={item.receiptId} />}
                 <button type="button" className="btn btn-ghost btn-sm" onClick={() => startEdit(item)}>
@@ -559,7 +564,17 @@ export function ExpensesPanel({ state, update, notify }: Props) {
             </li>
           )
         })}
-        {visible.length === 0 && <li className="empty">Belum ada pengeluaran yang cocok.</li>}
+        {visible.length === 0 && (
+          <li className="empty empty-state-box">
+            <span className="empty-state-icon" aria-hidden="true">📝</span>
+            <strong>Belum ada catatan pengeluaran</strong>
+            <span className="muted small">
+              {query || filterCategory !== 'all' || filterMonth !== 'all' || timeRange !== 'all'
+                ? 'Tidak ada pengeluaran yang cocok dengan filter kamu.'
+                : 'Yuk catat pengeluaran pertamamu lewat form di atas atau tombol [+ Pengeluaran]!'}
+            </span>
+          </li>
+        )}
       </ul>
     </section>
   )

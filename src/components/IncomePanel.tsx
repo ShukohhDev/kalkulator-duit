@@ -353,7 +353,12 @@ export function IncomePanel({ state, update, notify }: Props) {
                 {destinationLabel(state, item.destination) && ` · ke ${destinationLabel(state, item.destination)}`}
               </span>
             </span>
-            <span className="tx-amount tx-in">+{formatIDR(item.amount)}</span>
+            <span className="tx-amount tx-in tabular-nums">
+              <span className="tx-kind-badge tx-kind-in" aria-label="Pemasukan">
+                <span aria-hidden="true">↑</span> Masuk
+              </span>
+              +{formatIDR(item.amount)}
+            </span>
             <span className="tx-actions">
               {item.receiptId && <ReceiptView id={item.receiptId} />}
               <button type="button" className="btn btn-ghost btn-sm" onClick={() => startEdit(item)}>
@@ -365,7 +370,17 @@ export function IncomePanel({ state, update, notify }: Props) {
             </span>
           </li>
         ))}
-        {visible.length === 0 && <li className="empty">Belum ada pemasukan yang cocok.</li>}
+        {visible.length === 0 && (
+          <li className="empty empty-state-box">
+            <span className="empty-state-icon" aria-hidden="true">💰</span>
+            <strong>Belum ada catatan pemasukan</strong>
+            <span className="muted small">
+              {query || filterMonth !== 'all' || timeRange !== 'all'
+                ? 'Tidak ada pemasukan yang cocok dengan filter kamu.'
+                : 'Catat uang jajan masuk, gaji, atau transferan dengan tombol [+ Pemasukan] di atas!'}
+            </span>
+          </li>
+        )}
       </ul>
     </section>
   )

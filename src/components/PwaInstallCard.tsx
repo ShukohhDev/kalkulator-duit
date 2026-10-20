@@ -26,6 +26,7 @@ export function PwaInstallCard({ notify }: Props) {
     if (typeof navigator === 'undefined') return false
     return /iphone|ipad|ipod/.test(navigator.userAgent.toLowerCase())
   })
+  const [showIosGuide, setShowIosGuide] = useState(() => isIos)
   const [copied, setCopied] = useState(false)
 
   useEffect(() => {
@@ -144,15 +145,27 @@ export function PwaInstallCard({ notify }: Props) {
           </div>
         )}
 
-        {/* Petunjuk khusus iOS Safari jika belum terpasang */}
-        {!isStandalone && isIos && (
+        {/* Petunjuk instalasi iOS Safari yang dapat dibuka oleh siapa saja */}
+        {!isStandalone && (
           <div className="pwa-ios-instructions">
-            <strong className="small">Panduan Pengguna iPhone / iPad (Safari):</strong>
-            <ol className="pwa-steps-list small">
-              <li>Ketuk ikon <strong>Bagikan (Share)</strong> di bilah bawah browser Safari.</li>
-              <li>Gulir menu ke bawah lalu pilih opsi <strong>"Tambah ke Layar Utama" (Add to Home Screen)</strong>.</li>
-              <li>Ketuk tombol <strong>Tambah</strong> di pojok kanan atas.</li>
-            </ol>
+            <button
+              type="button"
+              className="btn btn-ghost btn-sm pwa-ios-toggle-btn"
+              onClick={() => setShowIosGuide((prev) => !prev)}
+              aria-expanded={showIosGuide}
+              style={{ width: '100%', justifyContent: 'space-between', marginBottom: showIosGuide ? 10 : 0 }}
+            >
+              <span>🍎 Panduan Pasang di iPhone / iPad (Safari iOS)</span>
+              <span>{showIosGuide ? '▲ Sembunyikan' : '▼ Lihat Cara Pasang'}</span>
+            </button>
+            {showIosGuide && (
+              <ol className="pwa-steps-list small" style={{ marginTop: 8 }}>
+                <li>Buka link aplikasi ini di browser <strong>Safari</strong> iPhone/iPad kamu.</li>
+                <li>Ketuk ikon <strong>Bagikan (Share)</strong> [⎋] di bilah navigasi bawah Safari.</li>
+                <li>Gulir menu ke bawah lalu pilih opsi <strong>"Tambah ke Layar Utama" (Add to Home Screen)</strong>.</li>
+                <li>Ketuk tombol <strong>Tambah (Add)</strong> di pojok kanan atas. Aplikasi siap dibuka dari layar utama tanpa browser bar!</li>
+              </ol>
+            )}
           </div>
         )}
       </div>

@@ -2,7 +2,7 @@ import type { AppState } from '../types'
 import { monthKey, monthLabel } from './money'
 
 const HEAD = {
-  backgroundColor: '#1971c2',
+  backgroundColor: '#0F766E',
   color: '#ffffff',
   fontWeight: 'bold',
   align: 'left',

@@ -220,13 +220,24 @@ export function AllowanceCard({ state, derived, update, notify, onChangePeriod }
             Setara {formatIDR(derived.daily)}/hari · {formatIDR(derived.weekly)}/minggu · {formatIDR(derived.monthly)}/bulan
           </p>
 
-          <div className="safe">
-            <span className="safe-label">Boleh belanja hari ini</span>
+          <div className="safe" role="region" aria-label="Status anggaran belanja hari ini">
+            <div className="safe-header-row">
+              <span className="safe-label">Boleh belanja hari ini</span>
+              <span className="chip">
+                {derived.period ? `Hari ke-${derived.elapsedDays + 1}` : 'Hari ini'}
+              </span>
+            </div>
             <strong className="safe-value">{formatIDR(derived.safeToSpend)}</strong>
-            <span className="muted small">
-              Sisa {formatIDR(derived.remainingInPeriod)} dari {formatIDR(budget)} untuk periode ini
-            </span>
+            <div className="safe-sub-row">
+              <span className="muted small">
+                Sisa <strong className="tabular-nums" style={{ color: 'var(--text)' }}>{formatIDR(derived.remainingInPeriod)}</strong> dari {formatIDR(budget)} untuk periode ini
+              </span>
+            </div>
             <ProgressBar value={derived.spentInPeriod} max={budget} />
+            <div className="safe-footer-meta muted small">
+              <span>Terpakai: <strong className="tabular-nums">{formatIDR(derived.spentInPeriod)}</strong> ({Math.round(budget > 0 ? (derived.spentInPeriod / budget) * 100 : 0)}%)</span>
+              <span>Sisa: <strong className="tabular-nums">{formatIDR(derived.remainingInPeriod)}</strong></span>
+            </div>
           </div>
 
           {late && (
