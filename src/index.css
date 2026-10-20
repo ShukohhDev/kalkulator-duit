@@ -269,7 +269,7 @@ button, input, select, textarea {
    ========================================================= */
 
 .app {
-  max-width: 960px;
+  max-width: 1080px;
   margin: 0 auto;
   padding: 24px 16px 96px;
 }
@@ -282,18 +282,20 @@ button, input, select, textarea {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 10px;
+  gap: 8px;
   flex-wrap: nowrap;
   margin-bottom: 16px;
   min-height: 48px;
   height: 48px;
-  padding: 0 14px;
+  padding: 0 12px;
   background: var(--surface);
   border: 1px solid var(--border);
   border-radius: var(--radius);
   box-shadow: var(--shadow-sm);
   position: relative; /* Di desktop: tergulung ke atas secara natural */
   z-index: 30;
+  box-sizing: border-box;
+  width: 100%;
 }
 
 [data-theme='dark'] .topbar {
@@ -302,21 +304,21 @@ button, input, select, textarea {
 
 .brand {
   font-family: inherit;
-  font-size: 16px;
+  font-size: 15px;
   font-weight: 600;
   margin: 0;
   letter-spacing: -0.01em;
   color: var(--text);
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 7px;
   white-space: nowrap;
   flex-shrink: 0;
 }
 
 .brand-logo-img {
-  width: 26px;
-  height: 26px;
+  width: 24px;
+  height: 24px;
   border-radius: var(--radius-xs);
   object-fit: contain;
   display: inline-block;
@@ -326,16 +328,50 @@ button, input, select, textarea {
 .topbar-actions {
   display: flex;
   align-items: center;
-  gap: 6px;
+  gap: 4px;
   flex-wrap: nowrap;
   flex-shrink: 0;
+  min-width: 0;
 }
 
 .topbar-actions .btn {
-  padding: 4px 8px;
-  font-size: 12px;
-  height: 30px;
-  min-height: 30px;
+  padding: 3px 8px;
+  font-size: 11.5px;
+  height: 28px;
+  min-height: 28px;
+  white-space: nowrap;
+}
+
+.btn-period-select {
+  font-weight: 600;
+}
+
+.btn-logout {
+  color: var(--danger) !important;
+  border: 1px solid rgba(225, 29, 72, 0.25) !important;
+  background: var(--surface) !important;
+  font-weight: 600;
+  flex-shrink: 0;
+  transition: all var(--t-fast);
+}
+
+.btn-logout:hover {
+  background: var(--danger-soft) !important;
+  border-color: var(--danger) !important;
+  color: var(--danger) !important;
+  transform: translateY(-1px);
+}
+
+@media (max-width: 1120px) {
+  .period-label-prefix {
+    display: none;
+  }
+  .save-state-text {
+    display: none;
+  }
+  .topbar-actions {
+    gap: 3px;
+  }
 }
 
 /* =========================================================
@@ -348,12 +384,13 @@ button, input, select, textarea {
 }
 
 .save-state {
-  font-size: 12px;
+  font-size: 11.5px;
   color: var(--muted);
   display: flex;
   align-items: center;
-  gap: 5px;
+  gap: 4px;
   transition: color var(--t-normal);
+  white-space: nowrap;
 }
 
 .save-state.save-ok {
@@ -361,7 +398,7 @@ button, input, select, textarea {
 }
 
 .front {
-  max-width: 980px;
+  max-width: 100%;
   margin: 0 auto;
   display: flex;
   flex-direction: column;
@@ -1708,6 +1745,14 @@ select.input {
   color: var(--text);
   border: 1px solid var(--border);
   font-weight: 600;
+  max-width: 110px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  padding: 2px 8px;
+  font-size: 11.5px;
+  height: 26px;
+  line-height: 20px;
 }
 
 .badge {
@@ -3834,15 +3879,16 @@ select.input {
 }
 
 .chip-admin-badge {
-  margin-left: 6px;
-  padding: 2px 6px;
-  background: var(--primary);
-  color: var(--primary-fg);
+  margin-left: 2px;
+  padding: 2px 5px;
+  background: var(--accent);
+  color: #fff;
   border-radius: var(--radius-xs);
-  font-size: 11px;
+  font-size: 10px;
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.5px;
+  line-height: 1.2;
 }
 
 .admin-metrics-grid {

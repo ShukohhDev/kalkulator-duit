@@ -478,12 +478,13 @@ function AppShell({ user, onLogout }: { user: string; onLogout: () => void }) {
             </div>
           )}
           {state.mode && (
-            <button type="button" className="btn btn-ghost btn-sm" onClick={() => setPickerOpen(true)}>
-              Periode: {state.mode === 'week' ? '1 Minggu' : '1 Bulan'}
+            <button type="button" className="btn btn-ghost btn-sm btn-period-select" onClick={() => setPickerOpen(true)} title="Ganti Periode">
+              <span className="period-label-prefix">Periode: </span>
+              <span>{state.mode === 'week' ? '1 Minggu' : '1 Bulan'}</span>
             </button>
           )}
-          <span className={`save-state${saved ? ' save-ok' : ''}`}>
-            {saved ? <>{CHECK_ICON} Tersimpan</> : 'Menyimpan…'}
+          <span className={`save-state${saved ? ' save-ok' : ''}`} title={saved ? 'Data tersimpan otomatis' : 'Sedang menyimpan…'}>
+            {saved ? <>{CHECK_ICON} <span className="save-state-text">Tersimpan</span></> : <span className="save-state-text">Menyimpan…</span>}
           </span>
           {cloudStatus !== 'disabled' && (
             <span
@@ -503,7 +504,7 @@ function AppShell({ user, onLogout }: { user: string; onLogout: () => void }) {
             {user}
           </span>
           {isUserAdmin && <span className="chip-admin-badge">Admin</span>}
-          <button type="button" className="btn btn-ghost btn-sm" onClick={handleLogout}>
+          <button type="button" className="btn btn-ghost btn-sm btn-logout" onClick={handleLogout}>
             Keluar
           </button>
         </div>
