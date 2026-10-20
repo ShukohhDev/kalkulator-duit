@@ -67,7 +67,7 @@ export function AuthGate({ onAuthed }: AuthGateProps) {
           {first
             ? 'Buat akun untuk memisahkan data tiap pengguna di perangkat ini.'
             : mode === 'masuk'
-            ? 'Masuk dulu supaya datamu terpisah dengan pengguna lain.'
+            ? 'Login dengan akun yang sudah anda daftarkan.'
             : 'Daftarkan akun baru di perangkat ini.'}
         </p>
 
