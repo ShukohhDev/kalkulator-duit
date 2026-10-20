@@ -291,15 +291,14 @@ button, input, select, textarea {
   border: 1px solid var(--border);
   border-radius: var(--radius);
   box-shadow: var(--shadow-sm);
-  position: sticky;
-  top: 8px;
-  z-index: 55;
+  position: relative; /* Di desktop: tergulung ke atas secara natural */
+  z-index: 30;
   backdrop-filter: blur(20px);
   -webkit-backdrop-filter: blur(20px);
 }
 
 [data-theme='dark'] .topbar {
-  background: rgba(43, 43, 43, 0.88);
+  background: rgba(22, 27, 34, 0.88);
 }
 
 .brand {
@@ -965,20 +964,55 @@ select.input {
 }
 
 /* =========================================================
-   SECTION NAV & MOBILE BOTTOM NAVIGATION (4-5 ITEMS)
+   SECTION NAV & DESKTOP STICKY NAVIGATION (Window Switcher)
    ========================================================= */
 
 .section-nav {
   display: flex;
-  gap: 8px;
-  overflow-x: auto;
-  padding: 8px 4px 14px;
-  margin-bottom: 20px;
-  scrollbar-width: none;
-  -webkit-overflow-scrolling: touch;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 12px;
+  padding: 8px 12px;
+  margin-bottom: 24px;
+  background: rgba(255, 255, 255, 0.92);
+  border: 1px solid var(--border-2);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow-sm);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  position: sticky;
+  top: 8px;
+  z-index: 60;
+  transition: all var(--t-normal);
 }
 
-.section-nav::-webkit-scrollbar { display: none; }
+[data-theme='dark'] .section-nav {
+  background: rgba(22, 27, 34, 0.92);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.35);
+}
+
+.section-nav.section-nav-sticky {
+  box-shadow: var(--shadow-lg);
+  border-color: var(--accent);
+}
+
+.section-nav-items {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.section-nav-actions {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  margin-left: 4px;
+  padding-left: 12px;
+  border-left: 1px solid var(--border-2);
+  animation: fade-in var(--t-fast) ease both;
+  flex-shrink: 0;
+}
 
 .nav-chip {
   display: inline-flex;
@@ -1015,15 +1049,57 @@ select.input {
   color: #FFFFFF !important;
 }
 
+/* Quick Entry Popover & Anchor */
+.quick-anchor {
+  position: relative;
+  display: inline-flex;
+}
+
+.quick-pop {
+  position: absolute;
+  top: calc(100% + 8px);
+  right: 0;
+  z-index: 95;
+  width: min(400px, calc(100vw - 24px));
+  box-shadow: var(--shadow-xl);
+  animation: pop-in 0.20s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+.section-nav-actions .quick-pop {
+  left: 0;
+  right: auto;
+}
+
+.quick-form {
+  border-color: var(--accent) !important;
+}
+
+.quick-on {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: #fff;
+  font-weight: 600;
+}
+
+/* Mobile Media Query: Bottom Navigation Bar */
 @media (max-width: 768px) {
+  .topbar {
+    position: sticky;
+    top: 8px;
+    z-index: 55;
+  }
+
   .section-nav {
     position: fixed;
+    top: auto;
     bottom: 0;
     left: 0;
     right: 0;
     z-index: 90;
     background: var(--surface);
+    border: none;
     border-top: 1px solid var(--border-2);
+    border-radius: 0;
     box-shadow: 0 -4px 16px rgba(0, 0, 0, 0.08);
     padding: 6px 4px calc(6px + env(safe-area-inset-bottom, 0px));
     margin: 0;
@@ -1037,6 +1113,17 @@ select.input {
   [data-theme='dark'] .section-nav {
     background: rgba(22, 27, 34, 0.95);
     box-shadow: 0 -4px 16px rgba(0, 0, 0, 0.4);
+  }
+
+  .section-nav-items {
+    width: 100%;
+    justify-content: space-around;
+    flex-wrap: nowrap;
+    overflow-x: auto;
+  }
+
+  .section-nav-actions {
+    display: none;
   }
 
   .nav-chip {

@@ -109,6 +109,40 @@ function AppShell({ user, onLogout }: { user: string; onLogout: () => void }) {
   const [notifications, setNotifications] = useState<NotificationItem[]>([])
   const [notifOpen, setNotifOpen] = useState(false)
 
+  const [isScrolled, setIsScrolled] = useState(false)
+  const [isDesktop, setIsDesktop] = useState(() => {
+    if (typeof window === 'undefined') return true
+    if (typeof window.matchMedia === 'function') {
+      return window.matchMedia('(min-width: 769px)').matches
+    }
+    return (window.innerWidth || 1024) > 768
+  })
+
+  useEffect(() => {
+    if (typeof window === 'undefined') return
+    const updateDesktop = () => {
+      if (typeof window.matchMedia === 'function') {
+        setIsDesktop(window.matchMedia('(min-width: 769px)').matches)
+      } else {
+        setIsDesktop((window.innerWidth || 1024) > 768)
+      }
+    }
+    updateDesktop()
+    window.addEventListener('resize', updateDesktop)
+    return () => window.removeEventListener('resize', updateDesktop)
+  }, [])
+
+  useEffect(() => {
+    if (typeof window === 'undefined') return
+    const onScroll = () => {
+      // Threshold 60px (ketika topbar mulai tergulung ke atas)
+      setIsScrolled((window.scrollY || 0) > 60)
+    }
+    window.addEventListener('scroll', onScroll, { passive: true })
+    onScroll()
+    return () => window.removeEventListener('scroll', onScroll)
+  }, [])
+
   const isUserAdmin = isAdmin()
   const navItems = useMemo(
     () => (isUserAdmin ? [...NAV_ITEMS, { id: 'nav-admin', label: 'Admin' }] : NAV_ITEMS),
@@ -322,6 +356,56 @@ function AppShell({ user, onLogout }: { user: string; onLogout: () => void }) {
 
   const sectionClass = (id: string) => `nav-section${openPanel === id ? ' front' : ''}`
 
+  const showQuickInNav = isDesktop && isScrolled
+  const showQuickInTopbar = !showQuickInNav
+
+  const renderQuickButtons = (prefix = '') => (
+    <>
+      <div className={`quick-anchor ${prefix}`.trim()}>
+        <button
+          type="button"
+          className={`btn btn-sm${quick === 'expense' ? ' quick-on' : ''}`}
+          aria-expanded={quick === 'expense'}
+          title="+ Pengeluaran (E)"
+          onClick={() => toggleQuick('expense')}
+        >
+          + Pengeluaran
+        </button>
+        {quick === 'expense' && (
+          <QuickEntry
+            key="expense"
+            mode="expense"
+            state={state}
+            update={update}
+            notify={notify}
+            onClose={() => setQuick(null)}
+          />
+        )}
+      </div>
+      <div className={`quick-anchor ${prefix}`.trim()}>
+        <button
+          type="button"
+          className={`btn btn-sm${quick === 'income' ? ' quick-on' : ''}`}
+          aria-expanded={quick === 'income'}
+          title="+ Pemasukan (P)"
+          onClick={() => toggleQuick('income')}
+        >
+          + Pemasukan
+        </button>
+        {quick === 'income' && (
+          <QuickEntry
+            key="income"
+            mode="income"
+            state={state}
+            update={update}
+            notify={notify}
+            onClose={() => setQuick(null)}
+          />
+        )}
+      </div>
+    </>
+  )
+
   return (
     <div className="app">
       <header className="topbar">
@@ -357,48 +441,7 @@ function AppShell({ user, onLogout }: { user: string; onLogout: () => void }) {
               />
             )}
           </div>
-          <div className="quick-anchor">
-            <button
-              type="button"
-              className={`btn btn-sm${quick === 'expense' ? ' quick-on' : ''}`}
-              aria-expanded={quick === 'expense'}
-              title="+ Pengeluaran (E)"
-              onClick={() => toggleQuick('expense')}
-            >
-              + Pengeluaran
-            </button>
-            {quick === 'expense' && (
-              <QuickEntry
-                key="expense"
-                mode="expense"
-                state={state}
-                update={update}
-                notify={notify}
-                onClose={() => setQuick(null)}
-              />
-            )}
-          </div>
-          <div className="quick-anchor">
-            <button
-              type="button"
-              className={`btn btn-sm${quick === 'income' ? ' quick-on' : ''}`}
-              aria-expanded={quick === 'income'}
-              title="+ Pemasukan (P)"
-              onClick={() => toggleQuick('income')}
-            >
-              + Pemasukan
-            </button>
-            {quick === 'income' && (
-              <QuickEntry
-                key="income"
-                mode="income"
-                state={state}
-                update={update}
-                notify={notify}
-                onClose={() => setQuick(null)}
-              />
-            )}
-          </div>
+          {showQuickInTopbar && renderQuickButtons('topbar-quick')}
           {state.mode && (
             <button type="button" className="btn btn-ghost btn-sm" onClick={() => setPickerOpen(true)}>
               Periode: {state.mode === 'week' ? '1 Minggu' : '1 Bulan'}
@@ -431,7 +474,13 @@ function AppShell({ user, onLogout }: { user: string; onLogout: () => void }) {
         </div>
       </header>
 
-      <SectionNav items={navItems} openId={openPanel ?? 'nav-beranda'} onOpen={togglePanel} />
+      <SectionNav
+        items={navItems}
+        openId={openPanel ?? 'nav-beranda'}
+        onOpen={togglePanel}
+        isStickyDesktop={isDesktop && isScrolled}
+        extraActions={showQuickInNav ? renderQuickButtons('nav-quick') : null}
+      />
 
       {!openPanel && (
         <main className="front" id="nav-beranda">
