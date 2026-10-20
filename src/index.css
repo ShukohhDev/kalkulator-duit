@@ -1304,6 +1304,19 @@ select.input {
   .nav-chip-on .nav-chip-icon {
     color: var(--accent) !important;
   }
+
+  /* Posisi tombol floating kalkulator di mobile: pas di atas bottom nav bar */
+  .fab {
+    bottom: calc(68px + env(safe-area-inset-bottom, 0px));
+    right: 16px;
+    width: 44px;
+    height: 44px;
+  }
+
+  .calc-pop {
+    bottom: calc(120px + env(safe-area-inset-bottom, 0px));
+    right: 16px;
+  }
 }
 
 /* =========================================================
@@ -2567,8 +2580,8 @@ select.input {
   right: 24px;
   bottom: 24px;
   z-index: 40;
-  width: 54px;
-  height: 54px;
+  width: 48px;
+  height: 48px;
   border: none;
   border-radius: 50%;
   background: var(--accent);
@@ -2576,39 +2589,32 @@ select.input {
   display: grid;
   place-items: center;
   cursor: pointer;
-  box-shadow: var(--shadow);
+  box-shadow: 0 4px 14px rgba(15, 118, 110, 0.35);
   transition: all var(--t-spring);
 }
 
 .fab:hover {
-  transform: translateY(-3px) scale(1.06);
-  box-shadow: 0 16px 40px rgba(234, 88, 12, 0.42);
+  transform: translateY(-2px) scale(1.05);
+  box-shadow: 0 8px 22px rgba(15, 118, 110, 0.45);
 }
 
 .fab:active {
-  transform: scale(0.94);
+  transform: scale(0.95);
 }
 
 .fab-open { filter: brightness(0.88); }
 
 .fab-theme {
-  bottom: 96px;
-  background: var(--surface);
-  color: var(--text);
-  border: 1px solid var(--border);
-  box-shadow: var(--shadow);
-}
-
-.fab-theme:hover {
-  border-color: var(--accent-3);
-  color: var(--accent);
-  box-shadow: var(--shadow-lg);
+  position: static !important;
+  bottom: auto !important;
+  right: auto !important;
+  box-shadow: none !important;
 }
 
 .calc-pop {
   position: fixed;
   right: 24px;
-  bottom: 164px;
+  bottom: 84px;
   z-index: 55;
   width: min(300px, calc(100vw - 32px));
   animation: pop-in 0.25s cubic-bezier(0.34, 1.56, 0.64, 1) both;
@@ -4204,12 +4210,14 @@ select.input {
   align-items: center;
 }
 
-.topbar-bell-btn {
+.topbar-bell-btn,
+.topbar-icon-btn {
   background: var(--surface-2);
   border: 1px solid var(--border);
   color: var(--text);
-  width: 38px;
-  height: 38px;
+  width: 32px;
+  height: 30px;
+  min-height: 30px;
   border-radius: var(--radius-sm);
   display: inline-flex;
   align-items: center;
@@ -4217,17 +4225,28 @@ select.input {
   cursor: pointer;
   position: relative;
   transition: all var(--t-fast);
+  padding: 0;
+  flex-shrink: 0;
 }
 
-.topbar-bell-btn:hover {
-  background: var(--surface-hover);
-  border-color: var(--border-hover);
+.topbar-bell-btn:hover,
+.topbar-icon-btn:hover {
+  background: var(--surface-3);
+  border-color: var(--accent);
+  color: var(--accent);
+  transform: translateY(-1px);
 }
 
 .topbar-bell-btn.bell-open {
-  background: var(--primary);
-  color: var(--primary-fg);
-  border-color: var(--primary);
+  background: var(--accent);
+  color: #ffffff;
+  border-color: var(--accent);
+}
+
+.topbar-icon-btn svg,
+.topbar-bell-btn svg {
+  width: 17px;
+  height: 17px;
 }
 
 .bell-badge {

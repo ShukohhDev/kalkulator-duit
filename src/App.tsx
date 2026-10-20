@@ -361,7 +361,7 @@ function AppShell({ user, onLogout }: { user: string; onLogout: () => void }) {
     if (id === 'nav-beranda') {
       setOpenPanel(null)
     } else {
-      setOpenPanel((prev) => (prev === id ? null : id))
+      setOpenPanel(id)
     }
     try {
       window.scrollTo({ top: 0, behavior: 'smooth' })
@@ -463,6 +463,15 @@ function AppShell({ user, onLogout }: { user: string; onLogout: () => void }) {
               />
             )}
           </div>
+          <button
+            type="button"
+            className="topbar-icon-btn fab-theme"
+            onClick={() => update((s) => ({ ...s, theme: s.theme === 'dark' ? 'light' : 'dark' }))}
+            aria-label="Ganti tema"
+            title={state.theme === 'dark' ? 'Mode terang' : 'Mode gelap'}
+          >
+            {state.theme === 'dark' ? SUN_ICON : MOON_ICON}
+          </button>
           {showQuickInTopbar && (
             <div className="topbar-quick-wrapper">
               {renderQuickButtons('topbar-quick')}
@@ -699,15 +708,6 @@ function AppShell({ user, onLogout }: { user: string; onLogout: () => void }) {
           />
         </div>
       )}
-      <button
-        type="button"
-        className="fab fab-theme"
-        onClick={() => update((s) => ({ ...s, theme: s.theme === 'dark' ? 'light' : 'dark' }))}
-        aria-label="Ganti tema"
-        title={state.theme === 'dark' ? 'Mode terang' : 'Mode gelap'}
-      >
-        {state.theme === 'dark' ? SUN_ICON : MOON_ICON}
-      </button>
       <button
         type="button"
         className={`fab${calcOpen ? ' fab-open' : ''}`}
