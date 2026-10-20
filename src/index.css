@@ -916,35 +916,75 @@ select.input {
 
 /* =========================================================
    ANIMATIONS FOR MOVING ACTION BUTTONS (+ Pengeluaran & + Pemasukan)
+   Enhanced Microsoft Fluent Cascade & Docking Motion
    ========================================================= */
 
-@keyframes quick-slide-in-nav {
+@keyframes quick-cascade-nav {
   0% {
     opacity: 0;
-    transform: translateY(-4px);
+    transform: translateY(-10px) scale(0.92);
+    filter: blur(2.5px);
+  }
+  65% {
+    transform: translateY(1.5px) scale(1.02);
+    filter: blur(0px);
   }
   100% {
     opacity: 1;
-    transform: translateY(0);
+    transform: translateY(0) scale(1);
+    filter: blur(0);
   }
 }
 
-@keyframes quick-slide-in-topbar {
+@keyframes quick-cascade-topbar {
   0% {
     opacity: 0;
-    transform: translateY(4px);
+    transform: translateY(10px) scale(0.92);
+    filter: blur(2.5px);
+  }
+  65% {
+    transform: translateY(-1.5px) scale(1.02);
+    filter: blur(0px);
   }
   100% {
     opacity: 1;
-    transform: translateY(0);
+    transform: translateY(0) scale(1);
+    filter: blur(0);
+  }
+}
+
+@keyframes dock-beam-pulse {
+  0% {
+    box-shadow: 0 0 0 0 rgba(15, 118, 110, 0);
+    border-left-color: rgba(15, 118, 110, 0.3);
+  }
+  45% {
+    box-shadow: 0 0 12px 1.5px var(--accent-glow);
+    border-left-color: var(--accent-3);
+  }
+  100% {
+    box-shadow: 0 0 0 0 rgba(15, 118, 110, 0);
+    border-left-color: var(--accent);
   }
 }
 
 .topbar-quick-wrapper {
   display: inline-flex;
   align-items: center;
-  gap: 6px;
-  animation: quick-slide-in-topbar 0.18s cubic-bezier(0, 0, 0.2, 1) both;
+  gap: 5px;
+  padding: 2px 4px;
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  transition: all var(--t-fast);
+}
+
+.topbar-quick-wrapper .quick-anchor:nth-child(1) {
+  animation: quick-cascade-topbar 0.26s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+.topbar-quick-wrapper .quick-anchor:nth-child(2) {
+  animation: quick-cascade-topbar 0.26s cubic-bezier(0.16, 1, 0.3, 1) 0.05s both;
 }
 
 /* =========================================================
@@ -1001,15 +1041,29 @@ select.input {
 }
 
 .section-nav-actions {
+  position: relative;
   display: inline-flex;
   align-items: center;
-  gap: 4px;
-  margin-left: 4px;
-  padding-left: 6px;
-  border-left: 1px solid var(--border-2);
+  gap: 5px;
+  margin-left: 6px;
+  padding: 2px 4px 2px 7px;
+  border-left: 2px solid var(--accent);
+  background: var(--surface-2);
+  border-top: 1px solid var(--border);
+  border-right: 1px solid var(--border);
+  border-bottom: 1px solid var(--border);
+  border-radius: var(--radius-sm);
   flex-shrink: 0;
   flex-wrap: nowrap !important; /* WAJIB 1 baris saja */
-  animation: quick-slide-in-nav 0.18s cubic-bezier(0, 0, 0.2, 1) both;
+  animation: dock-beam-pulse 0.45s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+.section-nav-actions .quick-anchor:nth-child(1) {
+  animation: quick-cascade-nav 0.26s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+.section-nav-actions .quick-anchor:nth-child(2) {
+  animation: quick-cascade-nav 0.26s cubic-bezier(0.16, 1, 0.3, 1) 0.05s both;
 }
 
 .nav-chip {
@@ -1062,10 +1116,80 @@ select.input {
 }
 
 .section-nav-actions .btn {
-  padding: 4px 8px;
+  padding: 3px 8px;
   font-size: 12px;
-  height: 30px;
-  min-height: 30px;
+  height: 28px;
+  min-height: 28px;
+}
+
+/* Quick Action Buttons: Modern Fluent Visual Identity */
+.btn-quick-action {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 12px;
+  font-weight: 600;
+  height: 28px;
+  min-height: 28px;
+  padding: 3px 8px;
+  border-radius: var(--radius-xs);
+  transition: all var(--t-fast);
+  white-space: nowrap;
+}
+
+.btn-quick-expense {
+  background: var(--surface);
+  border-color: rgba(225, 29, 72, 0.3);
+  color: var(--danger);
+}
+
+.btn-quick-expense:hover {
+  background: var(--danger-soft);
+  border-color: var(--danger);
+  color: var(--danger);
+  transform: translateY(-1px);
+  box-shadow: 0 2px 6px rgba(225, 29, 72, 0.18);
+}
+
+.btn-quick-income {
+  background: var(--surface);
+  border-color: rgba(5, 150, 105, 0.3);
+  color: var(--ok);
+}
+
+.btn-quick-income:hover {
+  background: var(--ok-soft);
+  border-color: var(--ok);
+  color: var(--ok);
+  transform: translateY(-1px);
+  box-shadow: 0 2px 6px rgba(5, 150, 105, 0.18);
+}
+
+.btn-quick-action:active {
+  transform: scale(0.97);
+}
+
+.quick-kbd {
+  font-family: inherit;
+  font-size: 10px;
+  font-weight: 700;
+  line-height: 1;
+  padding: 1px 4px;
+  border-radius: 3px;
+  background: rgba(0, 0, 0, 0.05);
+  border: 1px solid rgba(0, 0, 0, 0.12);
+  color: inherit;
+  opacity: 0.85;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  margin-left: 2px;
+  letter-spacing: 0;
+}
+
+[data-theme='dark'] .quick-kbd {
+  background: rgba(255, 255, 255, 0.08);
+  border-color: rgba(255, 255, 255, 0.16);
 }
 
 /* Quick Entry Popover & Anchor */

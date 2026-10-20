@@ -384,12 +384,13 @@ function AppShell({ user, onLogout }: { user: string; onLogout: () => void }) {
       <div className={`quick-anchor ${prefix}`.trim()}>
         <button
           type="button"
-          className={`btn btn-sm${quick === 'expense' ? ' quick-on' : ''}`}
+          className={`btn btn-sm btn-quick-action btn-quick-expense${quick === 'expense' ? ' quick-on' : ''}`}
           aria-expanded={quick === 'expense'}
-          title="+ Pengeluaran (E)"
+          title="+ Pengeluaran (Shortcut: E)"
           onClick={() => toggleQuick('expense')}
         >
-          + Pengeluaran
+          <span>+ Pengeluaran</span>
+          <kbd className="quick-kbd">E</kbd>
         </button>
         {quick === 'expense' && (
           <QuickEntry
@@ -405,12 +406,13 @@ function AppShell({ user, onLogout }: { user: string; onLogout: () => void }) {
       <div className={`quick-anchor ${prefix}`.trim()}>
         <button
           type="button"
-          className={`btn btn-sm${quick === 'income' ? ' quick-on' : ''}`}
+          className={`btn btn-sm btn-quick-action btn-quick-income${quick === 'income' ? ' quick-on' : ''}`}
           aria-expanded={quick === 'income'}
-          title="+ Pemasukan (P)"
+          title="+ Pemasukan (Shortcut: P)"
           onClick={() => toggleQuick('income')}
         >
-          + Pemasukan
+          <span>+ Pemasukan</span>
+          <kbd className="quick-kbd">P</kbd>
         </button>
         {quick === 'income' && (
           <QuickEntry
