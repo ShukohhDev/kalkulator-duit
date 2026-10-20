@@ -8,6 +8,7 @@ import { uid } from '../lib/id'
 import { MoneyInput } from './MoneyInput'
 import { ReceiptView } from './ReceiptView'
 import { CustomSelect } from './CustomSelect'
+import { ICON_CLOSE } from './icons'
 
 interface Props {
   state: AppState
@@ -458,7 +459,7 @@ export function ExpensesPanel({ state, update, notify }: Props) {
                 aria-label="Bersihkan pencarian"
                 title="Hapus kata kunci"
               >
-                ×
+                {ICON_CLOSE}
               </button>
             )}
           </div>

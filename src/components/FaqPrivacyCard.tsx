@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { ICON_CHEVRON_DOWN } from './icons'
 
 interface FaqItem {
   q: string
@@ -77,8 +78,8 @@ export function FaqPrivacyCard() {
                   aria-expanded={isOpen}
                 >
                   <span>{item.q}</span>
-                  <span style={{ fontSize: '1.1rem', transform: isOpen ? 'rotate(180deg)' : 'none', transition: 'transform 0.2s' }}>
-                    ▾
+                  <span style={{ display: 'inline-flex', alignItems: 'center', transform: isOpen ? 'rotate(180deg)' : 'none', transition: 'transform 0.2s' }}>
+                    {ICON_CHEVRON_DOWN}
                   </span>
                 </button>
                 {isOpen && (

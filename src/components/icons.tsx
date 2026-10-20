@@ -165,4 +165,33 @@ export const ICON_WIFI = (
   </svg>
 )
 
+export const ICON_CLOSE = (
+  <svg viewBox="0 0 16 16" width="14" height="14" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+    <line x1="3" y1="3" x2="13" y2="13" />
+    <line x1="13" y1="3" x2="3" y2="13" />
+  </svg>
+)
 
+export const ICON_CHEVRON_DOWN = (
+  <svg viewBox="0 0 16 16" width="14" height="14" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+    <polyline points="4 6 8 10 12 6" />
+  </svg>
+)
+
+export const ICON_CHEVRON_UP = (
+  <svg viewBox="0 0 16 16" width="14" height="14" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+    <polyline points="12 10 8 6 4 10" />
+  </svg>
+)
+
+export const ICON_DELTA_UP = (
+  <svg viewBox="0 0 16 16" width="12" height="12" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+    <polyline points="3 10 8 4 13 10" />
+  </svg>
+)
+
+export const ICON_DELTA_DOWN = (
+  <svg viewBox="0 0 16 16" width="12" height="12" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+    <polyline points="3 6 8 12 13 6" />
+  </svg>
+)

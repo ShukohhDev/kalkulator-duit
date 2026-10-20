@@ -1,5 +1,6 @@
 import React, { useState, useMemo, useRef, useEffect } from 'react'
 import { createPortal } from 'react-dom'
+import { ICON_CLOSE } from './icons'
 
 export interface CustomSelectOption {
   value: string
@@ -188,7 +189,7 @@ export function CustomSelect({
                 onClick={() => setSearch('')}
                 aria-label="Hapus pencarian"
               >
-                ✕
+                {ICON_CLOSE}
               </button>
             )}
           </div>

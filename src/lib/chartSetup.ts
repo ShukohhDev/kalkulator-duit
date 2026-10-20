@@ -28,10 +28,10 @@ ChartJS.register(
 )
 
 export const CHART_FONT = {
-  family: "'Inter', 'Segoe UI', system-ui, sans-serif",
+  family: "'Segoe UI Variable Text', 'Segoe UI', -apple-system, BlinkMacSystemFont, 'Roboto', sans-serif",
   size: 12,
 }
 
-export const INCOME_COLOR = '#2f9e44'
-export const EXPENSE_COLOR = '#e8590c'
-export const MUTED_COLOR = '#868e96'
+export const INCOME_COLOR = '#107C10'
+export const EXPENSE_COLOR = '#0078D4'
+export const MUTED_COLOR = '#616161'

@@ -1,10 +1,16 @@
+import type { ReactNode } from 'react'
 import type { Insight } from '../lib/insights'
+import { ICON_CHECK, ICON_ALERT, ICON_INFO } from './icons'
 
 interface Props {
   insights: Insight[]
 }
 
-const ICON: Record<Insight['tone'], string> = { warn: '!', good: '✓', info: 'i' }
+const ICONS: Record<Insight['tone'], ReactNode> = {
+  warn: ICON_ALERT,
+  good: ICON_CHECK,
+  info: ICON_INFO,
+}
 
 export function InsightsPanel({ insights }: Props) {
   if (insights.length === 0) return null
@@ -19,7 +25,7 @@ export function InsightsPanel({ insights }: Props) {
         {insights.map((item) => (
           <li key={item.id} className={`insight insight-${item.tone}`}>
             <span className="insight-icon" aria-hidden="true">
-              {ICON[item.tone]}
+              {ICONS[item.tone]}
             </span>
             <span>{item.text}</span>
           </li>

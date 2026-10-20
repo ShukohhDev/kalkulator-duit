@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import { createPortal } from 'react-dom'
 import type { NotificationItem } from '../lib/notifications'
+import { ICON_CLOSE } from './icons'
 
 interface Props {
   items: NotificationItem[]
@@ -74,7 +75,7 @@ export function NotificationCenter({ items, onClose, onMarkAllRead, onMarkRead }
               onClick={onClose}
               aria-label="Tutup notifikasi"
             >
-              ✕
+              {ICON_CLOSE}
             </button>
           </div>
         </div>

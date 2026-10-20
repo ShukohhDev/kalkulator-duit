@@ -587,7 +587,10 @@ function AppShell({ user, onLogout }: { user: string; onLogout: () => void }) {
 
       {toast && (
         <div className={`toast${toast.error ? ' toast-error' : ''}`} role="status">
-          <span>{toast.error ? '! ' : '✓ '}{toast.text}</span>
+          <span style={{ display: 'inline-flex', alignItems: 'center', gap: '6px' }}>
+            {toast.error ? <strong>!</strong> : CHECK_ICON}
+            <span>{toast.text}</span>
+          </span>
           {toast.undo && (
             <button
               type="button"

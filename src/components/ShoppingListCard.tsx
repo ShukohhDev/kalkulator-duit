@@ -3,7 +3,7 @@ import type { AppState, Expense, Notify, ShoppingItem } from '../types'
 import type { Updater } from '../hooks/useAppState'
 import { formatIDR, todayISO } from '../lib/money'
 import { uid } from '../lib/id'
-import { ICON_CART, ICON_CHECKLIST } from './icons'
+import { ICON_CART, ICON_CHECKLIST, ICON_CLOSE } from './icons'
 import { MoneyInput } from './MoneyInput'
 import { CustomSelect } from './CustomSelect'
 
@@ -407,7 +407,7 @@ export function ShoppingListCard({ state, update, notify }: Props) {
                     aria-label={`Hapus ${item.name}`}
                     title="Hapus barang"
                   >
-                    ×
+                    {ICON_CLOSE}
                   </button>
                 </div>
               </li>

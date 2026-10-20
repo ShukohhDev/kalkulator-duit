@@ -2,14 +2,14 @@ import type { AppState, Category, CategoryKind, Goal } from '../types'
 import { DEFAULT_BONUS_SPLIT } from './bonus'
 
 export const CATEGORY_COLORS = [
-  '#e8590c',
-  '#1971c2',
-  '#9c36b5',
-  '#2f9e44',
-  '#f08c00',
-  '#0c8599',
-  '#d6336c',
-  '#5f3dc4',
+  '#0078D4',
+  '#107C10',
+  '#008272',
+  '#D83B01',
+  '#004E8C',
+  '#D13438',
+  '#498205',
+  '#038387',
 ]
 
 export const SAVINGS_CATEGORY = 'tabungan'

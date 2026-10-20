@@ -4,12 +4,12 @@
   "short_name": "UangJajan",
   "description": "Kalkulator uang jajan mingguan dan bulanan: alokasi per kategori dengan profil Tinggal di Rumah / Tinggal di Kos, pencatatan pengeluaran, grafik, dan target tabungan bunga 8% per tahun.",
   "lang": "id",
-  "start_url": "/?source=pwa",
+  "start_url": "/",
   "scope": "/",
   "display": "standalone",
   "orientation": "any",
-  "background_color": "#a0d6c8",
-  "theme_color": "#1971c2",
+  "background_color": "#F5F5F5",
+  "theme_color": "#0078D4",
   "icons": [
     {
       "src": "/icon-192.png?v=20261020b",

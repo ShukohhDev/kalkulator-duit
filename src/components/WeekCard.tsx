@@ -53,17 +53,17 @@ export function WeekCard({ state, derived, notify }: Props) {
     datasets: [
       {
         data: week.days.map((day) => day.total),
-        borderColor: '#ea580c',
-        backgroundColor: 'rgba(234, 88, 12, 0.08)',
+        borderColor: '#0078D4',
+        backgroundColor: 'rgba(0, 120, 212, 0.08)',
         borderWidth: 2,
         tension: 0.35,
         fill: false,
         pointRadius: 3.5,
-        pointBackgroundColor: '#ea580c',
+        pointBackgroundColor: '#0078D4',
         pointBorderColor: 'var(--surface)',
         pointBorderWidth: 1.5,
         pointHoverRadius: 5.5,
-        pointHoverBackgroundColor: '#ea580c',
+        pointHoverBackgroundColor: '#0078D4',
       },
     ],
   }

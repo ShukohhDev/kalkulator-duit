@@ -3,6 +3,7 @@ import type { AppState } from '../types'
 import type { Derived } from '../lib/derive'
 import { categoryDeltas, shiftMonthKey, summarizeMonth } from '../lib/compare'
 import { formatIDR, monthKey, monthLabel, toISO } from '../lib/money'
+import { ICON_DELTA_UP, ICON_DELTA_DOWN } from './icons'
 
 interface Props {
   state: AppState
@@ -12,7 +13,12 @@ interface Props {
 function Delta({ value }: { value: number | null }) {
   if (value === null) return <span className="delta">baru</span>
   if (value === 0) return <span className="delta delta-flat">0%</span>
-  return <span className={`delta ${value > 0 ? 'delta-up' : 'delta-down'}`}>{value > 0 ? `▲ ${value}%` : `▼ ${Math.abs(value)}%`}</span>
+  return (
+    <span className={`delta ${value > 0 ? 'delta-up' : 'delta-down'}`}>
+      {value > 0 ? ICON_DELTA_UP : ICON_DELTA_DOWN}
+      <span>{Math.abs(value)}%</span>
+    </span>
+  )
 }
 
 export function MonthCompare({ state, derived }: Props) {
