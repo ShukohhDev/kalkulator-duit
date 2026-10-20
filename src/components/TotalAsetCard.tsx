@@ -39,7 +39,7 @@ export function TotalAsetCard({ state }: Props) {
       <p className="muted small" style={{ margin: 0 }}>
         {total > 0
           ? `Dari ${state.wallets.length} sumber (rekening, e-wallet, tunai)`
-          : 'Belum ada saldo. Isi lewat panel Dompet & e-wallet di menu Tabungan.'}
+          : 'Belum ada saldo nih. Tambah dompetmu di tab Tabungan biar kepantau!'}
       </p>
     </section>
   )

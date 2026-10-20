@@ -493,7 +493,7 @@ function AppShell({ user, onLogout }: { user: string; onLogout: () => void }) {
               <div className="panel-hero-icon">{NAV_SVG_ICONS['nav-beranda']}</div>
               <div className="panel-hero-body">
                 <h2 className="panel-hero-title">Ringkasan Uang Jajan</h2>
-                <p className="panel-hero-desc">Pantau alokasi saku, batas aman belanja harian, dan kesehatan dompetmu.</p>
+                <p className="panel-hero-desc">Yuk pantau jatah jajan, batas aman belanja hari ini, dan kondisi dompetmu!</p>
               </div>
             </div>
             <div className="panel-hero-badge">
@@ -517,7 +517,7 @@ function AppShell({ user, onLogout }: { user: string; onLogout: () => void }) {
             <div className="panel-hero-icon">{NAV_SVG_ICONS['nav-catat']}</div>
             <div className="panel-hero-body">
               <h2 className="panel-hero-title">Catat Transaksi</h2>
-              <p className="panel-hero-desc">Kelola daftar belanja, catat pengeluaran harian, dan pemasukan uang jajan.</p>
+              <p className="panel-hero-desc">Catat jajan harian atau duit masuk biar keuanganmu tetap aman dan gak boncos!</p>
             </div>
           </div>
           <div className="panel-hero-badge">
@@ -534,7 +534,7 @@ function AppShell({ user, onLogout }: { user: string; onLogout: () => void }) {
             <div className="panel-hero-icon">{NAV_SVG_ICONS['nav-kewajiban']}</div>
             <div className="panel-hero-body">
               <h2 className="panel-hero-title">Kewajiban & Tagihan</h2>
-              <p className="panel-hero-desc">Pantau tagihan rutin bulanan dan angsuran utang berjalan tepat waktu.</p>
+              <p className="panel-hero-desc">Catat tagihan dan cicilanmu biar gak ada yang kelupaan atau nunggak!</p>
             </div>
           </div>
           <div className="panel-hero-badge">
@@ -549,7 +549,7 @@ function AppShell({ user, onLogout }: { user: string; onLogout: () => void }) {
             <div className="panel-hero-icon">{NAV_SVG_ICONS['nav-analisis']}</div>
             <div className="panel-hero-body">
               <h2 className="panel-hero-title">Analisis Finansial</h2>
-              <p className="panel-hero-desc">Evaluasi skor kesehatan keuangan, pola arus kas, dan tren pengeluaranmu.</p>
+              <p className="panel-hero-desc">Cek skor kesehatan dompet, tren jajan, dan simulasi pengeluaranmu!</p>
             </div>
           </div>
           <div className="panel-hero-badge">
@@ -570,7 +570,7 @@ function AppShell({ user, onLogout }: { user: string; onLogout: () => void }) {
             <div className="panel-hero-icon">{NAV_SVG_ICONS['nav-tabungan']}</div>
             <div className="panel-hero-body">
               <h2 className="panel-hero-title">Tabungan & Aset</h2>
-              <p className="panel-hero-desc">Pantau tabungan akhir periode, saldo dompet, target masa depan, dan dana musiman.</p>
+              <p className="panel-hero-desc">Kumpulin tabungan, pantau saldo dompet, dan wujudkan barang impianmu!</p>
             </div>
           </div>
           <div className="panel-hero-badge">
@@ -589,7 +589,7 @@ function AppShell({ user, onLogout }: { user: string; onLogout: () => void }) {
             <div className="panel-hero-icon">{NAV_SVG_ICONS['nav-laporan']}</div>
             <div className="panel-hero-body">
               <h2 className="panel-hero-title">Laporan Keuangan</h2>
-              <p className="panel-hero-desc">Rekapitulasi lengkap pemasukan, pengeluaran, dan sisa uang jajan yang siap dicetak.</p>
+              <p className="panel-hero-desc">Intip rangkuman keluar-masuk duitmu secara rapi dan siap disalin atau dicetak!</p>
             </div>
           </div>
           <div className="panel-hero-badge">
@@ -604,7 +604,7 @@ function AppShell({ user, onLogout }: { user: string; onLogout: () => void }) {
             <div className="panel-hero-icon">{NAV_SVG_ICONS['nav-data']}</div>
             <div className="panel-hero-body">
               <h2 className="panel-hero-title">Pengaturan & Akun</h2>
-              <p className="panel-hero-desc">Kelola preferensi, keamanan akun, cadangan data, dan riwayat aktivitas.</p>
+              <p className="panel-hero-desc">Atur akunmu, cadangkan data, atau cek riwayat aktivitas kapan aja.</p>
             </div>
           </div>
           <div className="panel-hero-badge">
@@ -635,7 +635,7 @@ function AppShell({ user, onLogout }: { user: string; onLogout: () => void }) {
       )}
 
       <footer className="footer muted small">
-        Data tersimpan lokal di browser kamu. Bunga dihitung majemuk 8% per tahun (setara 0,64%/bulan).
+        Semua data tersimpan aman di browser kamu. Bunga dihitung majemuk 8% per tahun (setara 0,64%/bulan).
       </footer>
 
       {toast && (

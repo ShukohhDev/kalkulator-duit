@@ -30,7 +30,7 @@ export function WhatIfPanel({ state, derived }: Props) {
     <section className="card whatif-card">
       <header className="card-head">
         <h2>Bagaimana Kalau</h2>
-        <span className="muted small">simulasi saja (tidak mengubah data kamu)</span>
+        <span className="muted small">simulasi saja (santai, tidak mengubah data kamu)</span>
       </header>
 
       <div className="form-grid form-grid-2">
@@ -88,7 +88,7 @@ export function WhatIfPanel({ state, derived }: Props) {
       </ul>
       {Math.abs(delta) >= 1 && (
         <p className="muted small">
-          {delta > 0 ? 'Lebih aman' : 'Lebih ketat'} {formatIDR(Math.abs(delta))} dibanding skenario sekarang.
+          {delta > 0 ? 'Lebih lega' : 'Lebih ketat'} {formatIDR(Math.abs(delta))} dibanding kondisi sekarang.
         </p>
       )}
     </section>

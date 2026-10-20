@@ -56,7 +56,7 @@ export function NotificationCenter({ items, onClose, onMarkAllRead, onMarkRead }
 
         <div className="notif-header">
           <div className="notif-title-group">
-            <h3>Pusat Notifikasi</h3>
+            <h3>Kabar & Notifikasi</h3>
             {unreadCount > 0 && <span className="notif-count-badge">{unreadCount} baru</span>}
           </div>
           <div className="notif-actions">
@@ -66,7 +66,7 @@ export function NotificationCenter({ items, onClose, onMarkAllRead, onMarkRead }
                 className="btn btn-ghost btn-sm notif-btn-action"
                 onClick={onMarkAllRead}
               >
-                Tandai Semua Dibaca
+                Tandai sudah dibaca
               </button>
             )}
             <button
@@ -107,7 +107,7 @@ export function NotificationCenter({ items, onClose, onMarkAllRead, onMarkRead }
         <div className="notif-list">
           {filteredItems.length === 0 ? (
             <div className="notif-empty">
-              <p className="muted">Tidak ada notifikasi pada kategori ini.</p>
+              <p className="muted">Belum ada notifikasi baru di kategori ini.</p>
             </div>
           ) : (
             filteredItems.map((item) => {

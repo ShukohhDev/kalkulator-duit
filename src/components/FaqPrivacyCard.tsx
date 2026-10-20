@@ -8,24 +8,24 @@ interface FaqItem {
 
 const FAQS: FaqItem[] = [
   {
-    q: 'Bagaimana cara menentukan alokasi uang saku?',
-    a: 'Pilih profil tinggal di rumah atau kos pada kartu Uang Saku. Sistem akan membagikan persentase anggaran kebutuhan pokok, jajan, transportasi, dan tabungan secara otomatis yang dapat disesuaikan sesuka hati.',
+    q: 'Gimana cara nentuin alokasi uang saku?',
+    a: 'Pilih profil tinggal di rumah atau kos pada kartu Uang Jajan. Nanti sistem otomatis bagiin persentase anggaran buat makan, jajan, transportasi, dan tabungan yang bisa kamu sesuaikan sesuka hati.',
   },
   {
     q: 'Apakah aplikasi bisa dipakai saat offline tanpa internet?',
-    a: 'Bisa! Kalkulator Uang Jajan dirancang sebagai Progressive Web App (PWA) lokal-first. Seluruh pencatatan transaksi dan bukti foto tersimpan di browser Anda (IndexedDB) dan tetap berfungsi penuh saat tanpa internet.',
+    a: 'Bisa banget! Kalkulator Uang Jajan dirancang sebagai Progressive Web App (PWA) lokal-first. Semua catatan transaksi dan bukti foto tersimpan aman di browsermu dan tetap berfungsi lancar walau lagi gak ada sinyal.',
   },
   {
-    q: 'Bagaimana cara kerja bunga majemuk tabungan?',
-    a: 'Simulasi target tabungan menghitung imbal hasil majemuk 8% per tahun (sekitar 0,64% per bulan). Ini membantu Anda memvisualisasikan pertumbuhan uang simpanan dari waktu ke waktu.',
+    q: 'Gimana cara kerja bunga majemuk tabungan?',
+    a: 'Simulasi target tabungan menghitung imbal hasil majemuk 8% per tahun (sekitar 0,64% per bulan). Ini ngebantu kamu melihat seberapa cepat uang tabunganmu bertumbuh dari waktu ke waktu.',
   },
   {
-    q: 'Apakah ada biaya atau iklan pada aplikasi ini?',
-    a: 'Tidak ada. Kalkulator Uang Jajan 100% gratis, bebas iklan, dan tidak memiliki transaksi pembelian terselubung.',
+    q: 'Ada biaya atau iklan tersembunyi gak?',
+    a: 'Gak ada sama sekali! Kalkulator Uang Jajan 100% gratis, bebas iklan, dan gak ada biaya tersembunyi apa pun.',
   },
   {
-    q: 'Bagaimana cara memindahkan data ke HP atau laptop lain?',
-    a: 'Anda bisa mengekspor data ke file JSON melalui menu Data > Cadangkan Data, lalu mengimpornya di perangkat baru. Atau aktifkan fitur Sinkronisasi Cloud Supabase saat login.',
+    q: 'Gimana cara mindahin data ke HP atau laptop lain?',
+    a: 'Kamu bisa ekspor data ke file JSON lewat tab Data > Cadangkan, terus impor di perangkat barumu. Atau masuk pakai akun yang sama biar tersinkron otomatis lewat cloud.',
   },
 ]
 
@@ -126,16 +126,16 @@ export function FaqPrivacyCard() {
             >
               <h4 style={{ margin: '0 0 6px 0', color: 'var(--text-main, #0f172a)' }}>Kebijakan Privasi & Keamanan Data</h4>
               <p style={{ margin: '0 0 8px 0' }}>
-                Privasi keuangan Anda adalah prioritas utama kami. Berikut komitmen transparansi kami:
+                Privasi keuangan kamu adalah prioritas utama kami. Ini komitmen keterbukaan kami:
               </p>
               <ul style={{ paddingLeft: '20px', margin: '0 0 8px 0' }}>
-                <li><strong>Penyimpanan Lokal Mandiri:</strong> Seluruh rincian transaksi, anggaran, dan foto struk bukti tersimpan di perangkat Anda (LocalStorage & IndexedDB).</li>
-                <li><strong>Kata Sandi Terenkripsi:</strong> Kata sandi Anda di-hash dengan standar SHA-256 dan salt acak kriptografi sebelum disimpan.</li>
-                <li><strong>Bebas Pelacak Pihak Ketiga:</strong> Kami tidak menjual data keuangan, tidak menyisipkan iklan pelacak, dan tidak membagikan data kepada pihak manapun.</li>
-                <li><strong>Kontrol Penuh:</strong> Anda dapat mengunduh salinan data (JSON/Excel) maupun menghapus seluruh akun dan data secara instan kapan saja.</li>
+                <li><strong>Penyimpanan Aman di Perangkat:</strong> Semua catatan belanja, anggaran, dan foto struk tersimpan di perangkat kamu sendiri (LocalStorage & IndexedDB).</li>
+                <li><strong>Kata Sandi Terenkripsi:</strong> Kata sandi kamu diacak aman dengan standar kriptografi SHA-256 sebelum disimpan.</li>
+                <li><strong>Bebas Iklan & Pelacak:</strong> Kami gak jual data keuanganmu, gak pasang iklan pelacak, dan gak bagiin datamu ke siapa pun.</li>
+                <li><strong>Kendali Penuh di Tanganmu:</strong> Kamu bebas unduh data (JSON/Excel) atau reset semua data kapan pun kamu mau.</li>
               </ul>
               <p style={{ margin: 0, fontSize: '0.8rem' }}>
-                Pertanyaan lebih lanjut? Hubungi pengembang melalui menu Laporkan Masalah.
+                Punya pertanyaan lain? Jangan ragu hubungi kami lewat menu Laporkan Masalah ya!
               </p>
             </div>
           )}

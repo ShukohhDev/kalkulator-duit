@@ -210,7 +210,7 @@ export function ObligationsPanel({ state, update, notify }: Props) {
       <header className="card-head">
         <h2>Kewajiban</h2>
         <div className="report-actions no-print">
-          <span className="muted small">cicilan utang dan tagihan rutin, ikut tercatat sebagai pengeluaran</span>
+          <span className="muted small">pantau tagihan &amp; cicilan biar gak kelupaan</span>
           <button type="button" className="btn btn-ghost btn-sm" onClick={exportIcs}>
             Ekspor .ics
           </button>
@@ -276,7 +276,7 @@ export function ObligationsPanel({ state, update, notify }: Props) {
                     <span className="small">
                       Sisa tagihan: <strong>{formatIDR(remaining)}</strong>
                     </span>
-                    <span className="muted small">Pilih sumber dana dan ketik nominal yang mau dibayar</span>
+                    <span className="muted small">Pilih dompet dan masukin nominal yang mau dibayar</span>
                   </div>
                   <div className="ob-pay-input-row">
                     <div className="field ob-pay-field">
@@ -363,7 +363,7 @@ export function ObligationsPanel({ state, update, notify }: Props) {
           )
         })}
         {state.bills.length === 0 && (
-          <p className="muted small">Belum ada tagihan. Tambahkan listrik, internet, atau sewa di bawah.</p>
+          <p className="muted small">Belum ada tagihan nih. Yuk catat listrik, wifi, atau kosan kamu di bawah.</p>
         )}
       </div>
 
@@ -435,7 +435,7 @@ export function ObligationsPanel({ state, update, notify }: Props) {
                     <span className="small">
                       Sisa utang: <strong>{formatIDR(remaining)}</strong> · Angsuran: <strong>{formatIDR(debt.installment)}</strong>
                     </span>
-                    <span className="muted small">Pilih sumber dana dan tentukan nominal bayar</span>
+                    <span className="muted small">Pilih dompet dan masukin nominal yang mau dibayar</span>
                   </div>
 
                   <div className="ob-pay-input-row">
@@ -520,7 +520,7 @@ export function ObligationsPanel({ state, update, notify }: Props) {
           )
         })}
         {state.debts.length === 0 && (
-          <p className="muted small">Belum ada utang. Catat cicilan motor, pinjaman, atau paylater di bawah.</p>
+          <p className="muted small">Belum ada catatan utang. Catat cicilan, pinjaman, atau paylater kamu di bawah biar tenang.</p>
         )}
       </div>
 

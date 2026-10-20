@@ -146,7 +146,7 @@ export function ShoppingListCard({ state, update, notify }: Props) {
   const handleCheckoutToExpenses = () => {
     const checkedItems = shoppingList.filter((item) => item.checked)
     if (checkedItems.length === 0) {
-      notify('Pilih atau centang minimal 1 barang yang sudah dibeli terlebih dahulu.')
+      notify('Centang dulu barang yang udah dibeli ya.')
       return
     }
 
@@ -205,7 +205,7 @@ export function ShoppingListCard({ state, update, notify }: Props) {
           <div>
             <h2>Daftar Rencana Belanja</h2>
             <p className="muted small">
-              Tulis kebutuhan sebelum berbelanja, lalu catat otomatis ke pengeluaran saat barang selesai dibeli.
+              Tulis daftar belanjaan sebelum pergi, trus sekali klik langsung beres masuk pengeluaran.
             </p>
           </div>
         </div>
@@ -365,10 +365,10 @@ export function ShoppingListCard({ state, update, notify }: Props) {
           </div>
           <p className="muted">
             {filterTab === 'all'
-              ? 'Daftar belanja masih kosong. Tambahkan barang kebutuhanmu di atas sebelum berbelanja!'
+              ? 'Daftar belanja masih kosong. Catat dulu barang yang mau kamu beli di atas biar gak kalap!'
               : filterTab === 'pending'
-              ? 'Semua barang sudah masuk ke keranjang!'
-              : 'Belum ada barang yang diceklis/masuk keranjang.'}
+              ? 'Semua barang udah masuk ke keranjang!'
+              : 'Belum ada barang yang diceklis nih.'}
           </p>
         </div>
       ) : (

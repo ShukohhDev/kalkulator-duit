@@ -110,7 +110,7 @@ export function DompetPanel({ state, update }: Props) {
           </article>
         ))}
         {state.wallets.length === 0 && (
-          <p className="muted small">Belum ada dompet. Tambahkan rekening, e-wallet, atau tunai di bawah.</p>
+          <p className="muted small">Belum ada dompet nih. Yuk tambahin rekening, e-wallet, atau uang tunai kamu di bawah.</p>
         )}
       </div>
 

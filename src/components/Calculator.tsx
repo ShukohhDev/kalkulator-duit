@@ -138,7 +138,7 @@ export function Calculator({ onUseNumber, onClose }: Props) {
       {mode === 'terbalik' ? (
         <div className="reverse">
           <p className="muted small">
-            Dari target dan tenggat, berapa yang harus disisihkan tiap bulan? Dibagi rata tanpa bunga.
+            Punya target tapi bingung harus nyisihin berapa per bulan? Hitung otomatis di sini yuk!
           </p>
           <div className="field">
             <label htmlFor="rev-target">Target (Rp)</label>

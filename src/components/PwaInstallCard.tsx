@@ -100,7 +100,7 @@ export function PwaInstallCard({ notify }: Props) {
           <div>
             <h2>Aplikasi HP & Mode Offline (PWA)</h2>
             <p className="muted small">
-              Buka di ponsel pintar kamu dan pasang ke layar utama untuk pengalaman layaknya aplikasi native.
+              Pasang di HP biar bisa langsung dibuka dari layar utama kayak aplikasi beneran, plus bisa offline!
             </p>
           </div>
         </div>
@@ -122,7 +122,7 @@ export function PwaInstallCard({ notify }: Props) {
           <div className="pwa-status-box pwa-status-installed">
             <strong className="small">Aplikasi Sudah Terpasang (Standalone)</strong>
             <p className="muted small">
-              Kamu sedang menggunakan versi aplikasi penuh di layar perangkatmu. Data tersimpan lokal di HP dan bisa digunakan secara lancar tanpa koneksi internet.
+              Aplikasi udah nempel di layar perangkatmu! Data tetap aman tersimpan di HP dan bisa dipake santai walau lagi gak ada sinyal.
             </p>
           </div>
         ) : (
@@ -130,7 +130,7 @@ export function PwaInstallCard({ notify }: Props) {
             <div className="pwa-banner-text">
               <strong className="pwa-banner-title">Pasang Aplikasi ke Layar Utama</strong>
               <p className="muted small">
-                Akses cepat dari Home Screen tanpa perlu buka browser terlebih dahulu, hemat memori, dan tetap berfungsi saat offline.
+                Buka langsung dari Home Screen tanpa perlu buka browser dulu, hemat memori, dan tetap nyala pas offline.
               </p>
             </div>
             <button
@@ -174,11 +174,11 @@ export function PwaInstallCard({ notify }: Props) {
       <div className="pwa-network-box">
         <div className="pwa-network-head">
           <span className="pwa-network-icon" aria-hidden="true">{ICON_WIFI}</span>
-          <strong className="small">Cara Membuka di HP Lewat Wi-Fi yang Sama:</strong>
+          <strong className="small">Mau Buka di HP? Gampang:</strong>
         </div>
 
         <p className="muted small">
-          Hubungkan ponsel ke jaringan Wi-Fi yang sama dengan laptop/komputer ini (atau nyalakan Hotspot HP), lalu buka alamat berikut di browser HP:
+          Sambungin HP kamu ke Wi-Fi yang sama dengan laptop (atau nyalakan Hotspot HP), trus buka alamat ini di browser HP:
         </p>
 
         <div className="pwa-url-bar">

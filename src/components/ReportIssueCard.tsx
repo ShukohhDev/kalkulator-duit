@@ -122,7 +122,7 @@ export function ReportIssueCard({ notify }: { notify: Notify }) {
             id="issue-message"
             className="input"
             rows={4}
-            placeholder="Apa yang terjadi, langkah untuk mengulanginya, apa yang kamu harapkan"
+            placeholder="Ada bug, kritik, atau ide baru nih? Ceritakan apa yang terjadi dan langkah-langkahnya ya..."
             value={message}
             onChange={(e) => setMessage(e.target.value)}
           />
@@ -154,7 +154,7 @@ export function ReportIssueCard({ notify }: { notify: Notify }) {
         </div>
       </div>
       <p className="muted small">
-        Laporan akan langsung terkirim ke panel Admin pemilik website, atau Anda juga dapat menyalinnya sebagai teks.
+        Laporanmu bakal langsung masuk ke admin website ini, atau kamu juga bisa salin teksnya.
       </p>
     </section>
   )

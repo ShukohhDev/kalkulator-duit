@@ -81,8 +81,7 @@ export function SeasonalPanel({ state, derived, update, notify }: Props) {
       <header className="card-head">
         <h2>Dana Musiman</h2>
         <span className="muted small">
-          wadah terpisah dari Target Tabungan: tanpa bunga, untuk lebaran/sekolah/liburan. Kumpulkan sampai target
-          atau tanggalnya tiba
+          pos khusus buat momen spesial: lebaran, liburan, atau uang semesteran
         </span>
       </header>
 
@@ -143,9 +142,9 @@ export function SeasonalPanel({ state, derived, update, notify }: Props) {
                   {item.target > 0
                     ? remaining > 0
                       ? ` · kurang ${formatIDR(remaining)} lagi`
-                      : ' · target tercapai!'
+                      : ' · asik, target udah tembus!'
                     : ''}
-                  {daysLeft !== null ? (daysLeft > 0 ? ` · ${daysLeft} hari lagi` : ' · tanggalnya sudah tiba') : ''}
+                  {daysLeft !== null ? (daysLeft > 0 ? ` · ${daysLeft} hari lagi` : ' · waktunya sudah tiba!') : ''}
                 </span>
                 {logged > 0 && (
                   <span className="muted small">
@@ -192,7 +191,7 @@ export function SeasonalPanel({ state, derived, update, notify }: Props) {
         + Tambah dana musiman
       </button>
       {state.seasonal.length === 0 && (
-        <p className="muted small">Belum ada dana musiman. Buat wadah untuk lebaran, uang sekolah, atau liburan.</p>
+        <p className="muted small">Belum ada pos dana musiman nih. Siapin pos buat lebaran, liburan, atau uang semesteran di sini.</p>
       )}
     </section>
   )

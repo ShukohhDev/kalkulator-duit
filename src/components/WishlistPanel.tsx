@@ -57,7 +57,7 @@ export function WishlistPanel({ state, derived, update }: Props) {
     <section className="card">
       <header className="card-head">
         <h2>Wishlist / Incaran Beli</h2>
-        <span className="muted small">berbeda dari Target Tabungan: tanpa bunga dan tanpa umur target, kumpulkan sampai cukup harga barang</span>
+        <span className="muted small">nabung santai buat beli barang impian tanpa beban target waktu</span>
       </header>
 
       <div className="goal-list">
@@ -101,7 +101,7 @@ export function WishlistPanel({ state, derived, update }: Props) {
                   {item.price > 0
                     ? remaining > 0
                       ? ` · kurang ${formatIDR(remaining)} lagi`
-                      : ' · sudah cukup, tinggal beli!'
+                      : ' · hore udah cukup, tinggal beli!'
                     : ''}
                 </span>
                 {logged > 0 && (
@@ -115,7 +115,7 @@ export function WishlistPanel({ state, derived, update }: Props) {
                 <MoneyInput
                   value={deposits[item.id] ?? 0}
                   onValueChange={(value) => setDeposits((prev) => ({ ...prev, [item.id]: value }))}
-                  placeholder="Nominal setoran"
+                  placeholder="Mau setor berapa?"
                 />
                 <button
                   type="button"
@@ -135,7 +135,7 @@ export function WishlistPanel({ state, derived, update }: Props) {
         + Tambah incaran baru
       </button>
       {state.wishlist.length === 0 && (
-        <p className="muted small">Belum ada incaran. Tambahkan barang yang ingin kamu beli (game, HP, dll).</p>
+        <p className="muted small">Belum ada incaran nih. Masukin barang idaman yang lagi kamu kepengen (game, gadget, sepatu, dll).</p>
       )}
     </section>
   )

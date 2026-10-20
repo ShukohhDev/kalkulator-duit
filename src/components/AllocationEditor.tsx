@@ -372,12 +372,12 @@ export function AllocationEditor({ state, update, onDone }: Props) {
       </div>
 
       <div className="alloc-legend muted small">
-        <span>Sel angka berwarna biru = nilai yang bisa kamu ubah. Total dan cek dihitung otomatis.</span>
-        <span>Kategori opsional yang dimatikan: persentasenya dibagi proporsional ke kategori lain, sehingga total tetap 100%.</span>
-        <span>Kurangi menyetel persen ke 0; riwayat catatan tetap aman.</span>
+        <span>Kolom angka di atas bisa kamu atur sesukamu. Total persen bakal kehitung otomatis.</span>
+        <span>Kategori opsional yang dimatikan bakal otomatis dibagi rata ke kategori lain biar pas 100%.</span>
+        <span>Tombol kurangi bakal ngeset persen jadi 0, tapi riwayat transaksi lamamu tetap aman kok.</span>
         <span>
-          Jenis menentukan sisa uang periode lalu: <strong>Harian</strong> dibawa ke periode berikut,{' '}
-          <strong>Keinginan</strong> ditawarkan pindah ke tabungan, <strong>Tabungan</strong> menumpuk natural.
+          Jenis menentukan sisa uang periode lalu: <strong>Harian</strong> dibawa ke periode depan,{' '}
+          <strong>Keinginan</strong> ditawarkan masuk tabungan, <strong>Tabungan</strong> nambah terus secara natural.
         </span>
       </div>
 

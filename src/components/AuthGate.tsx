@@ -65,10 +65,10 @@ export function AuthGate({ onAuthed }: AuthGateProps) {
         <h2 className="auth-title">{mode === 'daftar' ? 'Buat Akun' : 'Selamat Datang'}</h2>
         <p className="auth-sub">
           {first
-            ? 'Buat akun untuk memisahkan data tiap pengguna di perangkat ini.'
+            ? 'Bikin akun dulu yuk, biar catatan keuanganmu tersimpan rapi dan aman.'
             : mode === 'masuk'
             ? 'Login dengan akun yang sudah anda daftarkan.'
-            : 'Daftarkan akun baru di perangkat ini.'}
+            : 'Bikin akun baru di sini yuk, praktis dan cepat!'}
         </p>
 
         {/* Mode toggle */}

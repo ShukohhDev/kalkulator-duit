@@ -26,7 +26,7 @@ export function ActivityPanel({ state }: { state: AppState }) {
         <span className="muted small">{items.length} entri</span>
       </header>
       {items.length === 0 ? (
-        <p className="empty">Belum ada aktivitas. Catatan pemasukan, pengeluaran, dan login muncul di sini.</p>
+        <p className="empty">Belum ada riwayat aktivitas nih. Transaksi masuk, keluar, dan login kamu bakal nongol di sini.</p>
       ) : (
         <ul className="activity-list">
           {items.map((item) => (

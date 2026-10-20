@@ -72,7 +72,7 @@ export function SavingsPanel({ state, derived, update }: Props) {
     <section className="card">
       <header className="card-head">
         <h2>Target Tabungan</h2>
-        <span className="muted small">bunga 8% per tahun, terpisah dari wishlist</span>
+        <span className="muted small">estimasi bunga ~8% per tahun buat bantu wujudin impianmu</span>
       </header>
 
       <div className="field field-inline">
@@ -86,7 +86,7 @@ export function SavingsPanel({ state, derived, update }: Props) {
           value={state.currentAge}
           onChange={(e) => update((s) => ({ ...s, currentAge: Math.max(1, Number(e.target.value) || 1) }))}
         />
-        <span className="muted small">tahun, target minimal umur 18 (sudah punya KTP)</span>
+        <span className="muted small">tahun (minimal target umur 18 ya)</span>
       </div>
 
       <div className="goal-list">
@@ -158,7 +158,7 @@ export function SavingsPanel({ state, derived, update }: Props) {
                 <ProgressBar value={savedNow} max={goal.target} />
                 <span className="muted small">
                   {formatIDR(savedNow)} / {formatIDR(goal.target)} ({percent}%)
-                  {months > 0 ? ` · ${formatDuration(months)} lagi` : ' · umur target sudah terlampaui'}
+                  {months > 0 ? ` · ${formatDuration(months)} lagi` : ' · umur target sudah lewat nih'}
                 </span>
                 {logged > 0 && (
                   <span className="muted small">
@@ -175,7 +175,7 @@ export function SavingsPanel({ state, derived, update }: Props) {
       <button type="button" className="btn btn-ghost" onClick={addGoal}>
         + Tambah target baru
       </button>
-      {state.goals.length === 0 && <p className="muted small">Belum ada target. Buat satu untuk mulai menghitung bunga 8% per tahun.</p>}
+      {state.goals.length === 0 && <p className="muted small">Belum ada target tabungan nih. Bikin satu yuk biar semangat nabungnya!</p>}
 
       {recommendations.map(({ goal, calc }) => (
         <div className="recommend" key={goal.id}>
@@ -193,7 +193,7 @@ export function SavingsPanel({ state, derived, update }: Props) {
               <span>Perkiraan tercapai</span>
               <strong>
                 {calc.projected === null
-                  ? 'Tidak tercapai (belum ada setoran/saldo)'
+                  ? 'Belum kehitung (masukin setoran dulu yuk)'
                   : calc.projected === 0
                     ? 'Sudah tercapai'
                     : `umur ${ageAfter(state.currentAge, calc.projected).label} (${formatDuration(calc.projected)})`}
@@ -210,7 +210,7 @@ export function SavingsPanel({ state, derived, update }: Props) {
         </div>
       ))}
       {state.goals.length > 0 && recommendations.length === 0 && (
-        <p className="muted small">Belum ada target aktif yang bisa dihitung. Aktifkan salah satu di atas.</p>
+        <p className="muted small">Belum ada target aktif yang bisa dihitung nih. Coba aktifkan salah satu target di atas ya.</p>
       )}
     </section>
   )

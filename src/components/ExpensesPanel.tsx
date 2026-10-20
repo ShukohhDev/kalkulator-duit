@@ -294,7 +294,7 @@ export function ExpensesPanel({ state, update, notify }: Props) {
           </CustomSelect>
           {isSavingsOrEmergencyCategory(categoryId, state.categories) && (
             <p className="small" style={{ color: 'var(--primary)', margin: '4px 0 0 0' }}>
-              Pengeluaran kategori ini memotong saldo Tabungan Akhir Periode (saldo saat ini: {formatIDR(state.endSavings)}).
+              Pengeluaran di kategori ini otomatis motong Tabungan Akhir Periode kamu ya (saldo saat ini: {formatIDR(state.endSavings)}).
             </p>
           )}
           <button type="button" className="link" onClick={() => setShowCategoryForm((v) => !v)}>
@@ -331,7 +331,7 @@ export function ExpensesPanel({ state, update, notify }: Props) {
                 </option>
               ))}
             </CustomSelect>
-            <span className="muted small">Saldo tabungan/incaran yang dipilih ikut bertambah.</span>
+            <span className="muted small">Saldo tabungan/incaran yang kamu pilih otomatis ikut nambah.</span>
           </div>
         )}
 

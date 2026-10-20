@@ -137,9 +137,9 @@ export function DataControls({
   }
 
   const reset = () => {
-    if (window.confirm('Hapus semua data (uang jajan, pengeluaran, target)? Tindakan ini tidak bisa dibatalkan.')) {
+    if (window.confirm('Yakin mau hapus semua data (uang jajan, catatan belanja, target nabung)? Tindakan ini gak bisa dibatalkan ya.')) {
       onReset()
-      notify('Semua data dihapus.')
+      notify('Semua data berhasil dibersihkan.')
     }
   }
 
@@ -157,7 +157,7 @@ export function DataControls({
 
   const handleManualPull = async () => {
     if (!onPullNow || syncBusy) return
-    if (!window.confirm('Muat data terbaru dari cloud? Data lokal yang belum terunggah akan digantikan.')) return
+    if (!window.confirm('Muat data terbaru dari cloud? Catatan lokal yang belum tersinkron bakal ditimpa data cloud ya.')) return
     setSyncBusy(true)
     const ok = await onPullNow()
     setSyncBusy(false)

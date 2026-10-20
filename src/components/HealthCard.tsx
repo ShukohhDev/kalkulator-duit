@@ -59,7 +59,7 @@ export function HealthCard({ state, derived }: { state: AppState; derived: Deriv
             {result.grade}
           </p>
           <p className="muted small" style={{ margin: 0, lineHeight: 1.5 }}>
-            Skor ini berdasarkan alokasi, penghematan, tabungan, dan keseimbangan keuanganmu.
+            Skor ini dinilai otomatis dari caramu ngatur alokasi, nabung, dan nahan pengeluaran.
           </p>
         </div>
       </div>
