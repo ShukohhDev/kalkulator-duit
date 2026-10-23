@@ -57,6 +57,7 @@ import { WalletCards } from './components/WalletCards'
 import { WishlistPanel } from './components/WishlistPanel'
 import { PwaInstallCard } from './components/PwaInstallCard'
 import { ShoppingListCard } from './components/ShoppingListCard'
+import { ThemePickerCard } from './components/ThemePickerCard'
 import { WeekCard } from './components/WeekCard'
 import { ICON_BELL, NAV_SVG_ICONS } from './components/icons'
 
@@ -209,7 +210,8 @@ function AppShell({ user, onLogout }: { user: string; onLogout: () => void }) {
 
   useEffect(() => {
     document.documentElement.dataset.theme = state.theme
-  }, [state.theme])
+    document.documentElement.dataset.colorTheme = state.colorTheme ?? 'emerald'
+  }, [state.theme, state.colorTheme])
 
   useEffect(() => () => window.clearTimeout(toastTimer.current), [])
 
@@ -519,7 +521,7 @@ function AppShell({ user, onLogout }: { user: string; onLogout: () => void }) {
       />
 
       {!openPanel && (
-        <main className="front" id="nav-beranda">
+        <main className="front beranda-front" id="nav-beranda">
           <div className="panel-hero-banner">
             <div className="panel-hero-main">
               <div className="panel-hero-icon">{NAV_SVG_ICONS['nav-beranda']}</div>
@@ -532,14 +534,20 @@ function AppShell({ user, onLogout }: { user: string; onLogout: () => void }) {
               <span>{state.mode === 'week' ? 'Periode Mingguan' : 'Periode Bulanan'}</span>
             </div>
           </div>
-          <TotalAsetCard state={state} />
           <AlertsPanel alerts={alerts} />
-          <AllowanceCard state={state} derived={derived} update={update} notify={notify} onChangePeriod={() => setPickerOpen(true)} />
-          <WeekCard state={state} derived={derived} notify={notify} />
-          <WalletCards state={state} derived={derived} />
-          <InsightsPanel insights={insights} />
-          <TipsPanel tips={tips} />
-          <ChallengeCard state={state} derived={derived} />
+          <div className="beranda-grid">
+            <div className="beranda-col-main">
+              <WeekCard state={state} derived={derived} notify={notify} />
+              <AllowanceCard state={state} derived={derived} update={update} notify={notify} onChangePeriod={() => setPickerOpen(true)} />
+              <WalletCards state={state} derived={derived} />
+            </div>
+            <aside className="beranda-col-side">
+              <TotalAsetCard state={state} />
+              <InsightsPanel insights={insights} />
+              <ChallengeCard state={state} derived={derived} />
+              <TipsPanel tips={tips} />
+            </aside>
+          </div>
         </main>
       )}
 
@@ -556,9 +564,9 @@ function AppShell({ user, onLogout }: { user: string; onLogout: () => void }) {
             <span>{state.expenses.length} pengeluaran · {state.incomes.length} pemasukan</span>
           </div>
         </div>
-        <ShoppingListCard state={state} update={update} notify={notify} />
         <ExpensesPanel state={state} update={update} notify={notify} />
         <IncomePanel state={state} update={update} notify={notify} />
+        <ShoppingListCard state={state} update={update} notify={notify} />
       </div>
       <div id="nav-kewajiban" className={sectionClass('nav-kewajiban')}>
         <div className="panel-hero-banner">
@@ -643,6 +651,12 @@ function AppShell({ user, onLogout }: { user: string; onLogout: () => void }) {
             <span>Akun: {user}</span>
           </div>
         </div>
+        <ThemePickerCard
+          colorTheme={state.colorTheme ?? 'emerald'}
+          themeMode={state.theme}
+          onColorThemeChange={(colorTheme) => update((s) => ({ ...s, colorTheme }))}
+          onThemeModeChange={(theme) => update((s) => ({ ...s, theme }))}
+        />
         <ReportIssueCard notify={notify} />
         <AccountSecurityCard username={user} notify={notify} />
         <PwaInstallCard notify={notify} />

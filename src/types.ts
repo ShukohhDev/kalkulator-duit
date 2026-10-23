@@ -2,6 +2,8 @@ export type PeriodMode = 'week' | 'month'
 
 export type Theme = 'light' | 'dark'
 
+export type ColorTheme = 'emerald' | 'sage' | 'nordic'
+
 export type ProfileId = 'tinggal-rumah' | 'tinggal-kos'
 
 // jenis kategori untuk perilaku sisa uang: harian dibawa ke periode berikutnya,
@@ -124,6 +126,7 @@ export interface AppState {
   wallets: Wallet[]
   currentAge: number
   theme: Theme
+  colorTheme?: ColorTheme
   activity: ActivityEntry[]
   endSavings: number
   periodKey: string

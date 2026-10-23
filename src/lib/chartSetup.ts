@@ -28,7 +28,7 @@ ChartJS.register(
 )
 
 export const CHART_FONT = {
-  family: "'Segoe UI Variable Text', 'Segoe UI', -apple-system, BlinkMacSystemFont, 'Roboto', sans-serif",
+  family: "'Plus Jakarta Sans', 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif",
   size: 12,
 }
 

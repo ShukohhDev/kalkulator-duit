@@ -102,6 +102,7 @@ export function initialState(): AppState {
     wallets: defaultWallets(),
     currentAge: 17,
     theme: 'light',
+    colorTheme: 'emerald',
     activity: [],
     endSavings: 0,
     periodKey: '',
