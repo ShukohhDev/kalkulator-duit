@@ -84,6 +84,61 @@ describe('sapuan akhir periode ke pot tabungan', () => {
     })
     expect(sweepTransition(state, CUR).endSavings).toBe(0)
   })
+
+  it('mengurangi lebihan kategori yang melebihi batas dari sisa kategori lainnya (sesuai contoh user)', () => {
+    // 200.000 dengan:
+    // makan 73.000 (ratio 0.365), spent 80.000 -> overspent 7.000
+    // transport 42.500 (ratio 0.2125), spent 50.000 -> overspent 7.500
+    // nongkrong 52.000 (ratio 0.26), spent 35.000 -> surplus 17.000
+    // dana darurat 11.000 (ratio 0.055), spent 25.000 -> overspent 14.000
+    // tabungan 21.500 (ratio 0.1075), spent 0 -> surplus 21.500
+    // Total overspent = 7.000 + 7.500 + 14.000 = 28.500
+    // Total surplus = 17.000 + 21.500 = 38.500
+    // Bersih disapu = 38.500 - 28.500 = 10.000
+    const state = stateWith({
+      mode: 'week',
+      allowance: 200_000,
+      periodKey: PREV.startISO,
+      endSavings: 0,
+      categories: [
+        { id: 'makan', name: 'Makan & minum', ratio: 73_000 / 200_000, builtin: true, color: '#1' },
+        { id: 'transport', name: 'Transportasi/bensin', ratio: 42_500 / 200_000, builtin: true, color: '#2' },
+        { id: 'nongkrong', name: 'Nongkrong & ngopi', ratio: 52_000 / 200_000, builtin: true, color: '#3' },
+        { id: 'dana-darurat', name: 'Dana darurat', ratio: 11_000 / 200_000, builtin: true, color: '#4' },
+        { id: 'tabungan', name: 'Ditabung', ratio: 21_500 / 200_000, builtin: true, color: '#5' },
+      ],
+      expenses: [
+        { id: 'e1', date: '2026-10-01', categoryId: 'makan', note: '', amount: 80_000 },
+        { id: 'e2', date: '2026-10-01', categoryId: 'transport', note: '', amount: 50_000 },
+        { id: 'e3', date: '2026-10-01', categoryId: 'nongkrong', note: '', amount: 35_000 },
+        { id: 'e4', date: '2026-10-01', categoryId: 'dana-darurat', note: '', amount: 25_000 },
+      ],
+    })
+
+    const next = sweepTransition(state, CUR)
+    expect(next.endSavings).toBe(10_000)
+  })
+
+  it('jika total lebihan lebih besar dari sisa, pot tabungan tidak berkurang di bawah 0', () => {
+    const state = stateWith({
+      mode: 'week',
+      allowance: 100_000,
+      periodKey: PREV.startISO,
+      endSavings: 50_000,
+      categories: [
+        { id: 'makan', name: 'Makan', ratio: 0.5, builtin: true, color: '#1' },
+        { id: 'nongkrong', name: 'Nongkrong', ratio: 0.5, builtin: true, color: '#2' },
+      ],
+      expenses: [
+        { id: 'e1', date: '2026-10-01', categoryId: 'makan', note: '', amount: 90_000 }, // lebih 40.000
+        { id: 'e2', date: '2026-10-01', categoryId: 'nongkrong', note: '', amount: 20_000 }, // sisa 30.000
+      ],
+    })
+
+    // surplus 30.000 - overspent 40.000 = -10.000 -> disapu 0
+    const next = sweepTransition(state, CUR)
+    expect(next.endSavings).toBe(50_000)
+  })
 })
 
 describe('derive tanpa rollover', () => {
