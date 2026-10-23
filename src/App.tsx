@@ -110,6 +110,7 @@ function AppShell({ user, onLogout }: { user: string; onLogout: () => void }) {
 
   const [notifications, setNotifications] = useState<NotificationItem[]>([])
   const [notifOpen, setNotifOpen] = useState(false)
+  const [catatView, setCatatView] = useState<'all' | 'expenses' | 'income'>('all')
 
   const [isScrolled, setIsScrolled] = useState(false)
   const [isDesktop, setIsDesktop] = useState(() => {
@@ -568,8 +569,44 @@ function AppShell({ user, onLogout }: { user: string; onLogout: () => void }) {
             <span>{state.expenses.length} pengeluaran · {state.incomes.length} pemasukan</span>
           </div>
         </div>
-        <ExpensesPanel state={state} update={update} notify={notify} />
-        <IncomePanel state={state} update={update} notify={notify} />
+        <div className="catat-mobile-switch" role="tablist" aria-label="Pilihan tampilan pencatatan">
+          <button
+            type="button"
+            role="tab"
+            aria-selected={catatView === 'all'}
+            className={`catat-switch-btn ${catatView === 'all' ? 'active' : ''}`}
+            onClick={() => setCatatView('all')}
+          >
+            Semua
+          </button>
+          <button
+            type="button"
+            role="tab"
+            aria-selected={catatView === 'expenses'}
+            className={`catat-switch-btn ${catatView === 'expenses' ? 'active' : ''}`}
+            onClick={() => setCatatView('expenses')}
+          >
+            Pengeluaran
+          </button>
+          <button
+            type="button"
+            role="tab"
+            aria-selected={catatView === 'income'}
+            className={`catat-switch-btn ${catatView === 'income' ? 'active' : ''}`}
+            onClick={() => setCatatView('income')}
+          >
+            Pemasukan
+          </button>
+        </div>
+
+        <div className={`catat-split-grid show-${catatView}`}>
+          <div className="catat-column catat-col-expenses">
+            <ExpensesPanel state={state} update={update} notify={notify} />
+          </div>
+          <div className="catat-column catat-col-income">
+            <IncomePanel state={state} update={update} notify={notify} />
+          </div>
+        </div>
         <ShoppingListCard state={state} update={update} notify={notify} />
       </div>
       <div id="nav-kewajiban" className={sectionClass('nav-kewajiban')}>
