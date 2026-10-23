@@ -139,6 +139,29 @@ describe('sapuan akhir periode ke pot tabungan', () => {
     const next = sweepTransition(state, CUR)
     expect(next.endSavings).toBe(50_000)
   })
+
+  it('sapuan akhir periode masuk ke dompet pilihan pengguna (misal Rekening bank)', () => {
+    const state = stateWith({
+      mode: 'week',
+      allowance: 700_000,
+      periodKey: PREV.startISO,
+      endSavings: 10_000,
+      endSavingsTargetWalletId: 'wallet-rekening',
+      wallets: [
+        { id: 'wallet-rekening', name: 'Rekening bank', balance: 100_000 },
+        { id: 'wallet-ewallet', name: 'E-wallet', balance: 50_000 },
+      ],
+      expenses: [
+        { id: 'e1', date: '2026-10-01', categoryId: 'makan', note: '', amount: 150_000 },
+      ],
+    })
+    const next = sweepTransition(state, CUR)
+    // netSwept = 550.000 (700.000 alokasi − 150.000 belanja)
+    // saldo rekening bank bertambah 100.000 + 550.000 = 650.000
+    const rekening = next.wallets.find((w) => w.id === 'wallet-rekening')
+    expect(rekening?.balance).toBe(650_000)
+    expect(next.endSavings).toBe(560_000)
+  })
 })
 
 describe('derive tanpa rollover', () => {

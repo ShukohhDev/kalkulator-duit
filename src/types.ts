@@ -129,6 +129,7 @@ export interface AppState {
   colorTheme?: ColorTheme
   activity: ActivityEntry[]
   endSavings: number
+  endSavingsTargetWalletId?: string
   periodKey: string
   shoppingList?: ShoppingItem[]
 }

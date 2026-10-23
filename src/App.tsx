@@ -673,7 +673,7 @@ function AppShell({ user, onLogout }: { user: string; onLogout: () => void }) {
         {/* Baris 1: Tabungan Akhir Periode (Kiri) & Dompet / E-wallet (Kanan) */}
         <div className="tabungan-split-grid">
           <div className="tabungan-col tabungan-col-left">
-            <EndSavingsCard state={state} />
+            <EndSavingsCard state={state} update={update} notify={notify} />
           </div>
           <div className="tabungan-col tabungan-col-right">
             <DompetPanel state={state} update={update} />

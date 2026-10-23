@@ -71,7 +71,12 @@ export function DompetPanel({ state, update }: Props) {
 
   const removeWallet = (id: string) => {
     if (id === END_SAVINGS_WALLET_ID) return
-    update((s) => ({ ...s, wallets: s.wallets.filter((wallet) => wallet.id !== id) }))
+    update((s) => ({
+      ...s,
+      wallets: s.wallets.filter((wallet) => wallet.id !== id),
+      endSavingsTargetWalletId:
+        s.endSavingsTargetWalletId === id ? END_SAVINGS_WALLET_ID : s.endSavingsTargetWalletId,
+    }))
   }
 
   return (
@@ -110,6 +115,7 @@ export function DompetPanel({ state, update }: Props) {
       <div className="goal-list">
         {state.wallets.map((wallet) => {
           const isEnd = wallet.id === END_SAVINGS_WALLET_ID
+          const isTarget = (state.endSavingsTargetWalletId ?? END_SAVINGS_WALLET_ID) === wallet.id
           return (
             <article key={wallet.id} className="ob-row">
               <input
@@ -129,15 +135,30 @@ export function DompetPanel({ state, update }: Props) {
                 {isEnd ? (
                   <span
                     className="badge"
-                    title="Saldo otomatis sinkron dengan Tabungan Akhir Periode"
+                    title={
+                      isTarget
+                        ? 'Saldo otomatis sinkron dengan Tabungan Akhir Periode'
+                        : 'Dompet khusus Tabungan Akhir Periode'
+                    }
                     style={{ fontSize: '0.75rem', padding: '4px 8px' }}
                   >
-                    Otomatis
+                    {isTarget ? 'Otomatis' : 'Khusus'}
                   </span>
                 ) : (
-                  <button type="button" className="btn btn-ghost btn-sm btn-danger" onClick={() => removeWallet(wallet.id)}>
-                    Hapus
-                  </button>
+                  <>
+                    {isTarget && (
+                      <span
+                        className="badge badge-accent"
+                        title="Dompet ini dipilih sebagai tujuan alokasi Tabungan Akhir Periode"
+                        style={{ fontSize: '0.75rem', padding: '4px 8px', marginRight: 4 }}
+                      >
+                        Tujuan Tabungan
+                      </span>
+                    )}
+                    <button type="button" className="btn btn-ghost btn-sm btn-danger" onClick={() => removeWallet(wallet.id)}>
+                      Hapus
+                    </button>
+                  </>
                 )}
               </div>
             </article>

@@ -1,5 +1,5 @@
 import type { ActivityEntry, AppState, Bill, Category, CategoryKind, ColorTheme, Debt, Expense, Goal, Income, PeriodMode, SeasonalFund, ShoppingItem, WishlistItem } from '../types'
-import { initialState, defaultCategories, defaultWallets, syncEndSavingsWallet, PULSA_CATEGORY, CICILAN_CATEGORY, TAGIHAN_CATEGORY } from './state'
+import { initialState, defaultCategories, defaultWallets, syncEndSavingsWallet, END_SAVINGS_WALLET_ID, PULSA_CATEGORY, CICILAN_CATEGORY, TAGIHAN_CATEGORY } from './state'
 import { migrateProfileId } from './profiles'
 import { currentUser } from './auth'
 import { MAX_ACTIVITY } from './activity'
@@ -297,8 +297,12 @@ export function sanitize(raw: unknown): AppState {
   const periodKey = str(data.periodKey)
 
   const endSavings = Math.max(0, num(data.endSavings, legacyEndSavings(data)))
+  const endSavingsTargetWalletId =
+    typeof data.endSavingsTargetWalletId === 'string' && data.endSavingsTargetWalletId.trim().length > 0
+      ? data.endSavingsTargetWalletId
+      : END_SAVINGS_WALLET_ID
   const rawWallets = Array.isArray(data.wallets) ? sanitizeWallets(data.wallets) : defaultWallets()
-  const wallets = syncEndSavingsWallet(rawWallets, endSavings)
+  const wallets = syncEndSavingsWallet(rawWallets, endSavings, endSavingsTargetWalletId)
 
   const state: AppState = {
     version: 1,
@@ -323,6 +327,7 @@ export function sanitize(raw: unknown): AppState {
     colorTheme: isColorTheme(data.colorTheme) ? data.colorTheme : 'emerald',
     activity: sanitizeActivity(data.activity),
     endSavings,
+    endSavingsTargetWalletId,
     periodKey: /^\d{4}-\d{2}-\d{2}$/.test(periodKey) ? periodKey : '',
     shoppingList: sanitizeShoppingList(data.shoppingList),
   }

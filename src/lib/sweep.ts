@@ -1,7 +1,7 @@
 import type { AppState, PeriodMode } from '../types'
 import { allocationFor, periodRange, type PeriodRange } from './allocation'
 import { addDays } from './money'
-import { syncEndSavingsWallet } from './state'
+import { syncEndSavingsWallet, END_SAVINGS_WALLET_ID } from './state'
 
 function previousPeriod(mode: PeriodMode, current: PeriodRange): PeriodRange {
   if (mode === 'week') return periodRange('week', addDays(current.start, -1))
@@ -81,7 +81,8 @@ export function calculateSweep(state: AppState, fromISO: string, toISO: string):
 }
 
 // Sisa uang jajan periode lalu dihitung dengan mengurangi kartu saku yang sisa
-// dengan kartu saku yang melebihi batas (overspent). Hasil bersih positif disapu ke Tabungan akhir periode.
+// dengan kartu saku yang melebihi batas (overspent). Hasil bersih positif disapu ke Tabungan akhir periode
+// atau disetorkan ke dompet tujuan yang dipilih pengguna.
 export function sweepTransition(state: AppState, period: PeriodRange): AppState {
   if (!state.mode) return state
   const key = period.startISO
@@ -91,12 +92,30 @@ export function sweepTransition(state: AppState, period: PeriodRange): AppState 
 
   const prev = previousPeriod(state.mode, period)
   const { netSwept } = calculateSweep(state, prev.startISO, prev.endISO)
-  const nextEndSavings = state.endSavings + Math.round(netSwept)
+  const roundedSwept = Math.round(netSwept)
+  const nextEndSavings = state.endSavings + roundedSwept
+
+  const targetId = state.endSavingsTargetWalletId ?? END_SAVINGS_WALLET_ID
+  let nextWallets = state.wallets
+
+  if (targetId === END_SAVINGS_WALLET_ID) {
+    nextWallets = syncEndSavingsWallet(nextWallets, nextEndSavings, targetId)
+  } else {
+    const targetExists = nextWallets.some((w) => w.id === targetId)
+    if (targetExists) {
+      nextWallets = nextWallets.map((w) =>
+        w.id === targetId ? { ...w, balance: w.balance + roundedSwept } : w,
+      )
+      nextWallets = syncEndSavingsWallet(nextWallets, state.endSavings, targetId)
+    } else {
+      nextWallets = syncEndSavingsWallet(nextWallets, nextEndSavings, END_SAVINGS_WALLET_ID)
+    }
+  }
 
   return {
     ...state,
     periodKey: key,
     endSavings: nextEndSavings,
-    wallets: syncEndSavingsWallet(state.wallets, nextEndSavings),
+    wallets: nextWallets,
   }
 }

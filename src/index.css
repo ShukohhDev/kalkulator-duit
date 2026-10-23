@@ -5930,6 +5930,48 @@ select.input {
   }
 }
 
+/* =========================================================
+   TABUNGAN AKHIR PERIODE: PILIHAN DOMPET & PEMINDAHAN SALDO
+   ========================================================= */
+
+.end-savings-target-box {
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 12px;
+}
+
+.end-savings-target-box select.input {
+  background: var(--surface);
+  color: var(--text);
+  border-color: var(--border);
+}
+
+.end-savings-actions {
+  display: flex;
+  flex-direction: column;
+}
+
+.btn-transfer-savings {
+  border: 1px dashed var(--border-accent, var(--accent));
+  color: var(--accent);
+  font-weight: 500;
+  transition: all var(--t-fast);
+}
+
+.btn-transfer-savings:hover {
+  background: var(--surface-2);
+  border-color: var(--accent);
+}
+
+.transfer-form-card {
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 14px;
+  animation: pop-in 0.18s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
 
 
 

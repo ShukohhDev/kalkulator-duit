@@ -76,15 +76,33 @@ export function defaultWallets(): AppState['wallets'] {
   ]
 }
 
-export function syncEndSavingsWallet(wallets: Wallet[], endSavings: number): Wallet[] {
+export function syncEndSavingsWallet(
+  wallets: Wallet[],
+  endSavings: number,
+  targetWalletId: string = END_SAVINGS_WALLET_ID,
+): Wallet[] {
   const amount = Math.max(0, endSavings)
+  const isEndSpecial = !targetWalletId || targetWalletId === END_SAVINGS_WALLET_ID
   const exists = wallets.some((w) => w.id === END_SAVINGS_WALLET_ID)
   if (exists) {
     return wallets.map((w) =>
-      w.id === END_SAVINGS_WALLET_ID ? { ...w, name: 'Tabungan Akhir Periode', balance: amount } : w,
+      w.id === END_SAVINGS_WALLET_ID
+        ? {
+            ...w,
+            name: 'Tabungan Akhir Periode',
+            balance: isEndSpecial ? amount : Math.min(w.balance, amount),
+          }
+        : w,
     )
   }
-  return [...wallets, { id: END_SAVINGS_WALLET_ID, name: 'Tabungan Akhir Periode', balance: amount }]
+  return [
+    ...wallets,
+    {
+      id: END_SAVINGS_WALLET_ID,
+      name: 'Tabungan Akhir Periode',
+      balance: isEndSpecial ? amount : 0,
+    },
+  ]
 }
 
 export function primaryGoal(goals: Goal[]): Goal | undefined {
@@ -119,6 +137,7 @@ export function initialState(): AppState {
     colorTheme: 'emerald',
     activity: [],
     endSavings: 0,
+    endSavingsTargetWalletId: END_SAVINGS_WALLET_ID,
     periodKey: '',
     shoppingList: [],
   }

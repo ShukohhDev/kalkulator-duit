@@ -259,6 +259,52 @@ describe('alur aplikasi', () => {
     expect(endSavingsRow.querySelector('.btn-danger')).toBeNull()
   })
 
+  it('pengguna dapat memilih dompet tujuan untuk tabungan akhir periode dan memindahkan saldo ke dompet lain', () => {
+    click('.period-option')
+
+    // Buka halaman Tabungan
+    clickText('.nav-chip', 'Tabungan')
+
+    // Set saldo awal tabungan akhir periode lewat input dompet khusus
+    setValue('#w-bal-wallet-end-savings', '100000')
+
+    const endSavingsCard = [...container.querySelectorAll('.card')].find((c) =>
+      c.textContent?.includes('Tabungan Akhir Periode') && c.classList.contains('aset-card'),
+    )!
+    expect(endSavingsCard.textContent).toContain('100.000')
+
+    // Cek dropdown pilihan dompet tujuan
+    const targetSelect = endSavingsCard.querySelector('#end-savings-target-select') as HTMLSelectElement
+    expect(targetSelect).toBeTruthy()
+    expect(targetSelect.value).toBe('wallet-end-savings')
+
+    // Buka formulir pemindahan saldo
+    clickText('.btn-transfer-savings', 'Pindahkan Saldo ke Dompet')
+    expect(container.querySelector('.transfer-form-card')).toBeTruthy()
+
+    // Pilih dompet tujuan pemindahan (wallet-ewallet)
+    setSelect('#tf-dest-wallet', 'wallet-ewallet')
+    setValue('#tf-end-savings-amt', '40000')
+
+    // Konfirmasi pemindahan
+    clickText('.btn-confirm-transfer', 'Konfirmasi Pindahkan')
+
+    // Saldo Tabungan Akhir Periode berkurang: 100.000 - 40.000 = 60.000
+    expect(endSavingsCard.textContent).toContain('60.000')
+
+    // Saldo E-wallet bertambah menjadi 40.000
+    const ewalletInput = container.querySelector('#w-bal-wallet-ewallet') as HTMLInputElement
+    expect(ewalletInput.value).toBe('40.000')
+
+    // Ubah dompet tujuan alokasi ke Rekening bank
+    setSelect('#end-savings-target-select', 'wallet-rekening')
+    expect(container.querySelector('.toast')?.textContent).toContain('Rekening bank')
+
+    // Rekening bank kini memiliki badge Tujuan Tabungan di panel dompet
+    const rekeningRow = (container.querySelector('#w-bal-wallet-rekening') as HTMLInputElement).closest('.ob-row')!
+    expect(rekeningRow.textContent).toContain('Tujuan Tabungan')
+  })
+
   it('melampirkan bukti pada pengeluaran lalu menampilkan tombol lihat bukti', async () => {
     click('.period-option')
 
