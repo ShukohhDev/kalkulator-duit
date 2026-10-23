@@ -276,3 +276,25 @@ describe('daftar rencana belanja (shoppingList)', () => {
   })
 })
 
+describe('tema warna tampilan (colorTheme)', () => {
+  it('mempertahankan tema sage dan nordic yang dipilih pengguna', () => {
+    expect(sanitize({ version: 1, colorTheme: 'sage' }).colorTheme).toBe('sage')
+    expect(sanitize({ version: 1, colorTheme: 'nordic' }).colorTheme).toBe('nordic')
+    expect(sanitize({ version: 1, colorTheme: 'emerald' }).colorTheme).toBe('emerald')
+  })
+
+  it('mengembalikan tema default emerald untuk data lama atau nilai tidak valid', () => {
+    expect(sanitize({ version: 1 }).colorTheme).toBe('emerald')
+    expect(sanitize({ version: 1, colorTheme: 'invalid-theme' }).colorTheme).toBe('emerald')
+    expect(sanitize({ version: 1, colorTheme: 123 }).colorTheme).toBe('emerald')
+    expect(sanitize({ version: 1, colorTheme: null }).colorTheme).toBe('emerald')
+  })
+
+  it('idempoten saat diserialisasi dan dideserialisasi ulang', () => {
+    const original = sanitize({ version: 1, colorTheme: 'sage' })
+    const roundtrip = sanitize(JSON.parse(JSON.stringify(original)))
+    expect(roundtrip.colorTheme).toBe('sage')
+  })
+})
+
+

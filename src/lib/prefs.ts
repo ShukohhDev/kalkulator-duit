@@ -1,4 +1,4 @@
-import type { CashflowChartType, CashflowView } from '../types'
+import type { CashflowChartType, CashflowView, ColorTheme, Theme } from '../types'
 import { currentUser } from './auth'
 
 export type WalletCurrency = 'idr' | 'usd'
@@ -12,12 +12,59 @@ export interface Prefs {
   usdRateAt: string
   asetVisible: boolean
   profilePicked: boolean
+  colorTheme?: ColorTheme
+  theme?: Theme
 }
 
 const KEY_BASE = 'kalkulator-duitmu:prefs'
+export const DEVICE_COLOR_THEME_KEY = 'kalkulator-duitmu:device-color-theme'
+export const DEVICE_THEME_KEY = 'kalkulator-duitmu:device-theme'
+
 const VIEWS: CashflowView[] = ['day', 'week', 'month', 'year']
 const CHART_TYPES: CashflowChartType[] = ['bar', 'line', 'donut', 'category']
 const CURRENCIES: WalletCurrency[] = ['idr', 'usd']
+const COLOR_THEMES: ColorTheme[] = ['emerald', 'sage', 'nordic']
+const THEMES: Theme[] = ['light', 'dark']
+
+export function getDeviceColorTheme(): ColorTheme {
+  try {
+    const saved = localStorage.getItem(DEVICE_COLOR_THEME_KEY)
+    if (saved && COLOR_THEMES.includes(saved as ColorTheme)) {
+      return saved as ColorTheme
+    }
+  } catch {
+    // abaikan kesalahan storage
+  }
+  return 'emerald'
+}
+
+export function setDeviceColorTheme(colorTheme: ColorTheme): void {
+  try {
+    localStorage.setItem(DEVICE_COLOR_THEME_KEY, colorTheme)
+  } catch {
+    // abaikan kesalahan storage
+  }
+}
+
+export function getDeviceTheme(): Theme {
+  try {
+    const saved = localStorage.getItem(DEVICE_THEME_KEY)
+    if (saved && THEMES.includes(saved as Theme)) {
+      return saved as Theme
+    }
+  } catch {
+    // abaikan kesalahan storage
+  }
+  return 'light'
+}
+
+export function setDeviceTheme(theme: Theme): void {
+  try {
+    localStorage.setItem(DEVICE_THEME_KEY, theme)
+  } catch {
+    // abaikan kesalahan storage
+  }
+}
 
 // tanpa sesi pakai key lama (jalur sebelum akun terdaftar)
 function prefsKey(): string {
@@ -54,6 +101,8 @@ export function loadPrefs(): Prefs {
       usdRateAt: typeof data.usdRateAt === 'string' ? data.usdRateAt : fallback.usdRateAt,
       asetVisible: typeof data.asetVisible === 'boolean' ? data.asetVisible : fallback.asetVisible,
       profilePicked: typeof data.profilePicked === 'boolean' ? data.profilePicked : fallback.profilePicked,
+      colorTheme: COLOR_THEMES.includes(data.colorTheme as ColorTheme) ? (data.colorTheme as ColorTheme) : undefined,
+      theme: THEMES.includes(data.theme as Theme) ? (data.theme as Theme) : undefined,
     }
   } catch {
     return fallback

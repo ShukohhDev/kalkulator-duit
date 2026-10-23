@@ -4,6 +4,7 @@ import { act } from 'react'
 import { createRoot, type Root } from 'react-dom/client'
 import App from '../App'
 import { register } from '../lib/auth'
+import { loadState } from '../lib/storage'
 import { formatIDR, daysBetween, toISO, addDays } from '../lib/money'
 import { periodRange } from '../lib/allocation'
 import { saveReceipt } from '../lib/receipts'
@@ -812,6 +813,56 @@ describe('akun & catatan aktivitas', () => {
     const newest = container.querySelector('.activity-item')!
     expect(newest.textContent).toContain('Pengeluaran')
     expect(newest.textContent).toContain('bakso')
+  })
+
+  it('tema warna yang dipilih pengguna tetap tersimpan setelah muat ulang dan keluar-masuk akun', async () => {
+    // Navigasi ke Data / Pengaturan
+    click('#nav-data')
+
+    // Pilih tema Cozy Sage
+    const sageOption = [...container.querySelectorAll('.theme-card-option')].find((el) =>
+      el.textContent?.includes('Cozy Sage'),
+    ) as HTMLButtonElement | undefined
+    expect(sageOption).toBeTruthy()
+    act(() => {
+      sageOption!.click()
+    })
+    expect(document.documentElement.dataset.colorTheme).toBe('sage')
+
+    // Verifikasi loadState mempertahankan colorTheme 'sage' (simulasi refresh)
+    const stateAfterSelect = loadState()
+    expect(stateAfterSelect.colorTheme).toBe('sage')
+
+    // Keluar dari akun (logout)
+    clickText('button', 'Keluar')
+    expect(container.querySelector('.auth-gate')).not.toBeNull()
+    // Tampilan di luar akun tetap mempertahankan tema yang telah dipilih
+    expect(document.documentElement.dataset.colorTheme).toBe('sage')
+
+    // Masuk kembali ke akun tester
+    setValue('#auth-user', 'tester')
+    setValue('#auth-pass', 'kata123')
+    const card = container.querySelector('.auth-card') as HTMLFormElement
+    await act(async () => {
+      card.dispatchEvent(new Event('submit', { bubbles: true, cancelable: true }))
+      await new Promise((resolve) => setTimeout(resolve, 20))
+    })
+    expect(container.querySelector('.auth-gate')).toBeNull()
+    // Tema akun tester tetap 'sage'
+    expect(document.documentElement.dataset.colorTheme).toBe('sage')
+    expect(loadState().colorTheme).toBe('sage')
+
+    // Ganti ke Nordic Minimalist
+    click('#nav-data')
+    const nordicOption = [...container.querySelectorAll('.theme-card-option')].find((el) =>
+      el.textContent?.includes('Nordic Minimalist'),
+    ) as HTMLButtonElement | undefined
+    expect(nordicOption).toBeTruthy()
+    act(() => {
+      nordicOption!.click()
+    })
+    expect(document.documentElement.dataset.colorTheme).toBe('nordic')
+    expect(loadState().colorTheme).toBe('nordic')
   })
 })
 

@@ -1,4 +1,4 @@
-import type { ActivityEntry, AppState, Bill, Category, CategoryKind, Debt, Expense, Goal, Income, PeriodMode, SeasonalFund, ShoppingItem, WishlistItem } from '../types'
+import type { ActivityEntry, AppState, Bill, Category, CategoryKind, ColorTheme, Debt, Expense, Goal, Income, PeriodMode, SeasonalFund, ShoppingItem, WishlistItem } from '../types'
 import { initialState, defaultCategories, defaultWallets, syncEndSavingsWallet, PULSA_CATEGORY, CICILAN_CATEGORY, TAGIHAN_CATEGORY } from './state'
 import { migrateProfileId } from './profiles'
 import { currentUser } from './auth'
@@ -12,6 +12,10 @@ const STORAGE_BASE = 'kalkulator-duitmu:v1'
 function stateKey(): string {
   const user = currentUser()
   return user ? `${STORAGE_BASE}:${user}` : STORAGE_BASE
+}
+
+export function isColorTheme(value: unknown): value is ColorTheme {
+  return value === 'emerald' || value === 'sage' || value === 'nordic'
 }
 
 function isPeriodMode(value: unknown): value is PeriodMode {
@@ -316,6 +320,7 @@ export function sanitize(raw: unknown): AppState {
     wallets,
     currentAge: Math.max(1, num(data.currentAge, base.currentAge)),
     theme: data.theme === 'dark' ? 'dark' : 'light',
+    colorTheme: isColorTheme(data.colorTheme) ? data.colorTheme : 'emerald',
     activity: sanitizeActivity(data.activity),
     endSavings,
     periodKey: /^\d{4}-\d{2}-\d{2}$/.test(periodKey) ? periodKey : '',

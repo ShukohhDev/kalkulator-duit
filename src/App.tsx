@@ -14,13 +14,14 @@ import { currentUser, isAdmin, logout as endSession, touchSession } from './lib/
 import { appendActivity } from './lib/activity'
 import { sweepTransition } from './lib/sweep'
 import { refreshUsdRate } from './lib/rates'
+import { getDeviceColorTheme, getDeviceTheme, setDeviceColorTheme, setDeviceTheme } from './lib/prefs'
 import {
   buildUserNotifications,
   markAllNotificationsAsRead,
   markNotificationAsRead,
   type NotificationItem,
 } from './lib/notifications'
-import type { Notify, ProfileId } from './types'
+import type { Notify, ProfileId, Theme } from './types'
 import { ActivityPanel } from './components/ActivityPanel'
 import { AdminPanel } from './components/AdminPanel'
 import { AllowanceCard } from './components/AllowanceCard'
@@ -211,8 +212,11 @@ function AppShell({ user, onLogout }: { user: string; onLogout: () => void }) {
   }
 
   useEffect(() => {
+    const activeColor = state.colorTheme ?? 'emerald'
     document.documentElement.dataset.theme = state.theme
-    document.documentElement.dataset.colorTheme = state.colorTheme ?? 'emerald'
+    document.documentElement.dataset.colorTheme = activeColor
+    setDeviceTheme(state.theme)
+    setDeviceColorTheme(activeColor)
   }, [state.theme, state.colorTheme])
 
   useEffect(() => () => window.clearTimeout(toastTimer.current), [])
@@ -473,7 +477,15 @@ function AppShell({ user, onLogout }: { user: string; onLogout: () => void }) {
           <button
             type="button"
             className="topbar-icon-btn fab-theme"
-            onClick={() => update((s) => ({ ...s, theme: s.theme === 'dark' ? 'light' : 'dark' }))}
+            onClick={() => {
+              const nextTheme: Theme = state.theme === 'dark' ? 'light' : 'dark'
+              update((s) => {
+                const next = { ...s, theme: nextTheme }
+                saveState(next)
+                return next
+              })
+              setDeviceTheme(nextTheme)
+            }}
             aria-label="Ganti tema"
             title={state.theme === 'dark' ? 'Mode terang' : 'Mode gelap'}
           >
@@ -712,8 +724,22 @@ function AppShell({ user, onLogout }: { user: string; onLogout: () => void }) {
         <ThemePickerCard
           colorTheme={state.colorTheme ?? 'emerald'}
           themeMode={state.theme}
-          onColorThemeChange={(colorTheme) => update((s) => ({ ...s, colorTheme }))}
-          onThemeModeChange={(theme) => update((s) => ({ ...s, theme }))}
+          onColorThemeChange={(colorTheme) => {
+            update((s) => {
+              const next = { ...s, colorTheme }
+              saveState(next)
+              return next
+            })
+            setDeviceColorTheme(colorTheme)
+          }}
+          onThemeModeChange={(theme) => {
+            update((s) => {
+              const next = { ...s, theme }
+              saveState(next)
+              return next
+            })
+            setDeviceTheme(theme)
+          }}
         />
         <ReportIssueCard notify={notify} />
         <AccountSecurityCard username={user} notify={notify} />
@@ -797,6 +823,11 @@ function AppShell({ user, onLogout }: { user: string; onLogout: () => void }) {
 
 export default function App() {
   const [user, setUser] = useState(() => currentUser())
+
+  useEffect(() => {
+    document.documentElement.dataset.colorTheme = getDeviceColorTheme()
+    document.documentElement.dataset.theme = getDeviceTheme()
+  }, [])
 
   useEffect(() => {
     const handleSyncSession = () => {
