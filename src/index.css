@@ -5830,6 +5830,54 @@ select.input {
   }
 }
 
+/* =========================================================
+   TATA LETAK KEWAJIBAN BERDAMPINGAN (TAGIHAN KIRI, UTANG KANAN)
+   ========================================================= */
+
+.obligations-wrapper {
+  display: flex;
+  flex-direction: column;
+}
+
+.obligations-top-card {
+  margin-bottom: 20px;
+}
+
+.obligations-split-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: 20px;
+  align-items: start;
+}
+
+.obligations-split-grid .ob-column {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 0;
+}
+
+@media (max-width: 900px) {
+  .obligations-top-card {
+    margin-bottom: 16px;
+  }
+
+  .obligations-split-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+  }
+
+  .obligations-split-grid.show-bills > .ob-col-debts {
+    display: none;
+  }
+
+  .obligations-split-grid.show-debts > .ob-col-bills {
+    display: none;
+  }
+}
+
+
 
 
 

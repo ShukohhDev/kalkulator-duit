@@ -60,6 +60,7 @@ export function ObligationsPanel({ state, update, notify }: Props) {
   const [payingDebtId, setPayingDebtId] = useState<string | null>(null)
   const [debtPayNominal, setDebtPayNominal] = useState<number>(0)
   const [debtPaySource, setDebtPaySource] = useState<string>('none')
+  const [obView, setObView] = useState<'all' | 'bills' | 'debts'>('all')
   const now = nowDate()
 
   const exportIcs = () => {
@@ -206,18 +207,62 @@ export function ObligationsPanel({ state, update, notify }: Props) {
   }
 
   return (
-    <section className="card">
-      <header className="card-head">
-        <h2>Kewajiban</h2>
-        <div className="report-actions no-print">
-          <span className="muted small">pantau tagihan &amp; cicilan biar gak kelupaan</span>
-          <button type="button" className="btn btn-ghost btn-sm" onClick={exportIcs}>
-            Ekspor .ics
-          </button>
-        </div>
-      </header>
+    <div className="obligations-wrapper">
+      <section className="card obligations-top-card">
+        <header className="card-head">
+          <div>
+            <h2>Kewajiban</h2>
+            <p className="muted small" style={{ margin: '4px 0 0 0' }}>
+              pantau tagihan &amp; cicilan biar gak kelupaan
+            </p>
+          </div>
+          <div className="report-actions no-print">
+            <button type="button" className="btn btn-ghost btn-sm" onClick={exportIcs}>
+              Ekspor .ics
+            </button>
+          </div>
+        </header>
+      </section>
 
-      <h3 className="section-title">Tagihan rutin</h3>
+      <div className="catat-mobile-switch" role="tablist" aria-label="Pilihan tampilan kewajiban">
+        <button
+          type="button"
+          role="tab"
+          aria-selected={obView === 'all'}
+          className={`catat-switch-btn ${obView === 'all' ? 'active' : ''}`}
+          onClick={() => setObView('all')}
+        >
+          Semua
+        </button>
+        <button
+          type="button"
+          role="tab"
+          aria-selected={obView === 'bills'}
+          className={`catat-switch-btn ${obView === 'bills' ? 'active' : ''}`}
+          onClick={() => setObView('bills')}
+        >
+          Tagihan Rutin
+        </button>
+        <button
+          type="button"
+          role="tab"
+          aria-selected={obView === 'debts'}
+          className={`catat-switch-btn ${obView === 'debts' ? 'active' : ''}`}
+          onClick={() => setObView('debts')}
+        >
+          Utang Berjalan
+        </button>
+      </div>
+
+      <div className={`obligations-split-grid show-${obView}`}>
+        {/* Kolom Kiri: Tagihan Rutin */}
+        <section className="card ob-column ob-col-bills">
+          <header className="card-head">
+            <div>
+              <h3 className="section-title" style={{ margin: 0 }}>Tagihan rutin</h3>
+              <span className="muted small">{state.bills.length} tagihan</span>
+            </div>
+          </header>
       <div className="goal-list">
         {state.bills.map((bill) => {
           const isPaid = isBillFullyPaidThisMonth(bill, now)
@@ -387,8 +432,16 @@ export function ObligationsPanel({ state, update, notify }: Props) {
           + Tambah tagihan
         </button>
       </form>
+    </section>
 
-      <h3 className="section-title">Utang berjalan</h3>
+    {/* Kolom Kanan: Utang Berjalan */}
+    <section className="card ob-column ob-col-debts">
+      <header className="card-head">
+        <div>
+          <h3 className="section-title" style={{ margin: 0 }}>Utang berjalan</h3>
+          <span className="muted small">{state.debts.length} utang</span>
+        </div>
+      </header>
       <div className="goal-list">
         {state.debts.map((debt) => {
           const remaining = Math.max(0, debt.total - debt.paid)
@@ -553,5 +606,7 @@ export function ObligationsPanel({ state, update, notify }: Props) {
         </button>
       </form>
     </section>
+  </div>
+</div>
   )
 }
