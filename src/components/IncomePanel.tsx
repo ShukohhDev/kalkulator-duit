@@ -3,7 +3,7 @@ import type { FormEvent } from 'react'
 import type { AppState, Income, IncomeDestination, Notify } from '../types'
 import type { Updater } from '../hooks/useAppState'
 import { formatIDR, formatShortDate, monthKey, monthLabel, todayISO } from '../lib/money'
-import { INCOME_SOURCES } from '../lib/state'
+import { INCOME_SOURCES, END_SAVINGS_WALLET_ID } from '../lib/state'
 import { applyDestination } from '../lib/destination'
 import { deleteReceipt, saveReceipt } from '../lib/receipts'
 import { uid } from '../lib/id'
@@ -206,11 +206,13 @@ export function IncomePanel({ state, update, notify }: Props) {
           <CustomSelect id="inc-dest" className="input" value={destKey} onChange={(e) => setDestKey(e.target.value)} title="Pilih Tujuan Pemasukan">
             <option value="jajan">Uang jajan</option>
             <option value="pot">Saku Tabungan</option>
-            {state.wallets.map((wallet) => (
-              <option key={wallet.id} value={`wallet:${wallet.id}`}>
-                {wallet.name}
-              </option>
-            ))}
+            {state.wallets
+              .filter((wallet) => wallet.id !== END_SAVINGS_WALLET_ID)
+              .map((wallet) => (
+                <option key={wallet.id} value={`wallet:${wallet.id}`}>
+                  {wallet.name}
+                </option>
+              ))}
           </CustomSelect>
         </div>
         <div className="field">

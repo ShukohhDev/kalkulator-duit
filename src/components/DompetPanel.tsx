@@ -5,6 +5,7 @@ import { formatIDR } from '../lib/money'
 import { loadPrefs, savePrefs, type WalletCurrency } from '../lib/prefs'
 import { onRateUpdate, refreshUsdRate } from '../lib/rates'
 import { uid } from '../lib/id'
+import { END_SAVINGS_WALLET_ID } from '../lib/state'
 import { MoneyInput } from './MoneyInput'
 
 interface Props {
@@ -48,10 +49,28 @@ export function DompetPanel({ state, update }: Props) {
   }
 
   const patchWallet = (id: string, patch: Partial<{ name: string; balance: number }>) => {
-    update((s) => ({ ...s, wallets: s.wallets.map((wallet) => (wallet.id === id ? { ...wallet, ...patch } : wallet)) }))
+    update((s) => {
+      const isEnd = id === END_SAVINGS_WALLET_ID
+      const nextEndSavings = isEnd && patch.balance !== undefined ? Math.max(0, patch.balance) : s.endSavings
+      const nextWallets = s.wallets.map((wallet) =>
+        wallet.id === id
+          ? {
+              ...wallet,
+              ...patch,
+              balance: patch.balance !== undefined ? Math.max(0, patch.balance) : wallet.balance,
+            }
+          : wallet,
+      )
+      return {
+        ...s,
+        endSavings: nextEndSavings,
+        wallets: nextWallets,
+      }
+    })
   }
 
   const removeWallet = (id: string) => {
+    if (id === END_SAVINGS_WALLET_ID) return
     update((s) => ({ ...s, wallets: s.wallets.filter((wallet) => wallet.id !== id) }))
   }
 
@@ -89,26 +108,41 @@ export function DompetPanel({ state, update }: Props) {
       </div>
 
       <div className="goal-list">
-        {state.wallets.map((wallet) => (
-          <article key={wallet.id} className="ob-row">
-            <input
-              className="input input-name"
-              aria-label={`Nama dompet ${wallet.name}`}
-              value={wallet.name}
-              onChange={(e) => patchWallet(wallet.id, { name: e.target.value })}
-            />
-            <MoneyInput
-              id={`w-bal-${wallet.id}`}
-              value={wallet.balance}
-              onValueChange={(value) => patchWallet(wallet.id, { balance: value })}
-            />
-            <div className="ob-actions">
-              <button type="button" className="btn btn-ghost btn-sm btn-danger" onClick={() => removeWallet(wallet.id)}>
-                Hapus
-              </button>
-            </div>
-          </article>
-        ))}
+        {state.wallets.map((wallet) => {
+          const isEnd = wallet.id === END_SAVINGS_WALLET_ID
+          return (
+            <article key={wallet.id} className="ob-row">
+              <input
+                className="input input-name"
+                aria-label={`Nama dompet ${wallet.name}`}
+                value={wallet.name}
+                readOnly={isEnd}
+                title={isEnd ? 'Dompet otomatis terhubung ke Tabungan Akhir Periode' : undefined}
+                onChange={(e) => patchWallet(wallet.id, { name: e.target.value })}
+              />
+              <MoneyInput
+                id={`w-bal-${wallet.id}`}
+                value={wallet.balance}
+                onValueChange={(value) => patchWallet(wallet.id, { balance: value })}
+              />
+              <div className="ob-actions">
+                {isEnd ? (
+                  <span
+                    className="badge"
+                    title="Saldo otomatis sinkron dengan Tabungan Akhir Periode"
+                    style={{ fontSize: '0.75rem', padding: '4px 8px' }}
+                  >
+                    Otomatis
+                  </span>
+                ) : (
+                  <button type="button" className="btn btn-ghost btn-sm btn-danger" onClick={() => removeWallet(wallet.id)}>
+                    Hapus
+                  </button>
+                )}
+              </div>
+            </article>
+          )
+        })}
         {state.wallets.length === 0 && (
           <p className="muted small">Belum ada dompet nih. Yuk tambahin rekening, e-wallet, atau uang tunai kamu di bawah.</p>
         )}

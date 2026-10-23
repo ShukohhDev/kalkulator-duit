@@ -3,7 +3,7 @@ import type { AppState, Notify, SeasonalFund } from '../types'
 import type { Derived } from '../lib/derive'
 import type { Updater } from '../hooks/useAppState'
 import { formatIDR, todayISO } from '../lib/money'
-import { SAVINGS_CATEGORY } from '../lib/state'
+import { SAVINGS_CATEGORY, END_SAVINGS_WALLET_ID } from '../lib/state'
 import { uid } from '../lib/id'
 import { MoneyInput } from './MoneyInput'
 import { ProgressBar } from './ProgressBar'
@@ -162,11 +162,13 @@ export function SeasonalPanel({ state, derived, update, notify }: Props) {
                   title={`Pilih Sumber Setoran ${item.name}`}
                 >
                   <option value="pot">Saku Tabungan ({formatIDR(state.endSavings)})</option>
-                  {state.wallets.map((wallet) => (
-                    <option key={wallet.id} value={`wallet:${wallet.id}`}>
-                      {wallet.name} ({formatIDR(wallet.balance)})
-                    </option>
-                  ))}
+                  {state.wallets
+                    .filter((wallet) => wallet.id !== END_SAVINGS_WALLET_ID)
+                    .map((wallet) => (
+                      <option key={wallet.id} value={`wallet:${wallet.id}`}>
+                        {wallet.name} ({formatIDR(wallet.balance)})
+                      </option>
+                    ))}
                 </CustomSelect>
                 <MoneyInput
                   value={deposits[item.id] ?? 0}

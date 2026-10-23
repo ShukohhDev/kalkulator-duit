@@ -1,7 +1,7 @@
 import type { AppState, Bill, Debt } from '../types'
 import { formatIDR, toISO, todayISO } from './money'
 import { uid } from './id'
-import { CICILAN_CATEGORY, TAGIHAN_CATEGORY } from './state'
+import { CICILAN_CATEGORY, TAGIHAN_CATEGORY, END_SAVINGS_WALLET_ID, syncEndSavingsWallet } from './state'
 
 const REMIND_KEY = 'kalkulator-duitmu:remind'
 const REMIND_WINDOW = 7
@@ -80,11 +80,17 @@ export function markBillPaid(
   let nextEndSavings = s.endSavings
   if (walletId === 'pot') {
     nextEndSavings = Math.max(0, nextEndSavings - payAmount)
+    nextWallets = syncEndSavingsWallet(nextWallets, nextEndSavings)
   } else if (walletId) {
     const targetId = walletId.startsWith('wallet:') ? walletId.slice(7) : walletId
-    nextWallets = s.wallets.map((w) =>
-      w.id === targetId ? { ...w, balance: Math.max(0, w.balance - payAmount) } : w,
-    )
+    if (targetId === END_SAVINGS_WALLET_ID) {
+      nextEndSavings = Math.max(0, nextEndSavings - payAmount)
+      nextWallets = syncEndSavingsWallet(nextWallets, nextEndSavings)
+    } else {
+      nextWallets = s.wallets.map((w) =>
+        w.id === targetId ? { ...w, balance: Math.max(0, w.balance - payAmount) } : w,
+      )
+    }
   }
 
   return {
@@ -136,11 +142,17 @@ export function markDebtPaid(
   let nextEndSavings = s.endSavings
   if (walletId === 'pot') {
     nextEndSavings = Math.max(0, nextEndSavings - payAmount)
+    nextWallets = syncEndSavingsWallet(nextWallets, nextEndSavings)
   } else if (walletId) {
     const targetId = walletId.startsWith('wallet:') ? walletId.slice(7) : walletId
-    nextWallets = s.wallets.map((w) =>
-      w.id === targetId ? { ...w, balance: Math.max(0, w.balance - payAmount) } : w,
-    )
+    if (targetId === END_SAVINGS_WALLET_ID) {
+      nextEndSavings = Math.max(0, nextEndSavings - payAmount)
+      nextWallets = syncEndSavingsWallet(nextWallets, nextEndSavings)
+    } else {
+      nextWallets = s.wallets.map((w) =>
+        w.id === targetId ? { ...w, balance: Math.max(0, w.balance - payAmount) } : w,
+      )
+    }
   }
 
   const isFull = debt.paid + payAmount >= debt.total

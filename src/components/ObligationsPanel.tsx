@@ -15,6 +15,7 @@ import {
 } from '../lib/obligations'
 import { uid } from '../lib/id'
 import { buildICS } from '../lib/ics'
+import { END_SAVINGS_WALLET_ID } from '../lib/state'
 import { MiniCalendar } from './MiniCalendar'
 import { MoneyInput } from './MoneyInput'
 import { ProgressBar } from './ProgressBar'
@@ -345,11 +346,13 @@ export function ObligationsPanel({ state, update, notify }: Props) {
                       >
                         <option value="none">Tanpa potong dompet (catat pengeluaran saja)</option>
                         <option value="pot">Saku Tabungan (saldo: {formatIDR(state.endSavings)})</option>
-                        {state.wallets.map((w) => (
-                          <option key={w.id} value={`wallet:${w.id}`}>
-                            {w.name} (saldo: {formatIDR(w.balance)})
-                          </option>
-                        ))}
+                        {state.wallets
+                          .filter((w) => w.id !== END_SAVINGS_WALLET_ID)
+                          .map((w) => (
+                            <option key={w.id} value={`wallet:${w.id}`}>
+                              {w.name} (saldo: {formatIDR(w.balance)})
+                            </option>
+                          ))}
                       </CustomSelect>
                     </div>
                     <div className="ob-pay-actions">
@@ -513,11 +516,13 @@ export function ObligationsPanel({ state, update, notify }: Props) {
                       >
                         <option value="none">Tanpa potong dompet (catat pengeluaran saja)</option>
                         <option value="pot">Saku Tabungan (saldo: {formatIDR(state.endSavings)})</option>
-                        {state.wallets.map((w) => (
-                          <option key={w.id} value={`wallet:${w.id}`}>
-                            {w.name} (saldo: {formatIDR(w.balance)})
-                          </option>
-                        ))}
+                        {state.wallets
+                          .filter((w) => w.id !== END_SAVINGS_WALLET_ID)
+                          .map((w) => (
+                            <option key={w.id} value={`wallet:${w.id}`}>
+                              {w.name} (saldo: {formatIDR(w.balance)})
+                            </option>
+                          ))}
                       </CustomSelect>
                     </div>
                     <div className="ob-pay-actions">

@@ -1,6 +1,7 @@
 import type { AppState, PeriodMode } from '../types'
 import { allocationFor, periodRange, type PeriodRange } from './allocation'
 import { addDays } from './money'
+import { syncEndSavingsWallet } from './state'
 
 function previousPeriod(mode: PeriodMode, current: PeriodRange): PeriodRange {
   if (mode === 'week') return periodRange('week', addDays(current.start, -1))
@@ -90,6 +91,12 @@ export function sweepTransition(state: AppState, period: PeriodRange): AppState 
 
   const prev = previousPeriod(state.mode, period)
   const { netSwept } = calculateSweep(state, prev.startISO, prev.endISO)
+  const nextEndSavings = state.endSavings + Math.round(netSwept)
 
-  return { ...state, periodKey: key, endSavings: state.endSavings + Math.round(netSwept) }
+  return {
+    ...state,
+    periodKey: key,
+    endSavings: nextEndSavings,
+    wallets: syncEndSavingsWallet(state.wallets, nextEndSavings),
+  }
 }

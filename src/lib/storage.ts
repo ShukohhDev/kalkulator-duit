@@ -1,5 +1,5 @@
 import type { ActivityEntry, AppState, Bill, Category, CategoryKind, Debt, Expense, Goal, Income, PeriodMode, SeasonalFund, ShoppingItem, WishlistItem } from '../types'
-import { initialState, defaultCategories, defaultWallets, PULSA_CATEGORY, CICILAN_CATEGORY, TAGIHAN_CATEGORY } from './state'
+import { initialState, defaultCategories, defaultWallets, syncEndSavingsWallet, PULSA_CATEGORY, CICILAN_CATEGORY, TAGIHAN_CATEGORY } from './state'
 import { migrateProfileId } from './profiles'
 import { currentUser } from './auth'
 import { MAX_ACTIVITY } from './activity'
@@ -292,6 +292,10 @@ export function sanitize(raw: unknown): AppState {
   const categories = migrateCategories(sanitizeCategories(data.categories))
   const periodKey = str(data.periodKey)
 
+  const endSavings = Math.max(0, num(data.endSavings, legacyEndSavings(data)))
+  const rawWallets = Array.isArray(data.wallets) ? sanitizeWallets(data.wallets) : defaultWallets()
+  const wallets = syncEndSavingsWallet(rawWallets, endSavings)
+
   const state: AppState = {
     version: 1,
     mode: isPeriodMode(data.mode) ? data.mode : null,
@@ -309,11 +313,11 @@ export function sanitize(raw: unknown): AppState {
     seasonal: sanitizeSeasonal(data.seasonal),
     debts: sanitizeDebts(data.debts),
     bills: sanitizeBills(data.bills),
-    wallets: Array.isArray(data.wallets) ? sanitizeWallets(data.wallets) : defaultWallets(),
+    wallets,
     currentAge: Math.max(1, num(data.currentAge, base.currentAge)),
     theme: data.theme === 'dark' ? 'dark' : 'light',
     activity: sanitizeActivity(data.activity),
-    endSavings: Math.max(0, num(data.endSavings, legacyEndSavings(data))),
+    endSavings,
     periodKey: /^\d{4}-\d{2}-\d{2}$/.test(periodKey) ? periodKey : '',
     shoppingList: sanitizeShoppingList(data.shoppingList),
   }

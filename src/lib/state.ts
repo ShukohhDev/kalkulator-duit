@@ -1,4 +1,4 @@
-import type { AppState, Category, CategoryKind, Goal } from '../types'
+import type { AppState, Category, CategoryKind, Goal, Wallet } from '../types'
 import { DEFAULT_BONUS_SPLIT } from './bonus'
 
 export const CATEGORY_COLORS = [
@@ -65,12 +65,26 @@ export function defaultCategories(): Category[] {
   ]
 }
 
+export const END_SAVINGS_WALLET_ID = 'wallet-end-savings'
+
 export function defaultWallets(): AppState['wallets'] {
   return [
     { id: 'wallet-rekening', name: 'Rekening bank', balance: 0 },
     { id: 'wallet-ewallet', name: 'E-wallet', balance: 0 },
     { id: 'wallet-tunai', name: 'Tunai', balance: 0 },
+    { id: END_SAVINGS_WALLET_ID, name: 'Tabungan Akhir Periode', balance: 0 },
   ]
+}
+
+export function syncEndSavingsWallet(wallets: Wallet[], endSavings: number): Wallet[] {
+  const amount = Math.max(0, endSavings)
+  const exists = wallets.some((w) => w.id === END_SAVINGS_WALLET_ID)
+  if (exists) {
+    return wallets.map((w) =>
+      w.id === END_SAVINGS_WALLET_ID ? { ...w, name: 'Tabungan Akhir Periode', balance: amount } : w,
+    )
+  }
+  return [...wallets, { id: END_SAVINGS_WALLET_ID, name: 'Tabungan Akhir Periode', balance: amount }]
 }
 
 export function primaryGoal(goals: Goal[]): Goal | undefined {

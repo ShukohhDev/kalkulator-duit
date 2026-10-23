@@ -5,6 +5,7 @@ import { MAX_ACTIVITY, diffActivity } from '../lib/activity'
 import { currentUser } from '../lib/auth'
 import { pushStateToCloud, pullStateFromCloud } from '../lib/cloudSync'
 import { getSupabaseClient } from '../lib/supabase'
+import { syncEndSavingsWallet } from '../lib/state'
 
 export type Updater = (recipe: (state: AppState) => AppState) => void
 export type CloudStatus = 'idle' | 'syncing' | 'synced' | 'error' | 'disabled'
@@ -144,13 +145,18 @@ export function useAppState() {
   const update = useCallback<Updater>((recipe) => {
     setState((prev) => {
       const next = recipe(prev)
-      const added = diffActivity(prev, next)
-      if (added.length === 0) return next
-      return { ...next, activity: [...added, ...next.activity].slice(0, MAX_ACTIVITY) }
+      const syncedWallets = syncEndSavingsWallet(next.wallets, next.endSavings)
+      const withWallets = syncedWallets !== next.wallets ? { ...next, wallets: syncedWallets } : next
+      const added = diffActivity(prev, withWallets)
+      if (added.length === 0) return withWallets
+      return { ...withWallets, activity: [...added, ...withWallets.activity].slice(0, MAX_ACTIVITY) }
     })
   }, [])
 
-  const replace = useCallback((next: AppState) => setState(next), [])
+  const replace = useCallback((next: AppState) => {
+    const syncedWallets = syncEndSavingsWallet(next.wallets, next.endSavings)
+    setState(syncedWallets !== next.wallets ? { ...next, wallets: syncedWallets } : next)
+  }, [])
 
   return { state, update, replace, saved, cloudStatus, lastSyncTime, syncNow, pullNow }
 }

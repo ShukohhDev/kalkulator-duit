@@ -102,13 +102,23 @@ describe('profil alokasi', () => {
 describe('dompet', () => {
   it('data lama tanpa dompet mendapat dompet bawaan dan daftar tersanitasi', () => {
     const legacy = sanitize({ version: 1 })
-    expect(legacy.wallets.map((wallet) => wallet.id)).toEqual(['wallet-rekening', 'wallet-ewallet', 'wallet-tunai'])
+    expect(legacy.wallets.map((wallet) => wallet.id)).toEqual([
+      'wallet-rekening',
+      'wallet-ewallet',
+      'wallet-tunai',
+      'wallet-end-savings',
+    ])
 
     const custom = sanitize({ version: 1, wallets: [{ id: 'w1', name: '  GoPay ', balance: '25000' }] })
-    expect(custom.wallets).toEqual([{ id: 'w1', name: 'GoPay', balance: 25000 }])
+    expect(custom.wallets).toEqual([
+      { id: 'w1', name: 'GoPay', balance: 25000 },
+      { id: 'wallet-end-savings', name: 'Tabungan Akhir Periode', balance: 0 },
+    ])
 
     const empty = sanitize({ version: 1, wallets: [] })
-    expect(empty.wallets).toEqual([])
+    expect(empty.wallets).toEqual([
+      { id: 'wallet-end-savings', name: 'Tabungan Akhir Periode', balance: 0 },
+    ])
   })
 })
 

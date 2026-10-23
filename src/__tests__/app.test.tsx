@@ -230,10 +230,30 @@ describe('alur aplikasi', () => {
     expect(container.querySelector('[data-testid="rate-note"]')).toBeNull()
 
     clickText('button', '+ Tambah dompet')
-    expect(container.querySelectorAll('.ob-row')).toHaveLength(4)
+    expect(container.querySelectorAll('.ob-row')).toHaveLength(5)
 
     clickText('.ob-row .btn-danger', 'Hapus')
-    expect(container.querySelectorAll('.ob-row')).toHaveLength(3)
+    expect(container.querySelectorAll('.ob-row')).toHaveLength(4)
+  })
+
+  it('tabungan akhir periode otomatis sinkron ke daftar dompet dan total aset', () => {
+    click('.period-option')
+
+    expect(container.textContent).toContain('Tabungan Akhir Periode')
+    const endInput = container.querySelector('#w-bal-wallet-end-savings') as HTMLInputElement
+    expect(endInput).toBeTruthy()
+
+    setValue('#w-bal-wallet-end-savings', '250000')
+
+    expect(container.querySelector('.wallet-total-value')?.textContent).toContain('250.000')
+    const endSavingsCard = [...container.querySelectorAll('.card')].find((c) =>
+      c.textContent?.includes('Tabungan Akhir Periode') && c.classList.contains('aset-card'),
+    )
+    expect(endSavingsCard?.textContent).toContain('250.000')
+
+    const endSavingsRow = endInput.closest('.ob-row')!
+    expect(endSavingsRow.textContent).toContain('Otomatis')
+    expect(endSavingsRow.querySelector('.btn-danger')).toBeNull()
   })
 
   it('melampirkan bukti pada pengeluaran lalu menampilkan tombol lihat bukti', async () => {
