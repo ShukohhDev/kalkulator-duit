@@ -46,10 +46,17 @@ export function QuickEntry({ mode, state, update, notify, onClose }: Props) {
       section.style.left = `${left - box.left}px`
       section.style.right = 'auto'
       section.style.width = `${width}px`
+      const availableHeight = Math.max(260, window.innerHeight - rect.bottom - 16)
+      section.style.maxHeight = `${availableHeight}px`
+      section.style.overflowY = 'auto'
     }
     place()
     window.addEventListener('resize', place)
-    return () => window.removeEventListener('resize', place)
+    window.addEventListener('scroll', place, { passive: true })
+    return () => {
+      window.removeEventListener('resize', place)
+      window.removeEventListener('scroll', place)
+    }
   }, [])
 
   const submit = (event: FormEvent) => {

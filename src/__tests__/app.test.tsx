@@ -76,6 +76,7 @@ const clickText = (selector: string, text: string) => {
 
 beforeEach(async () => {
   globalThis.IS_REACT_ACT_ENVIRONMENT = true
+  Object.defineProperty(window, 'scrollY', { value: 0, writable: true, configurable: true })
   window.localStorage.clear()
   window.sessionStorage.clear()
   window.confirm = () => true
@@ -91,6 +92,7 @@ beforeEach(async () => {
 })
 
 afterEach(() => {
+  Object.defineProperty(window, 'scrollY', { value: 0, writable: true, configurable: true })
   act(() => {
     root.unmount()
   })
@@ -442,6 +444,52 @@ describe('alur aplikasi', () => {
       document.body.dispatchEvent(new MouseEvent('mousedown', { bubbles: true }))
     })
     expect(container.querySelector('.quick-pop')).toBeNull()
+  })
+
+  it('tombol catat cepat di baris navigasi sticky saat scroll membuka popover form tanpa terpotong', async () => {
+    click('.period-option')
+
+    // Simulasikan scroll melewati topbar
+    Object.defineProperty(window, 'scrollY', { value: 120, writable: true, configurable: true })
+    await act(async () => {
+      window.dispatchEvent(new Event('scroll'))
+      await new Promise((resolve) => setTimeout(resolve, 50))
+    })
+
+    // Tombol di baris navigasi sticky (.section-nav-actions) harus aktif
+    const navExpenseBtn = container.querySelector('.section-nav-actions .btn-quick-expense') as HTMLButtonElement | null
+    expect(navExpenseBtn).toBeTruthy()
+
+    act(() => {
+      navExpenseBtn!.click()
+    })
+
+    // Popover terbuka dan tidak terpotong (memiliki elemen form)
+    const popover = container.querySelector('.section-nav-actions .quick-pop')
+    expect(popover).not.toBeNull()
+    expect(popover?.querySelector('#qk-amount')).not.toBeNull()
+
+    // Cek tombol pemasukan di sticky nav juga dapat membuka popover pemasukan
+    const navIncomeBtn = container.querySelector('.section-nav-actions .btn-quick-income') as HTMLButtonElement | null
+    expect(navIncomeBtn).toBeTruthy()
+    act(() => {
+      navIncomeBtn!.click()
+    })
+    const incomePop = container.querySelector('.section-nav-actions .quick-pop')
+    expect(incomePop?.querySelector('#qk-source')).not.toBeNull()
+
+    // Tutup kembali
+    act(() => {
+      navIncomeBtn!.click()
+    })
+    expect(container.querySelector('.section-nav-actions .quick-pop')).toBeNull()
+
+    // Kembalikan scrollY ke 0
+    Object.defineProperty(window, 'scrollY', { value: 0, writable: true, configurable: true })
+    await act(async () => {
+      window.dispatchEvent(new Event('scroll'))
+      await new Promise((resolve) => setTimeout(resolve, 50))
+    })
   })
 
   it('kartu 7 hari menampilkan total dan menyalin ringkasan hari ini', async () => {

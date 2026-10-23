@@ -1165,7 +1165,7 @@ select.input {
   z-index: 60;
   min-height: 44px;
   height: 44px;
-  overflow-x: auto;
+  overflow: visible !important;
   scrollbar-width: none;
   transition: border-color var(--t-fast), box-shadow var(--t-fast);
 }
@@ -1183,6 +1183,7 @@ select.input {
   box-shadow: 0 4px 16px rgba(0, 0, 0, 0.10);
   border-color: var(--accent);
   background: var(--surface) !important;
+  overflow: visible !important;
 }
 
 [data-theme='dark'] .section-nav.section-nav-sticky {
@@ -1195,7 +1196,15 @@ select.input {
   align-items: center;
   gap: 4px;
   flex-wrap: nowrap !important; /* WAJIB 1 baris saja */
-  flex-shrink: 0;
+  flex: 1 1 auto;
+  min-width: 0;
+  overflow-x: auto;
+  scrollbar-width: none;
+  -webkit-overflow-scrolling: touch;
+}
+
+.section-nav-items::-webkit-scrollbar {
+  display: none;
 }
 
 .section-nav-actions {
@@ -1213,6 +1222,8 @@ select.input {
   border-radius: var(--radius-sm);
   flex-shrink: 0;
   flex-wrap: nowrap !important; /* WAJIB 1 baris saja */
+  overflow: visible;
+  z-index: 70;
   animation: dock-beam-pulse 0.45s cubic-bezier(0.16, 1, 0.3, 1) both;
 }
 
@@ -1354,21 +1365,26 @@ select.input {
 .quick-anchor {
   position: relative;
   display: inline-flex;
+  overflow: visible;
 }
 
 .quick-pop {
   position: absolute;
   top: calc(100% + 8px);
   right: 0;
-  z-index: 95;
+  z-index: 100;
   width: min(400px, calc(100vw - 24px));
+  max-height: calc(100vh - 70px);
+  overflow-y: auto;
   box-shadow: var(--shadow-xl);
   animation: pop-in 0.20s cubic-bezier(0.16, 1, 0.3, 1) both;
 }
 
 .section-nav-actions .quick-pop {
-  left: 0;
-  right: auto;
+  right: 0;
+  left: auto;
+  max-height: calc(100vh - 70px);
+  overflow-y: auto;
 }
 
 .quick-form {
