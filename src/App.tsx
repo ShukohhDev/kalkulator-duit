@@ -658,10 +658,27 @@ function AppShell({ user, onLogout }: { user: string; onLogout: () => void }) {
             <span>{state.wallets.length} dompet terdaftar</span>
           </div>
         </div>
-        <EndSavingsCard state={state} />
-        <DompetPanel state={state} update={update} />
-        <SavingsPanel state={state} derived={derived} update={update} />
-        <WishlistPanel state={state} derived={derived} update={update} />
+        {/* Baris 1: Tabungan Akhir Periode (Kiri) & Dompet / E-wallet (Kanan) */}
+        <div className="tabungan-split-grid">
+          <div className="tabungan-col tabungan-col-left">
+            <EndSavingsCard state={state} />
+          </div>
+          <div className="tabungan-col tabungan-col-right">
+            <DompetPanel state={state} update={update} />
+          </div>
+        </div>
+
+        {/* Baris 2: Target Tabungan (Kiri) & Wishlist / Incaran Beli (Kanan) */}
+        <div className="tabungan-split-grid">
+          <div className="tabungan-col tabungan-col-left">
+            <SavingsPanel state={state} derived={derived} update={update} />
+          </div>
+          <div className="tabungan-col tabungan-col-right">
+            <WishlistPanel state={state} derived={derived} update={update} />
+          </div>
+        </div>
+
+        {/* Dana Musiman */}
         <SeasonalPanel state={state} derived={derived} update={update} notify={notify} />
       </div>
       <div id="nav-laporan" className={sectionClass('nav-laporan')}>
