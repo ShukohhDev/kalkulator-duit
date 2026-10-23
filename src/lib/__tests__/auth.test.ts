@@ -3,7 +3,9 @@ import { beforeEach, describe, expect, it } from 'vitest'
 import {
   accountNames,
   currentUser,
+  currentUserRole,
   hasAccounts,
+  isAdmin,
   login,
   logout,
   register,
@@ -105,5 +107,33 @@ describe('akun & sesi', () => {
     touchSession()
     const updated = Number(window.localStorage.getItem(SESSION_TIME_KEY))
     expect(updated).toBeGreaterThan(initialTime)
+  })
+
+  it('hanya akun Shukoh#Dev yang mendapatkan hak admin, akun lain selalu user', async () => {
+    // Pengguna baru biasa mendaftar
+    expect(await register('penggunabaru', 'kata123')).toBeNull()
+    expect(currentUserRole()).toBe('user')
+    expect(isAdmin()).toBe(false)
+
+    logout()
+
+    // Login sebagai pengguna baru biasa
+    expect(await login('penggunabaru', 'kata123')).toBeNull()
+    expect(currentUserRole()).toBe('user')
+    expect(isAdmin()).toBe(false)
+
+    logout()
+
+    // Akun pemilik website mendaftar
+    expect(await register('Shukoh#Dev', 'kata123')).toBeNull()
+    expect(currentUserRole()).toBe('admin')
+    expect(isAdmin()).toBe(true)
+
+    logout()
+
+    // Login sebagai akun pemilik website
+    expect(await login('Shukoh#Dev', 'kata123')).toBeNull()
+    expect(currentUserRole()).toBe('admin')
+    expect(isAdmin()).toBe(true)
   })
 })
