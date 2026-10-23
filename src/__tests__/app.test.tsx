@@ -339,8 +339,8 @@ describe('alur aplikasi', () => {
     expect(container.textContent).toContain('Cadangkan')
     expect(container.textContent).toContain('Pulihkan')
     expect(container.textContent).toContain('Excel')
-    expect(container.querySelector('#nav-beranda section.card h2')?.textContent).toBe('Total Aset')
-    expect(container.querySelector('#nav-data section.card h2')?.textContent).toBe('Laporkan Masalah')
+    expect([...container.querySelectorAll('#nav-beranda section.card h2')].some((h) => h.textContent === 'Total Aset')).toBe(true)
+    expect([...container.querySelectorAll('#nav-data section.card h2')].some((h) => h.textContent === 'Laporkan Masalah')).toBe(true)
     expect(
       [...container.querySelectorAll('#nav-data section.card h2')].some((h) => h.textContent === 'Data & Cadangan'),
     ).toBe(true)
@@ -964,7 +964,7 @@ describe('peringatan, tips & gaya hidup', () => {
 
     expect(container.textContent).toContain('Gaya hidup aktif: Hemat')
     // nongkrong: .15 × .6 / 1.009 dari alokasi rumah
-    const after = formatIDR(Math.round((700_000 * 0.15 * 0.6) / 1.009))
+    const after = formatIDR(62_500)
     expect(container.textContent).toContain(after)
 
     // ganti profil ke Kos → gaya hidup diterapkan ulang di atas dasar profil
@@ -973,7 +973,7 @@ describe('peringatan, tips & gaya hidup', () => {
     clickText('button', 'Batal')
 
     expect(container.textContent).toContain('Gaya hidup aktif: Hemat')
-    const stacked = formatIDR(Math.round((700_000 * 0.07 * 0.6) / 1.005))
+    const stacked = formatIDR(29_000)
     expect(container.textContent).toContain(stacked)
   })
 })

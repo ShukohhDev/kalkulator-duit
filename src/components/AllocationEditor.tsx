@@ -4,6 +4,7 @@ import type { Updater } from '../hooks/useAppState'
 import { CATEGORY_COLORS, categoryKind } from '../lib/state'
 import { PROFILES, applyProfile, findProfile } from '../lib/profiles'
 import { applyLifestyle } from '../lib/lifestyles'
+import { roundAllocationCategories } from '../lib/allocation'
 import { uid } from '../lib/id'
 import { CustomSelect } from './CustomSelect'
 
@@ -138,7 +139,8 @@ export function AllocationEditor({ state, update, onDone }: Props) {
           ...(isOff ? { off: true, baseRatio: raw / 100 } : {}),
         }
       })
-      return { ...s, categories }
+      const rounded = s.allowance > 0 ? roundAllocationCategories(categories, s.allowance) : categories
+      return { ...s, categories: rounded }
     })
     onDone()
   }

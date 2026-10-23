@@ -7,6 +7,7 @@ import { formatIDR } from '../lib/money'
 import { bonusAmounts, splitTotal } from '../lib/bonus'
 import { latePlan } from '../lib/lateperiod'
 import { LIFESTYLES, applyLifestyle, findLifestyle } from '../lib/lifestyles'
+import { roundAllocationCategories, roundTo500 } from '../lib/allocation'
 import { MoneyInput } from './MoneyInput'
 import { ProgressBar } from './ProgressBar'
 import { AllocationEditor } from './AllocationEditor'
@@ -49,7 +50,14 @@ export function AllowanceCard({ state, derived, update, notify, onChangePeriod }
 
   const applyLifestyleChoice = () => {
     if (lifestyleId === '') return
-    update((s) => ({ ...s, lifestyle: lifestyleId, categories: applyLifestyle(s.categories, lifestyleId) }))
+    update((s) => {
+      const styled = applyLifestyle(s.categories, lifestyleId)
+      return {
+        ...s,
+        lifestyle: lifestyleId,
+        categories: s.allowance > 0 ? roundAllocationCategories(styled, s.allowance) : styled,
+      }
+    })
     setLifestyleId('')
   }
 
@@ -82,6 +90,7 @@ export function AllowanceCard({ state, derived, update, notify, onChangePeriod }
       ...s,
       allowance: value,
       allowanceMax: s.allowanceMax > 0 ? Math.max(s.allowanceMax, value) : 0,
+      categories: value > 0 ? roundAllocationCategories(s.categories, value) : s.categories,
     }))
 
   const setSplit = (key: keyof BonusSplit, raw: number) =>
@@ -283,7 +292,7 @@ export function AllowanceCard({ state, derived, update, notify, onChangePeriod }
                     </header>
                     <MoneyInput
                       id={`alloc-${category.id}`}
-                      value={Math.round(state.allowance * category.ratio)}
+                      value={roundTo500(state.allowance * category.ratio)}
                       disabled={state.allowance <= 0}
                       onValueChange={(value) => setAllocAmount(category.id, value)}
                       onBlur={() => commitZeroAmount(category.id)}

@@ -4,6 +4,7 @@ import type { AppState } from '../types'
 import type { Derived } from '../lib/derive'
 import { CHART_FONT, MUTED_COLOR } from '../lib/chartSetup'
 import { formatIDR } from '../lib/money'
+import { roundTo500 } from '../lib/allocation'
 
 interface Props {
   state: AppState
@@ -18,7 +19,7 @@ export function AllocationDonut({ state, derived }: Props) {
       state.categories
         .map((category) => ({
           category,
-          allocated: state.allowance * category.ratio,
+          allocated: roundTo500(state.allowance * category.ratio),
           spent: derived.spentByCategory[category.id] ?? 0,
         }))
         .filter((row) => row.spent > 0 || row.allocated > 0),

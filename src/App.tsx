@@ -7,6 +7,7 @@ import { buildTips } from './lib/tips'
 import { notifyDue } from './lib/obligations'
 import { applyProfile as applyProfileToCategories, findProfile } from './lib/profiles'
 import { applyLifestyle } from './lib/lifestyles'
+import { roundAllocationCategories } from './lib/allocation'
 import { initialState } from './lib/state'
 import { clearState, saveState } from './lib/storage'
 import { currentUser, isAdmin, logout as endSession, touchSession } from './lib/auth'
@@ -334,12 +335,15 @@ function AppShell({ user, onLogout }: { user: string; onLogout: () => void }) {
 
   const applyProfile = (profileId: ProfileId) => {
     const profile = findProfile(profileId)
-    update((s) => ({
-      ...s,
-      profile: profileId,
-      // gaya hidup ditumpuk di atas dasar profil
-      categories: applyLifestyle(applyProfileToCategories(s.categories, profile), s.lifestyle),
-    }))
+    update((s) => {
+      const base = applyProfileToCategories(s.categories, profile)
+      const styled = applyLifestyle(base, s.lifestyle)
+      return {
+        ...s,
+        profile: profileId,
+        categories: s.allowance > 0 ? roundAllocationCategories(styled, s.allowance) : styled,
+      }
+    })
   }
 
   const resetAll = () => {

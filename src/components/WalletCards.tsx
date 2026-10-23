@@ -2,6 +2,7 @@ import type { CSSProperties } from 'react'
 import type { AppState } from '../types'
 import type { Derived } from '../lib/derive'
 import { formatIDR } from '../lib/money'
+import { roundTo500 } from '../lib/allocation'
 import { ProgressBar } from './ProgressBar'
 
 interface Props {
@@ -24,7 +25,7 @@ export function WalletCards({ state, derived }: Props) {
 
       <div className="wallet-grid">
         {activeCategories.map((category) => {
-          const allocated = state.allowance * category.ratio
+          const allocated = roundTo500(state.allowance * category.ratio)
           const spent = derived.spentByCategory[category.id] ?? 0
           const over = allocated > 0 && spent > allocated
 
