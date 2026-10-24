@@ -442,55 +442,67 @@ function AppShell({ user, onLogout }: { user: string; onLogout: () => void }) {
   return (
     <div className="app">
       <header className="topbar">
-        <div>
-          <h1 className="brand">
-            <img src="/favicon.png" alt="Logo" className="brand-logo-img" width="28" height="28" />
-            <span>Kalkulator Uang Jajan</span>
-          </h1>
-        </div>
-        <div className="topbar-actions">
-          <div className="notif-anchor">
+        <div className="topbar-row-primary">
+          <div className="topbar-brand-wrap">
+            <h1 className="brand">
+              <img src="/favicon.png" alt="Logo" className="brand-logo-img" width="28" height="28" />
+              <span>Kalkulator Uang Jajan</span>
+            </h1>
+          </div>
+          <div className="topbar-user-area">
+            <div className="notif-anchor">
+              <button
+                type="button"
+                className={`topbar-bell-btn${unreadCount > 0 ? ' has-unread' : ''}${notifOpen ? ' bell-open' : ''}`}
+                onClick={() => setNotifOpen((open) => !open)}
+                aria-label="Pusat Notifikasi"
+                aria-expanded={notifOpen}
+                title="Notifikasi"
+              >
+                {ICON_BELL}
+                {unreadCount > 0 && (
+                  <span className="bell-badge" aria-label={`${unreadCount} notifikasi baru`}>
+                    {unreadCount > 9 ? '9+' : unreadCount}
+                  </span>
+                )}
+              </button>
+              {notifOpen && (
+                <NotificationCenter
+                  items={notifications}
+                  onClose={() => setNotifOpen(false)}
+                  onMarkAllRead={handleMarkAllRead}
+                  onMarkRead={handleMarkRead}
+                />
+              )}
+            </div>
             <button
               type="button"
-              className={`topbar-bell-btn${unreadCount > 0 ? ' has-unread' : ''}${notifOpen ? ' bell-open' : ''}`}
-              onClick={() => setNotifOpen((open) => !open)}
-              aria-label="Pusat Notifikasi"
-              aria-expanded={notifOpen}
-              title="Notifikasi"
+              className="topbar-icon-btn fab-theme"
+              onClick={() => {
+                const nextTheme: Theme = state.theme === 'dark' ? 'light' : 'dark'
+                update((s) => {
+                  const next = { ...s, theme: nextTheme }
+                  saveState(next)
+                  return next
+                })
+                setDeviceTheme(nextTheme)
+              }}
+              aria-label="Ganti tema"
+              title={state.theme === 'dark' ? 'Mode terang' : 'Mode gelap'}
             >
-              {ICON_BELL}
-              {unreadCount > 0 && (
-                <span className="bell-badge" aria-label={`${unreadCount} notifikasi baru`}>
-                  {unreadCount > 9 ? '9+' : unreadCount}
-                </span>
-              )}
+              {state.theme === 'dark' ? SUN_ICON : MOON_ICON}
             </button>
-            {notifOpen && (
-              <NotificationCenter
-                items={notifications}
-                onClose={() => setNotifOpen(false)}
-                onMarkAllRead={handleMarkAllRead}
-                onMarkRead={handleMarkRead}
-              />
-            )}
+            <span className="chip chip-user" title={`Masuk sebagai ${user}`}>
+              {user}
+            </span>
+            {isUserAdmin && <span className="chip-admin-badge">Admin</span>}
+            <button type="button" className="btn btn-ghost btn-sm btn-logout" onClick={handleLogout}>
+              Keluar
+            </button>
           </div>
-          <button
-            type="button"
-            className="topbar-icon-btn fab-theme"
-            onClick={() => {
-              const nextTheme: Theme = state.theme === 'dark' ? 'light' : 'dark'
-              update((s) => {
-                const next = { ...s, theme: nextTheme }
-                saveState(next)
-                return next
-              })
-              setDeviceTheme(nextTheme)
-            }}
-            aria-label="Ganti tema"
-            title={state.theme === 'dark' ? 'Mode terang' : 'Mode gelap'}
-          >
-            {state.theme === 'dark' ? SUN_ICON : MOON_ICON}
-          </button>
+        </div>
+
+        <div className="topbar-actions">
           {showQuickInTopbar && (
             <div className="topbar-quick-wrapper">
               {renderQuickButtons('topbar-quick')}
@@ -519,13 +531,6 @@ function AppShell({ user, onLogout }: { user: string; onLogout: () => void }) {
               {cloudStatus === 'synced' ? 'Cloud' : cloudStatus === 'syncing' ? 'Sync…' : 'Offline'}
             </span>
           )}
-          <span className="chip chip-user" title={`Masuk sebagai ${user}`}>
-            {user}
-          </span>
-          {isUserAdmin && <span className="chip-admin-badge">Admin</span>}
-          <button type="button" className="btn btn-ghost btn-sm btn-logout" onClick={handleLogout}>
-            Keluar
-          </button>
         </div>
       </header>
 
