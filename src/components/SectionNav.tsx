@@ -12,12 +12,14 @@ interface Props {
   onOpen: (id: string) => void
   extraActions?: ReactNode
   isStickyDesktop?: boolean
+  isSticky?: boolean
 }
 
-export function SectionNav({ items, openId, onOpen, extraActions, isStickyDesktop }: Props) {
+export function SectionNav({ items, openId, onOpen, extraActions, isStickyDesktop, isSticky }: Props) {
+  const isStickyActive = isSticky ?? isStickyDesktop
   return (
     <nav
-      className={`section-nav${isStickyDesktop ? ' section-nav-sticky' : ''}`}
+      className={`section-nav${isStickyActive ? ' section-nav-sticky' : ''}`}
       aria-label="Navigasi panel"
     >
       <div className="section-nav-items">

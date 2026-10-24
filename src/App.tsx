@@ -538,6 +538,7 @@ function AppShell({ user, onLogout }: { user: string; onLogout: () => void }) {
         items={navItems}
         openId={openPanel ?? 'nav-beranda'}
         onOpen={togglePanel}
+        isSticky={isScrolled}
         isStickyDesktop={isDesktop && isScrolled}
         extraActions={showQuickInNav ? renderQuickButtons('nav-quick') : null}
       />
