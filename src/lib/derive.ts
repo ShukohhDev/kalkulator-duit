@@ -5,7 +5,7 @@ import {
   periodRange,
   type PeriodRange,
 } from './allocation'
-import { addDays, daysBetween, monthKey, parseISO, perDay, perWeek, perMonth, toISO, toYearly } from './money'
+import { addDays, daysBetween, monthKey, parseISO, perDay, perWeek, perMonth, roundTo500, toISO, toYearly } from './money'
 import { SAVINGS_CATEGORY } from './state'
 
 export interface Derived {
@@ -108,7 +108,7 @@ export function derive(state: AppState, now: Date = new Date()): Derived {
   return {
     mode,
     yearly,
-    daily: perDay(yearly),
+    daily: roundTo500(perDay(yearly)),
     weekly: perWeek(yearly),
     monthly: perMonth(yearly),
     period,
@@ -126,7 +126,7 @@ export function derive(state: AppState, now: Date = new Date()): Derived {
     allocationByCategory,
     allocationInPeriod,
     remainingInPeriod,
-    safeToSpend: remainingInPeriod / daysLeft,
+    safeToSpend: roundTo500(remainingInPeriod / daysLeft),
   }
 }
 

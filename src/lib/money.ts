@@ -15,6 +15,11 @@ export function formatIDR(value: number): string {
   return rupiah.format(Math.round(value))
 }
 
+export function roundTo500(value: number): number {
+  if (!Number.isFinite(value) || value <= 0) return 0
+  return Math.round(value / 500) * 500
+}
+
 export function parseAmount(raw: string): number {
   const digits = raw.replace(/[^\d-]/g, '')
   if (!digits) return 0

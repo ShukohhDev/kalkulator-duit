@@ -3,7 +3,7 @@ import { Line } from 'react-chartjs-2'
 import type { AppState, Notify } from '../types'
 import type { Derived } from '../lib/derive'
 import { expenseLast7Days } from '../lib/derive'
-import { formatIDR } from '../lib/money'
+import { formatIDR, roundTo500 } from '../lib/money'
 import { CHART_FONT, MUTED_COLOR } from '../lib/chartSetup'
 
 interface Props {
@@ -15,7 +15,7 @@ interface Props {
 export function WeekCard({ state, derived, notify }: Props) {
   const week = useMemo(() => expenseLast7Days(state), [state])
 
-  const dailyBudget =
+  const rawDailyBudget =
     derived?.daily && derived.daily > 0
       ? derived.daily
       : state.allowance > 0
@@ -23,6 +23,7 @@ export function WeekCard({ state, derived, notify }: Props) {
         ? state.allowance / 7
         : state.allowance / 30
       : 0
+  const dailyBudget = roundTo500(rawDailyBudget)
 
   const spentToday = week.today.total
   const remainingToday = Math.max(0, dailyBudget - spentToday)

@@ -1,10 +1,7 @@
 import type { Category, PeriodMode } from '../types'
-import { addDays, toISO } from './money'
+import { addDays, roundTo500, toISO } from './money'
 
-export function roundTo500(value: number): number {
-  if (!Number.isFinite(value) || value <= 0) return 0
-  return Math.round(value / 500) * 500
-}
+export { roundTo500 }
 
 export function roundAllocationCategories(categories: Category[], allowance: number): Category[] {
   if (allowance <= 0 || categories.length === 0) return categories

@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { reversePlan } from '../lib/reverse'
-import { formatIDR } from '../lib/money'
+import { formatIDR, roundTo500 } from '../lib/money'
 import { MoneyInput } from './MoneyInput'
 
 const KEYS = [
@@ -183,7 +183,7 @@ export function Calculator({ onUseNumber, onClose }: Props) {
                   </li>
                   <li>
                     <span>Setoran per hari</span>
-                    <strong>{formatIDR(reverse.perDay)}</strong>
+                    <strong>{formatIDR(roundTo500(reverse.perDay))}</strong>
                   </li>
                 </>
               )}

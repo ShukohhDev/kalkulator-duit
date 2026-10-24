@@ -2,7 +2,7 @@ import { useState } from 'react'
 import type { AppState } from '../types'
 import type { Derived } from '../lib/derive'
 import { whatIf } from '../lib/whatif'
-import { formatIDR } from '../lib/money'
+import { formatIDR, roundTo500 } from '../lib/money'
 import { CustomSelect } from './CustomSelect'
 
 interface Props {
@@ -83,7 +83,7 @@ export function WhatIfPanel({ state, derived }: Props) {
         </li>
         <li>
           <span>Boleh belanja per hari</span>
-          <strong>{formatIDR(result.perDay)}</strong>
+          <strong>{formatIDR(roundTo500(result.perDay))}</strong>
         </li>
       </ul>
       {Math.abs(delta) >= 1 && (
