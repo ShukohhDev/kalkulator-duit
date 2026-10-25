@@ -1557,7 +1557,8 @@ select.input {
     display: flex;
     align-items: center;
     gap: 4px;
-    width: 100%;
+    flex: 1 1 auto;
+    min-width: 0;
     justify-content: flex-start;
     flex-wrap: nowrap !important;
     overflow-x: auto;
@@ -1570,7 +1571,25 @@ select.input {
   }
 
   .section-nav-actions {
-    display: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 3px;
+    margin-left: 4px;
+    padding: 1px 3px;
+    flex-shrink: 0;
+    border-left: 2px solid var(--accent);
+  }
+
+  .section-nav-actions .btn-quick-action {
+    padding: 2px 7px;
+    min-height: 28px;
+    height: 28px;
+    font-size: 11px;
+    font-weight: 600;
+  }
+
+  .section-nav-actions .quick-kbd {
+    display: none !important;
   }
 
   .nav-chip {

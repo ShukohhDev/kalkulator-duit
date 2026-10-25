@@ -33,12 +33,12 @@ export function WeekCard({ state, derived, notify }: Props) {
 
   const statusLabel =
     dailyBudget <= 0
-      ? 'Belum ada anggaran'
+      ? 'Belum ada jatah jajan'
       : isOver
-      ? `Lewat ${formatIDR(spentToday - dailyBudget)}`
+      ? `Lebih ${formatIDR(spentToday - dailyBudget)}`
       : ratio >= 0.8
-      ? `Mendekati Batas (${pctUsed}%)`
-      : `Aman (${pctUsed}%)`
+      ? `Hampir Habis (${pctUsed}%)`
+      : `Masih Aman (${pctUsed}%)`
 
   const statusClass =
     dailyBudget <= 0
@@ -125,7 +125,7 @@ export function WeekCard({ state, derived, notify }: Props) {
         <div className="daily-meter-block">
           <div className="daily-meter-top">
             <div className="daily-meter-title-wrap">
-              <strong>Meteran Belanja Hari Ini</strong>
+              <strong>Jatah Jajan Hari Ini</strong>
               <span className="muted small">{week.today.label}</span>
             </div>
             <span className={`daily-meter-chip ${statusClass}`}>{statusLabel}</span>
@@ -161,7 +161,7 @@ export function WeekCard({ state, derived, notify }: Props) {
         <Line data={data} options={options} />
       </div>
       <div className="week-total">
-        <span className="muted">Total pengeluaran 7 hari</span>
+        <span className="muted">Total belanja 7 hari terakhir</span>
         <strong>{formatIDR(week.total7)}</strong>
       </div>
     </section>

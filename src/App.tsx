@@ -387,7 +387,7 @@ function AppShell({ user, onLogout }: { user: string; onLogout: () => void }) {
 
   const sectionClass = (id: string) => `nav-section${openPanel === id ? ' front' : ''}`
 
-  const showQuickInNav = isDesktop && isScrolled
+  const showQuickInNav = isScrolled
   const showQuickInTopbar = !showQuickInNav
 
   const renderQuickButtons = (prefix = '') => (
