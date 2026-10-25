@@ -4,6 +4,8 @@ import { loadState, saveState } from '../lib/storage'
 import { appendActivity } from '../lib/activity'
 import { getSupabaseClient } from '../lib/supabase'
 import { pullStateFromCloud } from '../lib/cloudSync'
+import { loadPrefs, savePrefs } from '../lib/prefs'
+import { translate, getDeviceLanguage, setDeviceLanguage, type Language } from '../lib/i18n'
 import { EYE_OFF, EYE_OPEN } from './icons'
 
 interface AuthGateProps {
@@ -11,6 +13,7 @@ interface AuthGateProps {
 }
 
 export function AuthGate({ onAuthed }: AuthGateProps) {
+  const [lang, setLang] = useState<Language>(() => loadPrefs().language ?? getDeviceLanguage())
   const [mode, setMode] = useState<'masuk' | 'daftar'>(hasAccounts() ? 'masuk' : 'daftar')
   const [username, setUsername] = useState('')
   const [password, setPassword] = useState('')
@@ -59,15 +62,37 @@ export function AuthGate({ onAuthed }: AuthGateProps) {
     <div className="auth-gate">
       {/* Auth form card */}
       <form className="card auth-card" onSubmit={submit}>
+        <div className="auth-top-actions">
+          <button
+            type="button"
+            className="btn-lang-toggle"
+            onClick={() => {
+              const nextLang: Language = lang === 'id' ? 'en' : 'id'
+              setLang(nextLang)
+              setDeviceLanguage(nextLang)
+              savePrefs({ language: nextLang })
+            }}
+            aria-label={lang === 'id' ? 'Switch to English' : 'Ganti ke Bahasa Indonesia'}
+            title={lang === 'id' ? 'Switch to English' : 'Ganti ke Bahasa Indonesia'}
+          >
+            <span className={`lang-choice${lang === 'id' ? ' lang-active' : ''}`}>ID</span>
+            <span className="lang-sep">|</span>
+            <span className={`lang-choice${lang === 'en' ? ' lang-active' : ''}`}>EN</span>
+          </button>
+        </div>
         <div className="auth-logo-wrap">
           <img src="/icon-192.png" alt="Logo Kalkulator Uang Jajan" className="auth-logo-img" width="64" height="64" />
         </div>
-        <h2 className="auth-title">{mode === 'daftar' ? 'Buat Akun' : 'Selamat Datang'}</h2>
+        <h2 className="auth-title">{mode === 'daftar' ? (lang === 'en' ? 'Create Account' : 'Buat Akun') : translate('auth.welcome', lang)}</h2>
         <p className="auth-sub">
           {first
-            ? 'Bikin akun dulu yuk, biar catatan keuanganmu tersimpan rapi dan aman.'
+            ? translate('auth.tagline', lang)
             : mode === 'masuk'
-            ? 'Login dengan akun yang sudah anda daftarkan.'
+            ? lang === 'en'
+              ? 'Sign in with your registered account.'
+              : 'Login dengan akun yang sudah anda daftarkan.'
+            : lang === 'en'
+            ? 'Create a new account here, fast and simple!'
             : 'Bikin akun baru di sini yuk, praktis dan cepat!'}
         </p>
 
@@ -81,7 +106,7 @@ export function AuthGate({ onAuthed }: AuthGateProps) {
               setError('')
             }}
           >
-            Masuk
+            {translate('auth.loginTab', lang)}
           </button>
           <button
             type="button"
@@ -91,13 +116,13 @@ export function AuthGate({ onAuthed }: AuthGateProps) {
               setError('')
             }}
           >
-            Daftar
+            {translate('auth.registerTab', lang)}
           </button>
         </div>
 
         {/* Username */}
         <div className="field">
-          <label htmlFor="auth-user">Nama pengguna</label>
+          <label htmlFor="auth-user">{lang === 'en' ? 'Username' : 'Nama pengguna'}</label>
           <input
             id="auth-user"
             className="input"
@@ -111,7 +136,7 @@ export function AuthGate({ onAuthed }: AuthGateProps) {
 
         {/* Password */}
         <div className="field">
-          <label htmlFor="auth-pass">Kata sandi</label>
+          <label htmlFor="auth-pass">{lang === 'en' ? 'Password' : 'Kata sandi'}</label>
           <div className="pass-wrap">
             <input
               id="auth-pass"
@@ -125,8 +150,8 @@ export function AuthGate({ onAuthed }: AuthGateProps) {
               type="button"
               className="pass-eye"
               onClick={() => setShowPass((v) => !v)}
-              aria-label={showPass ? 'Sembunyikan kata sandi' : 'Tampilkan kata sandi'}
-              title={showPass ? 'Sembunyikan kata sandi' : 'Tampilkan kata sandi'}
+              aria-label={showPass ? (lang === 'en' ? 'Hide password' : 'Sembunyikan kata sandi') : (lang === 'en' ? 'Show password' : 'Tampilkan kata sandi')}
+              title={showPass ? (lang === 'en' ? 'Hide password' : 'Sembunyikan kata sandi') : (lang === 'en' ? 'Show password' : 'Tampilkan kata sandi')}
             >
               {showPass ? EYE_OFF : EYE_OPEN}
             </button>
@@ -138,13 +163,21 @@ export function AuthGate({ onAuthed }: AuthGateProps) {
 
         {/* Submit */}
         <button className="btn auth-submit" type="submit" disabled={busy}>
-          {busy ? 'Memproses…' : mode === 'daftar' ? 'Buat Akun & Mulai' : 'Masuk Sekarang'}
+          {busy
+            ? lang === 'en'
+              ? 'Processing…'
+              : 'Memproses…'
+            : mode === 'daftar'
+            ? lang === 'en'
+              ? 'Create Account & Start'
+              : 'Buat Akun & Mulai'
+            : translate('auth.loginBtn', lang)}
         </button>
 
         {/* Existing accounts */}
         {!first && names.length > 0 && (
           <div className="auth-existing">
-            <span className="muted small">Akun di perangkat ini:</span>
+            <span className="muted small">{lang === 'en' ? 'Accounts on this device:' : 'Akun di perangkat ini:'}</span>
             <div className="auth-names">
               {names.map((name) => (
                 <button

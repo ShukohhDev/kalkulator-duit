@@ -14,13 +14,14 @@ import { currentUser, isAdmin, logout as endSession, touchSession } from './lib/
 import { appendActivity } from './lib/activity'
 import { sweepTransition } from './lib/sweep'
 import { refreshUsdRate } from './lib/rates'
-import { getDeviceColorTheme, getDeviceTheme, setDeviceColorTheme, setDeviceTheme } from './lib/prefs'
+import { getDeviceColorTheme, getDeviceTheme, loadPrefs, savePrefs, setDeviceColorTheme, setDeviceTheme } from './lib/prefs'
 import {
   buildUserNotifications,
   markAllNotificationsAsRead,
   markNotificationAsRead,
   type NotificationItem,
 } from './lib/notifications'
+import { translate, getDeviceLanguage, setDeviceLanguage, type Language } from './lib/i18n'
 import type { Notify, ProfileId, Theme } from './types'
 import { ActivityPanel } from './components/ActivityPanel'
 import { AdminPanel } from './components/AdminPanel'
@@ -90,18 +91,10 @@ const CHECK_ICON = (
   </svg>
 )
 
-const NAV_ITEMS: NavItem[] = [
-  { id: 'nav-beranda', label: 'Beranda' },
-  { id: 'nav-catat', label: 'Catat' },
-  { id: 'nav-kewajiban', label: 'Kewajiban' },
-  { id: 'nav-analisis', label: 'Analisis' },
-  { id: 'nav-tabungan', label: 'Tabungan' },
-  { id: 'nav-laporan', label: 'Laporan' },
-  { id: 'nav-data', label: 'Data' },
-]
 
 function AppShell({ user, onLogout }: { user: string; onLogout: () => void }) {
   const { state, update, replace, saved, cloudStatus, lastSyncTime, syncNow, pullNow } = useAppState()
+  const [language, setLanguage] = useState<Language>(() => loadPrefs().language ?? getDeviceLanguage())
   const [pickerOpen, setPickerOpen] = useState(false)
   const [calcOpen, setCalcOpen] = useState(false)
   const [openPanel, setOpenPanel] = useState<string | null>(null)
@@ -168,10 +161,21 @@ function AppShell({ user, onLogout }: { user: string; onLogout: () => void }) {
   }, [])
 
   const isUserAdmin = isAdmin()
-  const navItems = useMemo(
-    () => (isUserAdmin ? [...NAV_ITEMS, { id: 'nav-admin', label: 'Admin' }] : NAV_ITEMS),
-    [isUserAdmin],
-  )
+  const navItems = useMemo(() => {
+    const base: NavItem[] = [
+      { id: 'nav-beranda', label: translate('nav.beranda', language) },
+      { id: 'nav-catat', label: translate('nav.catat', language) },
+      { id: 'nav-kewajiban', label: translate('nav.kewajiban', language) },
+      { id: 'nav-analisis', label: translate('nav.analisis', language) },
+      { id: 'nav-tabungan', label: translate('nav.tabungan', language) },
+      { id: 'nav-laporan', label: translate('nav.laporan', language) },
+      { id: 'nav-data', label: translate('nav.data', language) },
+    ]
+    if (isUserAdmin) {
+      base.push({ id: 'nav-admin', label: translate('nav.admin', language) })
+    }
+    return base
+  }, [isUserAdmin, language])
 
   const derived = useMemo(() => derive(state), [state])
   const insights = useMemo(() => buildInsights(state, derived), [state, derived])
@@ -397,10 +401,10 @@ function AppShell({ user, onLogout }: { user: string; onLogout: () => void }) {
           type="button"
           className={`btn btn-sm btn-quick-action btn-quick-expense${quick === 'expense' ? ' quick-on' : ''}`}
           aria-expanded={quick === 'expense'}
-          title="+ Pengeluaran (Shortcut: E)"
+          title={`${translate('topbar.expense', language)} (Shortcut: E)`}
           onClick={() => toggleQuick('expense')}
         >
-          <span>+ Pengeluaran</span>
+          <span>{translate('topbar.expense', language)}</span>
           <kbd className="quick-kbd">E</kbd>
         </button>
         {quick === 'expense' && (
@@ -419,10 +423,10 @@ function AppShell({ user, onLogout }: { user: string; onLogout: () => void }) {
           type="button"
           className={`btn btn-sm btn-quick-action btn-quick-income${quick === 'income' ? ' quick-on' : ''}`}
           aria-expanded={quick === 'income'}
-          title="+ Pemasukan (Shortcut: P)"
+          title={`${translate('topbar.income', language)} (Shortcut: P)`}
           onClick={() => toggleQuick('income')}
         >
-          <span>+ Pemasukan</span>
+          <span>{translate('topbar.income', language)}</span>
           <kbd className="quick-kbd">P</kbd>
         </button>
         {quick === 'income' && (
@@ -477,6 +481,22 @@ function AppShell({ user, onLogout }: { user: string; onLogout: () => void }) {
             </div>
             <button
               type="button"
+              className="btn-lang-toggle"
+              onClick={() => {
+                const nextLang: Language = language === 'id' ? 'en' : 'id'
+                setLanguage(nextLang)
+                setDeviceLanguage(nextLang)
+                savePrefs({ language: nextLang })
+              }}
+              aria-label={language === 'id' ? 'Switch to English' : 'Ganti ke Bahasa Indonesia'}
+              title={language === 'id' ? 'Switch to English' : 'Ganti ke Bahasa Indonesia'}
+            >
+              <span className={`lang-choice${language === 'id' ? ' lang-active' : ''}`}>ID</span>
+              <span className="lang-sep">|</span>
+              <span className={`lang-choice${language === 'en' ? ' lang-active' : ''}`}>EN</span>
+            </button>
+            <button
+              type="button"
               className="topbar-icon-btn fab-theme"
               onClick={() => {
                 const nextTheme: Theme = state.theme === 'dark' ? 'light' : 'dark'
@@ -488,16 +508,16 @@ function AppShell({ user, onLogout }: { user: string; onLogout: () => void }) {
                 setDeviceTheme(nextTheme)
               }}
               aria-label="Ganti tema"
-              title={state.theme === 'dark' ? 'Mode terang' : 'Mode gelap'}
+              title={state.theme === 'dark' ? translate('topbar.themeLight', language) : translate('topbar.themeDark', language)}
             >
               {state.theme === 'dark' ? SUN_ICON : MOON_ICON}
             </button>
             <span className="chip chip-user" title={`Masuk sebagai ${user}`}>
               {user}
             </span>
-            {isUserAdmin && <span className="chip-admin-badge">Admin</span>}
+            {isUserAdmin && <span className="chip-admin-badge">{translate('topbar.adminBadge', language)}</span>}
             <button type="button" className="btn btn-ghost btn-sm btn-logout" onClick={handleLogout}>
-              Keluar
+              {translate('topbar.logout', language)}
             </button>
           </div>
         </div>
@@ -510,12 +530,12 @@ function AppShell({ user, onLogout }: { user: string; onLogout: () => void }) {
           )}
           {state.mode && (
             <button type="button" className="btn btn-ghost btn-sm btn-period-select" onClick={() => setPickerOpen(true)} title="Ganti Periode">
-              <span className="period-label-prefix">Periode: </span>
-              <span>{state.mode === 'week' ? '1 Minggu' : '1 Bulan'}</span>
+              <span className="period-label-prefix">{translate('topbar.periodPrefix', language)}</span>
+              <span>{state.mode === 'week' ? translate('topbar.periodWeek', language) : translate('topbar.periodMonth', language)}</span>
             </button>
           )}
-          <span className={`save-state${saved ? ' save-ok' : ''}`} title={saved ? 'Data tersimpan otomatis' : 'Sedang menyimpan…'}>
-            {saved ? <>{CHECK_ICON} <span className="save-state-text">Tersimpan</span></> : <span className="save-state-text">Menyimpan…</span>}
+          <span className={`save-state${saved ? ' save-ok' : ''}`} title={saved ? translate('topbar.saved', language) : translate('topbar.saving', language)}>
+            {saved ? <>{CHECK_ICON} <span className="save-state-text">{translate('topbar.saved', language)}</span></> : <span className="save-state-text">{translate('topbar.saving', language)}</span>}
           </span>
           {cloudStatus !== 'disabled' && (
             <span
@@ -528,7 +548,7 @@ function AppShell({ user, onLogout }: { user: string; onLogout: () => void }) {
                   : 'Status cloud sync'
               }
             >
-              {cloudStatus === 'synced' ? 'Cloud' : cloudStatus === 'syncing' ? 'Sync…' : 'Offline'}
+              {cloudStatus === 'synced' ? translate('topbar.cloudSynced', language) : cloudStatus === 'syncing' ? translate('topbar.cloudSyncing', language) : translate('topbar.cloudOffline', language)}
             </span>
           )}
         </div>
@@ -549,23 +569,23 @@ function AppShell({ user, onLogout }: { user: string; onLogout: () => void }) {
             <div className="panel-hero-main">
               <div className="panel-hero-icon">{NAV_SVG_ICONS['nav-beranda']}</div>
               <div className="panel-hero-body">
-                <h2 className="panel-hero-title">Ringkasan Uang Jajan</h2>
-                <p className="panel-hero-desc">Yuk pantau jatah jajan, batas aman belanja hari ini, dan kondisi dompetmu!</p>
+                <h2 className="panel-hero-title">{translate('hero.title', language)}</h2>
+                <p className="panel-hero-desc">{translate('hero.desc', language)}</p>
               </div>
             </div>
             <div className="panel-hero-badge">
-              <span>{state.mode === 'week' ? 'Periode Mingguan' : 'Periode Bulanan'}</span>
+              <span>{state.mode === 'week' ? translate('hero.weekBadge', language) : translate('hero.monthBadge', language)}</span>
             </div>
           </div>
           <AlertsPanel alerts={alerts} />
           <div className="beranda-grid">
             <div className="beranda-col-main">
-              <WeekCard state={state} derived={derived} notify={notify} />
+              <WeekCard state={state} derived={derived} notify={notify} lang={language} />
               <AllowanceCard state={state} derived={derived} update={update} notify={notify} onChangePeriod={() => setPickerOpen(true)} />
               <WalletCards state={state} derived={derived} />
             </div>
             <aside className="beranda-col-side">
-              <TotalAsetCard state={state} />
+              <TotalAsetCard state={state} lang={language} />
               <InsightsPanel insights={insights} />
               <ChallengeCard state={state} derived={derived} />
               <TipsPanel tips={tips} />

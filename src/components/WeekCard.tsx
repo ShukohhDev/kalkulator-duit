@@ -4,15 +4,17 @@ import type { AppState, Notify } from '../types'
 import type { Derived } from '../lib/derive'
 import { expenseLast7Days } from '../lib/derive'
 import { formatIDR, roundTo500 } from '../lib/money'
+import { translate, type Language } from '../lib/i18n'
 import { CHART_FONT, MUTED_COLOR } from '../lib/chartSetup'
 
 interface Props {
   state: AppState
   derived?: Derived
   notify: Notify
+  lang?: Language
 }
 
-export function WeekCard({ state, derived, notify }: Props) {
+export function WeekCard({ state, derived, notify, lang = 'id' }: Props) {
   const week = useMemo(() => expenseLast7Days(state), [state])
 
   const rawDailyBudget =
@@ -33,12 +35,12 @@ export function WeekCard({ state, derived, notify }: Props) {
 
   const statusLabel =
     dailyBudget <= 0
-      ? 'Belum ada jatah jajan'
+      ? translate('week.noBudget', lang)
       : isOver
-      ? `Lebih ${formatIDR(spentToday - dailyBudget)}`
+      ? `${translate('week.statusOver', lang)} ${formatIDR(spentToday - dailyBudget)}`
       : ratio >= 0.8
-      ? `Hampir Habis (${pctUsed}%)`
-      : `Masih Aman (${pctUsed}%)`
+      ? `${translate('week.statusWarning', lang)} (${pctUsed}%)`
+      : `${translate('week.statusSafe', lang)} (${pctUsed}%)`
 
   const statusClass =
     dailyBudget <= 0
@@ -113,11 +115,11 @@ export function WeekCard({ state, derived, notify }: Props) {
   }
 
   return (
-    <section className="card week-card" aria-label="7 hari terakhir">
+    <section className="card week-card" aria-label={translate('week.title', lang)}>
       <header className="card-head">
-        <h2>7 Hari Terakhir</h2>
+        <h2>{translate('week.title', lang)}</h2>
         <button type="button" className="btn btn-ghost btn-sm" onClick={copySummary}>
-          Salin ringkasan hari ini
+          {translate('week.copy', lang)}
         </button>
       </header>
 
@@ -125,7 +127,7 @@ export function WeekCard({ state, derived, notify }: Props) {
         <div className="daily-meter-block">
           <div className="daily-meter-top">
             <div className="daily-meter-title-wrap">
-              <strong>Jatah Jajan Hari Ini</strong>
+              <strong>{translate('week.meterTitle', lang)}</strong>
               <span className="muted small">{week.today.label}</span>
             </div>
             <span className={`daily-meter-chip ${statusClass}`}>{statusLabel}</span>
@@ -140,15 +142,15 @@ export function WeekCard({ state, derived, notify }: Props) {
 
           <div className="daily-meter-stats">
             <div className="daily-stat">
-              <span className="muted small">Jatah Hari Ini</span>
+              <span className="muted small">{translate('week.dailyBudget', lang)}</span>
               <strong>{formatIDR(dailyBudget)}</strong>
             </div>
             <div className="daily-stat">
-              <span className="muted small">Terpakai</span>
+              <span className="muted small">{translate('week.spent', lang)}</span>
               <strong className={isOver ? 'text-danger' : ''}>{formatIDR(spentToday)}</strong>
             </div>
             <div className="daily-stat">
-              <span className="muted small">Sisa Hari Ini</span>
+              <span className="muted small">{translate('week.remaining', lang)}</span>
               <strong className={isOver ? 'text-danger' : 'text-success'}>
                 {isOver ? `−${formatIDR(spentToday - dailyBudget)}` : formatIDR(remainingToday)}
               </strong>
@@ -161,7 +163,7 @@ export function WeekCard({ state, derived, notify }: Props) {
         <Line data={data} options={options} />
       </div>
       <div className="week-total">
-        <span className="muted">Total belanja 7 hari terakhir</span>
+        <span className="muted">{translate('week.total7', lang)}</span>
         <strong>{formatIDR(week.total7)}</strong>
       </div>
     </section>

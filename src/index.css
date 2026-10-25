@@ -6129,6 +6129,65 @@ select.input {
   animation: pop-in 0.18s cubic-bezier(0.16, 1, 0.3, 1) both;
 }
 
+/* =========================================================
+   PENGALIH BAHASA / I18N TOGGLE (ID | EN)
+   ========================================================= */
+
+.btn-lang-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  padding: 4px 8px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  font-family: inherit;
+  letter-spacing: 0.04em;
+  color: var(--muted);
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm, 6px);
+  cursor: pointer;
+  transition: all var(--t-fast, 0.15s ease);
+  user-select: none;
+  line-height: 1.2;
+}
+
+.btn-lang-toggle:hover {
+  background: var(--surface-3, var(--surface));
+  border-color: var(--border-2, var(--accent));
+  color: var(--text);
+}
+
+.btn-lang-toggle:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+.btn-lang-toggle .lang-choice {
+  padding: 1px 3px;
+  border-radius: 3px;
+  transition: color var(--t-fast, 0.15s ease), background var(--t-fast, 0.15s ease);
+}
+
+.btn-lang-toggle .lang-choice.lang-active {
+  color: var(--surface);
+  background: var(--accent);
+  font-weight: 700;
+}
+
+.btn-lang-toggle .lang-sep {
+  opacity: 0.4;
+  font-weight: 400;
+}
+
+.auth-top-actions {
+  display: flex;
+  justify-content: flex-end;
+  margin-bottom: 8px;
+  width: 100%;
+}
+
+
 
 
 

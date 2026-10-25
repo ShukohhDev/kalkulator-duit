@@ -1,5 +1,8 @@
 import type { CashflowChartType, CashflowView, ColorTheme, Theme } from '../types'
+import type { Language } from './i18n'
 import { currentUser } from './auth'
+
+export { getDeviceLanguage, setDeviceLanguage, type Language } from './i18n'
 
 export type WalletCurrency = 'idr' | 'usd'
 
@@ -14,6 +17,7 @@ export interface Prefs {
   profilePicked: boolean
   colorTheme?: ColorTheme
   theme?: Theme
+  language?: Language
 }
 
 const KEY_BASE = 'kalkulator-duitmu:prefs'
@@ -103,6 +107,7 @@ export function loadPrefs(): Prefs {
       profilePicked: typeof data.profilePicked === 'boolean' ? data.profilePicked : fallback.profilePicked,
       colorTheme: COLOR_THEMES.includes(data.colorTheme as ColorTheme) ? (data.colorTheme as ColorTheme) : undefined,
       theme: THEMES.includes(data.theme as Theme) ? (data.theme as Theme) : undefined,
+      language: data.language === 'id' || data.language === 'en' ? data.language : undefined,
     }
   } catch {
     return fallback
