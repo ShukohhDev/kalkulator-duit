@@ -21,7 +21,7 @@ import {
   markNotificationAsRead,
   type NotificationItem,
 } from './lib/notifications'
-import { translate, getDeviceLanguage, setDeviceLanguage, type Language } from './lib/i18n'
+import { translate, getDeviceLanguage, setDeviceLanguage, I18nContext, type Language } from './lib/i18n'
 import type { Notify, ProfileId, Theme } from './types'
 import { ActivityPanel } from './components/ActivityPanel'
 import { AdminPanel } from './components/AdminPanel'
@@ -95,6 +95,11 @@ const CHECK_ICON = (
 function AppShell({ user, onLogout }: { user: string; onLogout: () => void }) {
   const { state, update, replace, saved, cloudStatus, lastSyncTime, syncNow, pullNow } = useAppState()
   const [language, setLanguage] = useState<Language>(() => loadPrefs().language ?? getDeviceLanguage())
+  const handleSetLanguage = (lang: Language) => {
+    setLanguage(lang)
+    setDeviceLanguage(lang)
+    savePrefs({ language: lang })
+  }
   const [pickerOpen, setPickerOpen] = useState(false)
   const [calcOpen, setCalcOpen] = useState(false)
   const [openPanel, setOpenPanel] = useState<string | null>(null)
@@ -178,18 +183,18 @@ function AppShell({ user, onLogout }: { user: string; onLogout: () => void }) {
   }, [isUserAdmin, language])
 
   const derived = useMemo(() => derive(state), [state])
-  const insights = useMemo(() => buildInsights(state, derived), [state, derived])
-  const alerts = useMemo(() => buildAlerts(state, derived), [state, derived])
-  const tips = useMemo(() => buildTips(state, derived), [state, derived])
+  const insights = useMemo(() => buildInsights(state, derived, language), [state, derived, language])
+  const alerts = useMemo(() => buildAlerts(state, derived, language), [state, derived, language])
+  const tips = useMemo(() => buildTips(state, derived, language), [state, derived, language])
 
   const reloadNotifications = useCallback(async () => {
     try {
-      const items = await buildUserNotifications(user, state, derived)
+      const items = await buildUserNotifications(user, state, derived, language)
       setNotifications(items)
     } catch {
       // ignore
     }
-  }, [user, state, derived])
+  }, [user, state, derived, language])
 
   useEffect(() => {
     void reloadNotifications()
@@ -444,7 +449,8 @@ function AppShell({ user, onLogout }: { user: string; onLogout: () => void }) {
   )
 
   return (
-    <div className="app">
+    <I18nContext.Provider value={{ language, setLanguage: handleSetLanguage, t: (k, p) => translate(k, language, p) }}>
+      <div className="app">
       <header className="topbar">
         <div className="topbar-row-primary">
           <div className="topbar-brand-wrap">
@@ -459,13 +465,16 @@ function AppShell({ user, onLogout }: { user: string; onLogout: () => void }) {
                 type="button"
                 className={`topbar-bell-btn${unreadCount > 0 ? ' has-unread' : ''}${notifOpen ? ' bell-open' : ''}`}
                 onClick={() => setNotifOpen((open) => !open)}
-                aria-label="Pusat Notifikasi"
+                aria-label={language === 'en' ? 'Notification Center' : 'Pusat Notifikasi'}
                 aria-expanded={notifOpen}
-                title="Notifikasi"
+                title={language === 'en' ? 'Notifications' : 'Notifikasi'}
               >
                 {ICON_BELL}
                 {unreadCount > 0 && (
-                  <span className="bell-badge" aria-label={`${unreadCount} notifikasi baru`}>
+                  <span
+                    className="bell-badge"
+                    aria-label={language === 'en' ? `${unreadCount} new notifications` : `${unreadCount} notifikasi baru`}
+                  >
                     {unreadCount > 9 ? '9+' : unreadCount}
                   </span>
                 )}
@@ -507,12 +516,15 @@ function AppShell({ user, onLogout }: { user: string; onLogout: () => void }) {
                 })
                 setDeviceTheme(nextTheme)
               }}
-              aria-label="Ganti tema"
+              aria-label={language === 'en' ? 'Toggle theme' : 'Ganti tema'}
               title={state.theme === 'dark' ? translate('topbar.themeLight', language) : translate('topbar.themeDark', language)}
             >
               {state.theme === 'dark' ? SUN_ICON : MOON_ICON}
             </button>
-            <span className="chip chip-user" title={`Masuk sebagai ${user}`}>
+            <span
+              className="chip chip-user"
+              title={language === 'en' ? `Logged in as ${user}` : `Masuk sebagai ${user}`}
+            >
               {user}
             </span>
             {isUserAdmin && <span className="chip-admin-badge">{translate('topbar.adminBadge', language)}</span>}
@@ -529,7 +541,12 @@ function AppShell({ user, onLogout }: { user: string; onLogout: () => void }) {
             </div>
           )}
           {state.mode && (
-            <button type="button" className="btn btn-ghost btn-sm btn-period-select" onClick={() => setPickerOpen(true)} title="Ganti Periode">
+            <button
+              type="button"
+              className="btn btn-ghost btn-sm btn-period-select"
+              onClick={() => setPickerOpen(true)}
+              title={language === 'en' ? 'Change Period' : 'Ganti Periode'}
+            >
               <span className="period-label-prefix">{translate('topbar.periodPrefix', language)}</span>
               <span>{state.mode === 'week' ? translate('topbar.periodWeek', language) : translate('topbar.periodMonth', language)}</span>
             </button>
@@ -542,10 +559,10 @@ function AppShell({ user, onLogout }: { user: string; onLogout: () => void }) {
               className={`cloud-sync-chip cloud-sync-${cloudStatus}`}
               title={
                 cloudStatus === 'synced'
-                  ? 'Data tersinkron otomatis ke cloud Supabase'
+                  ? (language === 'en' ? 'Data automatically synced to Supabase cloud' : 'Data tersinkron otomatis ke cloud Supabase')
                   : cloudStatus === 'syncing'
-                  ? 'Sedang menyinkronkan data ke cloud'
-                  : 'Status cloud sync'
+                  ? (language === 'en' ? 'Syncing data to cloud' : 'Sedang menyinkronkan data ke cloud')
+                  : (language === 'en' ? 'Cloud sync status' : 'Status cloud sync')
               }
             >
               {cloudStatus === 'synced' ? translate('topbar.cloudSynced', language) : cloudStatus === 'syncing' ? translate('topbar.cloudSyncing', language) : translate('topbar.cloudOffline', language)}
@@ -607,7 +624,11 @@ function AppShell({ user, onLogout }: { user: string; onLogout: () => void }) {
             <span>{translate('hero.catat.badge', language, { expenses: state.expenses.length, incomes: state.incomes.length })}</span>
           </div>
         </div>
-        <div className="catat-mobile-switch" role="tablist" aria-label="Pilihan tampilan pencatatan">
+        <div
+          className="catat-mobile-switch"
+          role="tablist"
+          aria-label={language === 'en' ? 'Record view options' : 'Pilihan tampilan pencatatan'}
+        >
           <button
             type="button"
             role="tab"
@@ -791,7 +812,7 @@ function AppShell({ user, onLogout }: { user: string; onLogout: () => void }) {
       )}
 
       <footer className="footer muted small">
-        Semua data tersimpan aman di browser kamu. Bunga dihitung majemuk 8% per tahun (setara 0,64%/bulan).
+        {translate('footer.text', language)}
       </footer>
 
       {toast && (
@@ -809,7 +830,7 @@ function AppShell({ user, onLogout }: { user: string; onLogout: () => void }) {
                 setToast(null)
               }}
             >
-              Urungkan
+              {language === 'en' ? 'Undo' : 'Urungkan'}
             </button>
           )}
         </div>
@@ -838,12 +859,13 @@ function AppShell({ user, onLogout }: { user: string; onLogout: () => void }) {
         className={`fab${calcOpen ? ' fab-open' : ''}`}
         onClick={() => setCalcOpen((open) => !open)}
         aria-expanded={calcOpen}
-        aria-label="Kalkulator"
-        title="Kalkulator cepat"
+        aria-label={language === 'en' ? 'Calculator' : 'Kalkulator'}
+        title={language === 'en' ? 'Quick calculator' : 'Kalkulator cepat'}
       >
         {CALC_ICON}
       </button>
-    </div>
+      </div>
+    </I18nContext.Provider>
   )
 }
 

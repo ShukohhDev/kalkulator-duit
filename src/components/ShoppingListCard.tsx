@@ -3,6 +3,7 @@ import type { AppState, Expense, Notify, ShoppingItem } from '../types'
 import type { Updater } from '../hooks/useAppState'
 import { formatIDR, todayISO } from '../lib/money'
 import { uid } from '../lib/id'
+import { useI18n } from '../lib/i18n'
 import { ICON_CART, ICON_CHECKLIST, ICON_CLOSE } from './icons'
 import { MoneyInput } from './MoneyInput'
 import { CustomSelect } from './CustomSelect'
@@ -24,6 +25,7 @@ const QUICK_SUGGESTIONS = [
 ]
 
 export function ShoppingListCard({ state, update, notify }: Props) {
+  const { language } = useI18n()
   const [name, setName] = useState('')
   const [estimatedPrice, setEstimatedPrice] = useState(0)
   const [categoryId, setCategoryId] = useState(() => state.categories[0]?.id ?? 'makan')
@@ -203,19 +205,21 @@ export function ShoppingListCard({ state, update, notify }: Props) {
             {ICON_CART}
           </div>
           <div>
-            <h2>Daftar Rencana Belanja</h2>
+            <h2>{language === 'en' ? 'Shopping List Plan' : 'Daftar Rencana Belanja'}</h2>
             <p className="muted small">
-              Tulis daftar belanjaan sebelum pergi, trus sekali klik langsung beres masuk pengeluaran.
+              {language === 'en'
+                ? 'List your shopping items before going out, then record them into expenses with one click.'
+                : 'Tulis daftar belanjaan sebelum pergi, trus sekali klik langsung beres masuk pengeluaran.'}
             </p>
           </div>
         </div>
         <div className="shopping-head-badges">
           <span className="chip chip-pending">
-            {pendingCount} belum dibeli
+            {pendingCount} {language === 'en' ? 'pending' : 'belum dibeli'}
           </span>
           {checkedCount > 0 && (
             <span className="chip chip-checked">
-              {checkedCount} di keranjang
+              {checkedCount} {language === 'en' ? 'in cart' : 'di keranjang'}
             </span>
           )}
         </div>
@@ -225,19 +229,19 @@ export function ShoppingListCard({ state, update, notify }: Props) {
       <form className="shopping-form" onSubmit={handleAddItem}>
         <div className="shopping-form-row">
           <div className="field-group flex-2">
-            <label htmlFor="shopping-name-input" className="small">Nama Barang</label>
+            <label htmlFor="shopping-name-input" className="small">{language === 'en' ? 'Item Name' : 'Nama Barang'}</label>
             <input
               id="shopping-name-input"
               className="input"
               type="text"
-              placeholder="Contoh: Minyak Goreng 2L"
+              placeholder={language === 'en' ? 'e.g. Cooking Oil 2L' : 'Contoh: Minyak Goreng 2L'}
               value={name}
               onChange={(e) => setName(e.target.value)}
             />
           </div>
 
           <div className="field-group flex-1">
-            <label htmlFor="shopping-price-input" className="small">Estimasi Harga (Rp)</label>
+            <label htmlFor="shopping-price-input" className="small">{language === 'en' ? 'Est. Price (Rp)' : 'Estimasi Harga (Rp)'}</label>
             <MoneyInput
               id="shopping-price-input"
               value={estimatedPrice}
@@ -247,13 +251,13 @@ export function ShoppingListCard({ state, update, notify }: Props) {
           </div>
 
           <div className="field-group flex-1">
-            <label htmlFor="shopping-category-select" className="small">Kategori</label>
+            <label htmlFor="shopping-category-select" className="small">{language === 'en' ? 'Category' : 'Kategori'}</label>
             <CustomSelect
               id="shopping-category-select"
               className="input select"
               value={categoryId}
               onChange={(e) => setCategoryId(e.target.value)}
-              title="Pilih Kategori Belanja"
+              title={language === 'en' ? 'Select Shopping Category' : 'Pilih Kategori Belanja'}
             >
               {state.categories.map((cat) => (
                 <option key={cat.id} value={cat.id}>
@@ -270,14 +274,14 @@ export function ShoppingListCard({ state, update, notify }: Props) {
               disabled={!name.trim()}
               id="shopping-add-btn"
             >
-              + Tambah Barang
+              {language === 'en' ? '+ Add Item' : '+ Tambah Barang'}
             </button>
           </div>
         </div>
 
         {/* Quick Suggestion Chips */}
         <div className="shopping-suggestions">
-          <span className="muted small">Ide cepat:</span>
+          <span className="muted small">{language === 'en' ? 'Quick ideas:' : 'Ide cepat:'}</span>
           {QUICK_SUGGESTIONS.map((sug) => (
             <button
               key={sug}
@@ -301,7 +305,7 @@ export function ShoppingListCard({ state, update, notify }: Props) {
             className={`shopping-tab${filterTab === 'all' ? ' active' : ''}`}
             onClick={() => setFilterTab('all')}
           >
-            Semua ({shoppingList.length})
+            {language === 'en' ? 'All' : 'Semua'} ({shoppingList.length})
           </button>
           <button
             type="button"
@@ -310,7 +314,7 @@ export function ShoppingListCard({ state, update, notify }: Props) {
             className={`shopping-tab${filterTab === 'pending' ? ' active' : ''}`}
             onClick={() => setFilterTab('pending')}
           >
-            Belum Dibeli ({pendingCount})
+            {language === 'en' ? 'Pending' : 'Belum Dibeli'} ({pendingCount})
           </button>
           <button
             type="button"
@@ -319,7 +323,7 @@ export function ShoppingListCard({ state, update, notify }: Props) {
             className={`shopping-tab${filterTab === 'checked' ? ' active' : ''}`}
             onClick={() => setFilterTab('checked')}
           >
-            Di Keranjang ({checkedCount})
+            {language === 'en' ? 'In Cart' : 'Di Keranjang'} ({checkedCount})
           </button>
         </div>
 
@@ -331,7 +335,7 @@ export function ShoppingListCard({ state, update, notify }: Props) {
                 className="btn btn-ghost btn-xs"
                 onClick={() => toggleAll(true)}
               >
-                Pilih Semua
+                {language === 'en' ? 'Select All' : 'Pilih Semua'}
               </button>
             ) : (
               <button
@@ -339,7 +343,7 @@ export function ShoppingListCard({ state, update, notify }: Props) {
                 className="btn btn-ghost btn-xs"
                 onClick={() => toggleAll(false)}
               >
-                Batal Pilih
+                {language === 'en' ? 'Deselect All' : 'Batal Pilih'}
               </button>
             )}
 
@@ -348,9 +352,9 @@ export function ShoppingListCard({ state, update, notify }: Props) {
                 type="button"
                 className="btn btn-ghost btn-xs text-danger"
                 onClick={clearCheckedItems}
-                title="Hapus barang yang sudah diceklis dari daftar"
+                title={language === 'en' ? 'Remove checked items from list' : 'Hapus barang yang sudah diceklis dari daftar'}
               >
-                Hapus Diceklis
+                {language === 'en' ? 'Clear Checked' : 'Hapus Diceklis'}
               </button>
             )}
           </div>
@@ -365,10 +369,10 @@ export function ShoppingListCard({ state, update, notify }: Props) {
           </div>
           <p className="muted">
             {filterTab === 'all'
-              ? 'Daftar belanja masih kosong. Catat dulu barang yang mau kamu beli di atas biar gak kalap!'
+              ? (language === 'en' ? 'Shopping list is empty. Add items you need above!' : 'Daftar belanja masih kosong. Catat dulu barang yang mau kamu beli di atas biar gak kalap!')
               : filterTab === 'pending'
-              ? 'Semua barang udah masuk ke keranjang!'
-              : 'Belum ada barang yang diceklis nih.'}
+              ? (language === 'en' ? 'All items are already in your cart!' : 'Semua barang udah masuk ke keranjang!')
+              : (language === 'en' ? 'No items checked yet.' : 'Belum ada barang yang diceklis nih.')}
           </p>
         </div>
       ) : (
@@ -386,7 +390,7 @@ export function ShoppingListCard({ state, update, notify }: Props) {
                     className="shopping-checkbox"
                     checked={item.checked}
                     onChange={() => toggleCheck(item.id)}
-                    aria-label={`Tandai ${item.name} selesai`}
+                    aria-label={language === 'en' ? `Mark ${item.name} done` : `Tandai ${item.name} selesai`}
                   />
                   <span className="shopping-item-name">{item.name}</span>
                 </label>
@@ -404,8 +408,8 @@ export function ShoppingListCard({ state, update, notify }: Props) {
                     type="button"
                     className="btn btn-ghost btn-icon shopping-delete-btn"
                     onClick={() => deleteItem(item.id)}
-                    aria-label={`Hapus ${item.name}`}
-                    title="Hapus barang"
+                    aria-label={language === 'en' ? `Delete ${item.name}` : `Hapus ${item.name}`}
+                    title={language === 'en' ? 'Delete item' : 'Hapus barang'}
                   >
                     {ICON_CLOSE}
                   </button>
@@ -421,12 +425,12 @@ export function ShoppingListCard({ state, update, notify }: Props) {
         <footer className="shopping-footer">
           <div className="shopping-totals">
             <div className="shopping-total-row">
-              <span className="muted small">Total Estimasi Belanja:</span>
+              <span className="muted small">{language === 'en' ? 'Total Estimated Shopping:' : 'Total Estimasi Belanja:'}</span>
               <strong className="shopping-total-val">{formatIDR(totalEstimated)}</strong>
             </div>
             {checkedCount > 0 && (
               <div className="shopping-total-row text-highlight">
-                <span className="small">Siap Dicatat ({checkedCount} barang):</span>
+                <span className="small">{language === 'en' ? `Ready to Record (${checkedCount} items):` : `Siap Dicatat (${checkedCount} barang):`}</span>
                 <strong className="shopping-total-val">{formatIDR(totalChecked)}</strong>
               </div>
             )}
@@ -440,7 +444,7 @@ export function ShoppingListCard({ state, update, notify }: Props) {
               disabled={checkedCount === 0}
               id="shopping-checkout-button"
             >
-              Catat ke Pengeluaran ({checkedCount}) · {formatIDR(totalChecked)}
+              {language === 'en' ? `Record to Expenses (${checkedCount}) · ${formatIDR(totalChecked)}` : `Catat ke Pengeluaran (${checkedCount}) · ${formatIDR(totalChecked)}`}
             </button>
           </div>
         </footer>

@@ -2,6 +2,7 @@ import { useRef, useState, type ReactNode } from 'react'
 import type { AppState, Notify } from '../types'
 import { exportXlsx } from '../lib/xlsx'
 import { sanitize } from '../lib/storage'
+import { useI18n } from '../lib/i18n'
 import type { CloudStatus } from '../hooks/useAppState'
 
 interface Props {
@@ -93,6 +94,7 @@ export function DataControls({
   onSyncNow,
   onPullNow,
 }: Props) {
+  const { language } = useI18n()
   const fileRef = useRef<HTMLInputElement>(null)
   const [syncBusy, setSyncBusy] = useState(false)
 
@@ -110,15 +112,15 @@ export function DataControls({
       `kalkulator-duitmu-${new Date().toISOString().slice(0, 10)}.json`,
       new Blob([JSON.stringify(state, null, 2)], { type: 'application/json' }),
     )
-    notify('Cadangan tersimpan (.json).')
+    notify(language === 'en' ? 'Backup saved (.json).' : 'Cadangan tersimpan (.json).')
   }
 
   const exportExcel = async () => {
     try {
       await exportXlsx(state)
-      notify('File Excel siap diunduh (.xlsx).')
+      notify(language === 'en' ? 'Excel file ready to download (.xlsx).' : 'File Excel siap diunduh (.xlsx).')
     } catch {
-      notify('Gagal membuat file Excel.', { error: true })
+      notify(language === 'en' ? 'Failed to generate Excel file.' : 'Gagal membuat file Excel.', { error: true })
     }
   }
 
@@ -128,18 +130,27 @@ export function DataControls({
       try {
         const parsed = sanitize(JSON.parse(String(reader.result)))
         onImport(parsed)
-        notify('Data dipulihkan dari cadangan.')
+        notify(language === 'en' ? 'Data restored from backup.' : 'Data dipulihkan dari cadangan.')
       } catch {
-        notify('File tidak valid, pilih file cadangan .json.', { error: true })
+        notify(
+          language === 'en'
+            ? 'Invalid file, please choose a .json backup file.'
+            : 'File tidak valid, pilih file cadangan .json.',
+          { error: true },
+        )
       }
     }
     reader.readAsText(file)
   }
 
   const reset = () => {
-    if (window.confirm('Yakin mau hapus semua data (uang jajan, catatan belanja, target nabung)? Tindakan ini gak bisa dibatalkan ya.')) {
+    const confirmMessage =
+      language === 'en'
+        ? 'Are you sure you want to delete all data (allowance, expenses, savings goals)? This action cannot be undone.'
+        : 'Yakin mau hapus semua data (uang jajan, catatan belanja, target nabung)? Tindakan ini gak bisa dibatalkan ya.'
+    if (window.confirm(confirmMessage)) {
       onReset()
-      notify('Semua data berhasil dibersihkan.')
+      notify(language === 'en' ? 'All data successfully cleared.' : 'Semua data berhasil dibersihkan.')
     }
   }
 
@@ -149,29 +160,37 @@ export function DataControls({
     const ok = await onSyncNow()
     setSyncBusy(false)
     if (ok) {
-      notify('Data berhasil disinkronkan ke cloud!')
+      notify(language === 'en' ? 'Data synced to cloud successfully!' : 'Data berhasil disinkronkan ke cloud!')
     } else {
-      notify('Gagal menyinkronkan data ke cloud.', { error: true })
+      notify(language === 'en' ? 'Failed to sync data to cloud.' : 'Gagal menyinkronkan data ke cloud.', { error: true })
     }
   }
 
   const handleManualPull = async () => {
     if (!onPullNow || syncBusy) return
-    if (!window.confirm('Muat data terbaru dari cloud? Catatan lokal yang belum tersinkron bakal ditimpa data cloud ya.')) return
+    const confirmMessage =
+      language === 'en'
+        ? 'Load latest data from cloud? Unsynced local records will be overwritten.'
+        : 'Muat data terbaru dari cloud? Catatan lokal yang belum tersinkron bakal ditimpa data cloud ya.'
+    if (!window.confirm(confirmMessage)) return
     setSyncBusy(true)
     const ok = await onPullNow()
     setSyncBusy(false)
     if (ok) {
-      notify('Data terbaru berhasil dimuat dari cloud!')
+      notify(language === 'en' ? 'Latest data loaded from cloud!' : 'Data terbaru berhasil dimuat dari cloud!')
     } else {
-      notify('Gagal memuat data dari cloud.', { error: true })
+      notify(language === 'en' ? 'Failed to load data from cloud.' : 'Gagal memuat data dari cloud.', { error: true })
     }
   }
 
   const formatLastSync = (iso: string | null | undefined) => {
     if (!iso) return null
     try {
-      return new Date(iso).toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit', second: '2-digit' })
+      return new Date(iso).toLocaleTimeString(language === 'en' ? 'en-US' : 'id-ID', {
+        hour: '2-digit',
+        minute: '2-digit',
+        second: '2-digit',
+      })
     } catch {
       return null
     }
@@ -180,8 +199,12 @@ export function DataControls({
   return (
     <section className="card">
       <header className="card-head">
-        <h2>Data &amp; Cadangan</h2>
-        <span className={`save-state${saved ? ' save-ok' : ''}`}>{saved ? 'Tersimpan otomatis' : 'Menyimpan…'}</span>
+        <h2>{language === 'en' ? 'Data & Backup' : 'Data & Cadangan'}</h2>
+        <span className={`save-state${saved ? ' save-ok' : ''}`}>
+          {saved
+            ? (language === 'en' ? 'Saved automatically' : 'Tersimpan otomatis')
+            : (language === 'en' ? 'Saving…' : 'Menyimpan…')}
+        </span>
       </header>
 
       {cloudStatus !== 'disabled' && (
@@ -191,19 +214,25 @@ export function DataControls({
               <CloudIcon />
             </span>
             <div className="cloud-sync-details">
-              <strong>Sinkronisasi Cloud Antar-Perangkat</strong>
+              <strong>{language === 'en' ? 'Cross-Device Cloud Sync' : 'Sinkronisasi Cloud Antar-Perangkat'}</strong>
               <p className="muted small">
                 {cloudStatus === 'syncing' || syncBusy
-                  ? 'Sedang menyinkronkan data ke server...'
+                  ? (language === 'en' ? 'Syncing data to server...' : 'Sedang menyinkronkan data ke server...')
                   : cloudStatus === 'synced'
-                  ? `Data tersinkron otomatis${lastSyncTime ? ` · Terakhir pkl ${formatLastSync(lastSyncTime)}` : ''}`
+                  ? language === 'en'
+                    ? `Data synced automatically${lastSyncTime ? ` · Last synced at ${formatLastSync(lastSyncTime)}` : ''}`
+                    : `Data tersinkron otomatis${lastSyncTime ? ` · Terakhir pkl ${formatLastSync(lastSyncTime)}` : ''}`
                   : cloudStatus === 'error'
-                  ? 'Gagal menyinkronkan (periksa koneksi)'
-                  : 'Aktif otomatis setiap perubahan'}
+                  ? (language === 'en' ? 'Sync failed (check connection)' : 'Gagal menyinkronkan (periksa koneksi)')
+                  : (language === 'en' ? 'Active automatically on each change' : 'Aktif otomatis setiap perubahan')}
               </p>
             </div>
             <span className={`cloud-pill-status cloud-pill-${cloudStatus}`}>
-              {cloudStatus === 'synced' ? 'Tersinkron' : cloudStatus === 'syncing' ? 'Menyinkron' : 'Siap'}
+              {cloudStatus === 'synced'
+                ? (language === 'en' ? 'Synced' : 'Tersinkron')
+                : cloudStatus === 'syncing'
+                ? (language === 'en' ? 'Syncing' : 'Menyinkron')
+                : (language === 'en' ? 'Ready' : 'Siap')}
             </span>
           </div>
           <div className="cloud-sync-actions">
@@ -213,7 +242,9 @@ export function DataControls({
               onClick={handleManualSync}
               disabled={syncBusy || cloudStatus === 'syncing'}
             >
-              {syncBusy ? 'Menyinkronkan...' : 'Sinkronkan Sekarang'}
+              {syncBusy
+                ? (language === 'en' ? 'Syncing...' : 'Menyinkronkan...')
+                : (language === 'en' ? 'Sync Now' : 'Sinkronkan Sekarang')}
             </button>
             <button
               type="button"
@@ -221,7 +252,7 @@ export function DataControls({
               onClick={handleManualPull}
               disabled={syncBusy || cloudStatus === 'syncing'}
             >
-              Unduh dari Cloud
+              {language === 'en' ? 'Pull from Cloud' : 'Unduh dari Cloud'}
             </button>
           </div>
         </div>
@@ -230,26 +261,26 @@ export function DataControls({
       <div className="data-list">
         <DataAction
           icon={<DownloadIcon />}
-          title="Cadangkan"
-          desc="Simpan salinan (.json)"
+          title={language === 'en' ? 'Backup' : 'Cadangkan'}
+          desc={language === 'en' ? 'Save copy (.json)' : 'Simpan salinan (.json)'}
           onClick={exportFile}
         />
         <DataAction
           icon={<UploadIcon />}
-          title="Pulihkan"
-          desc="Buka file cadangan"
+          title={language === 'en' ? 'Restore' : 'Pulihkan'}
+          desc={language === 'en' ? 'Open backup file' : 'Buka file cadangan'}
           onClick={() => fileRef.current?.click()}
         />
         <DataAction
           icon={<SheetIcon />}
           title="Excel"
-          desc="Ekspor transaksi (.xlsx)"
+          desc={language === 'en' ? 'Export transactions (.xlsx)' : 'Ekspor transaksi (.xlsx)'}
           onClick={exportExcel}
         />
         <DataAction
           icon={<TrashIcon />}
-          title="Hapus semua"
-          desc="Permanen"
+          title={language === 'en' ? 'Delete all' : 'Hapus semua'}
+          desc={language === 'en' ? 'Permanent' : 'Permanen'}
           danger
           onClick={reset}
         />

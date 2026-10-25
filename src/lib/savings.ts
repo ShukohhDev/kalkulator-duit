@@ -43,17 +43,22 @@ export function monthsToTarget({ target, saved, deposit, rate = MONTHLY_RATE }: 
   return ceilTolerance(Math.log(ratio) / Math.log(1 + rate))
 }
 
-export function formatDuration(months: number): string {
+export function formatDuration(months: number, lang: 'id' | 'en' = 'id'): string {
   const years = Math.floor(months / 12)
   const rest = months % 12
-  if (years === 0) return `${rest} bulan`
-  if (rest === 0) return `${years} tahun`
-  return `${years} tahun ${rest} bulan`
+  const yUnit = lang === 'en' ? (years === 1 ? 'year' : 'years') : 'tahun'
+  const mUnit = lang === 'en' ? (rest === 1 ? 'month' : 'months') : 'bulan'
+  if (years === 0) return `${rest} ${mUnit}`
+  if (rest === 0) return `${years} ${yUnit}`
+  return `${years} ${yUnit} ${rest} ${mUnit}`
 }
 
-export function ageAfter(currentAge: number, months: number): { years: number; label: string } {
+export function ageAfter(currentAge: number, months: number, lang: 'id' | 'en' = 'id'): { years: number; label: string } {
   const total = currentAge * 12 + months
   const years = Math.floor(total / 12)
   const rest = total % 12
-  return { years, label: rest === 0 ? `${years} tahun` : `${years} tahun ${rest} bulan` }
+  const yUnit = lang === 'en' ? (years === 1 ? 'year' : 'years') : 'tahun'
+  const mUnit = lang === 'en' ? (rest === 1 ? 'month' : 'months') : 'bulan'
+  return { years, label: rest === 0 ? `${years} ${yUnit}` : `${years} ${yUnit} ${rest} ${mUnit}` }
 }
+

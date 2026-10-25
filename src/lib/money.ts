@@ -71,17 +71,18 @@ export function monthKey(iso: string): string {
   return iso.slice(0, 7)
 }
 
-export function monthLabel(key: string): string {
+export function monthLabel(key: string, lang: 'id' | 'en' = 'id'): string {
   const [y, m] = key.split('-').map(Number)
-  return new Date(y, m - 1, 1).toLocaleDateString('id-ID', {
+  return new Date(y, m - 1, 1).toLocaleDateString(lang === 'en' ? 'en-US' : 'id-ID', {
     month: 'long',
     year: 'numeric',
   })
 }
 
-export function formatShortDate(iso: string): string {
-  return parseISO(iso).toLocaleDateString('id-ID', {
+export function formatShortDate(iso: string, lang: 'id' | 'en' = 'id'): string {
+  return parseISO(iso).toLocaleDateString(lang === 'en' ? 'en-US' : 'id-ID', {
     day: 'numeric',
     month: 'short',
   })
 }
+

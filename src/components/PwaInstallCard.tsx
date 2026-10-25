@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import type { Notify } from '../types'
 import { ICON_INSTALL, ICON_WIFI } from './icons'
+import { useI18n } from '../lib/i18n'
 
 interface Props {
   notify: Notify
@@ -12,6 +13,7 @@ interface BeforeInstallPromptEvent extends Event {
 }
 
 export function PwaInstallCard({ notify }: Props) {
+  const { language } = useI18n()
   const [deferredPrompt, setDeferredPrompt] = useState<BeforeInstallPromptEvent | null>(null)
   const [isStandalone, setIsStandalone] = useState(() => {
     if (typeof window === 'undefined') return false
@@ -54,9 +56,17 @@ export function PwaInstallCard({ notify }: Props) {
   const handleInstallClick = async () => {
     if (!deferredPrompt) {
       if (isIos) {
-        notify('Di Safari iOS: Ketuk tombol Share [⎋] di bawah lalu pilih "Tambah ke Layar Utama".')
+        notify(
+          language === 'en'
+            ? 'On iOS Safari: Tap the Share button in Safari, then choose "Add to Home Screen".'
+            : 'Di Safari iOS: Ketuk tombol Share di bawah lalu pilih "Tambah ke Layar Utama".'
+        )
       } else {
-        notify('Buka menu browser (titik 3) lalu pilih "Instal Aplikasi" atau "Tambahkan ke Layar Utama".')
+        notify(
+          language === 'en'
+            ? 'Open your browser menu (3 dots) and select "Install App" or "Add to Home screen".'
+            : 'Buka menu browser (titik 3) lalu pilih "Instal Aplikasi" atau "Tambahkan ke Layar Utama".'
+        )
       }
       return
     }
@@ -65,12 +75,20 @@ export function PwaInstallCard({ notify }: Props) {
       await deferredPrompt.prompt()
       const choice = await deferredPrompt.userChoice
       if (choice.outcome === 'accepted') {
-        notify('Aplikasi berhasil dipasang di layar utama!')
+        notify(
+          language === 'en'
+            ? 'App installed successfully to your home screen!'
+            : 'Aplikasi berhasil dipasang di layar utama!'
+        )
         setDeferredPrompt(null)
         setIsStandalone(true)
       }
     } catch {
-      notify('Gagal memicu pemasangan otomatis. Kamu bisa memasangnya lewat menu browser.')
+      notify(
+        language === 'en'
+          ? 'Failed to trigger automatic installation. You can install via your browser menu.'
+          : 'Gagal memicu pemasangan otomatis. Kamu bisa memasangnya lewat menu browser.'
+      )
     }
   }
 
@@ -83,10 +101,10 @@ export function PwaInstallCard({ notify }: Props) {
     try {
       await navigator.clipboard.writeText(mobileUrl)
       setCopied(true)
-      notify(`Tautan HP disalin: ${mobileUrl}`)
+      notify(language === 'en' ? `Mobile link copied: ${mobileUrl}` : `Tautan HP disalin: ${mobileUrl}`)
       setTimeout(() => setCopied(false), 2500)
     } catch {
-      notify(`Tautan HP: ${mobileUrl}`)
+      notify(language === 'en' ? `Mobile link: ${mobileUrl}` : `Tautan HP: ${mobileUrl}`)
     }
   }
 
@@ -98,19 +116,21 @@ export function PwaInstallCard({ notify }: Props) {
             <img src="/favicon.png" alt="" width="26" height="26" style={{ borderRadius: 6, display: 'block' }} />
           </div>
           <div>
-            <h2>Aplikasi HP & Mode Offline (PWA)</h2>
+            <h2>{language === 'en' ? 'Mobile App & Offline Mode (PWA)' : 'Aplikasi HP & Mode Offline (PWA)'}</h2>
             <p className="muted small">
-              Pasang di HP biar bisa langsung dibuka dari layar utama kayak aplikasi beneran, plus bisa offline!
+              {language === 'en'
+                ? 'Install on your phone for home screen access like a native app, plus full offline capability!'
+                : 'Pasang di HP biar bisa langsung dibuka dari layar utama kayak aplikasi beneran, plus bisa offline!'}
             </p>
           </div>
         </div>
         <div className="pwa-head-badges">
           <span className={`chip ${isOnline ? 'chip-online' : 'chip-offline'}`}>
-            {isOnline ? 'Online' : 'Offline'}
+            {isOnline ? (language === 'en' ? 'Online' : 'Online') : (language === 'en' ? 'Offline' : 'Offline')}
           </span>
           {isStandalone && (
             <span className="chip chip-standalone">
-              Terpasang di HP
+              {language === 'en' ? 'Installed' : 'Terpasang di HP'}
             </span>
           )}
         </div>
@@ -120,17 +140,21 @@ export function PwaInstallCard({ notify }: Props) {
       <div className="pwa-action-box">
         {isStandalone ? (
           <div className="pwa-status-box pwa-status-installed">
-            <strong className="small">Aplikasi Sudah Terpasang (Standalone)</strong>
+            <strong className="small">{language === 'en' ? 'App Installed (Standalone)' : 'Aplikasi Sudah Terpasang (Standalone)'}</strong>
             <p className="muted small">
-              Aplikasi udah nempel di layar perangkatmu! Data tetap aman tersimpan di HP dan bisa dipake santai walau lagi gak ada sinyal.
+              {language === 'en'
+                ? 'App is installed on your device screen! Data remains safe locally and functions smoothly even without network.'
+                : 'Aplikasi udah nempel di layar perangkatmu! Data tetap aman tersimpan di HP dan bisa dipake santai walau lagi gak ada sinyal.'}
             </p>
           </div>
         ) : (
           <div className="pwa-install-banner">
             <div className="pwa-banner-text">
-              <strong className="pwa-banner-title">Pasang Aplikasi ke Layar Utama</strong>
+              <strong className="pwa-banner-title">{language === 'en' ? 'Install App to Home Screen' : 'Pasang Aplikasi ke Layar Utama'}</strong>
               <p className="muted small">
-                Buka langsung dari Home Screen tanpa perlu buka browser dulu, hemat memori, dan tetap nyala pas offline.
+                {language === 'en'
+                  ? 'Launch directly from your Home Screen without opening a browser first, saves memory, works offline.'
+                  : 'Buka langsung dari Home Screen tanpa perlu buka browser dulu, hemat memori, dan tetap nyala pas offline.'}
               </p>
             </div>
             <button
@@ -140,7 +164,11 @@ export function PwaInstallCard({ notify }: Props) {
               id="pwa-install-button"
             >
               <span className="pwa-btn-icon" aria-hidden="true">{ICON_INSTALL}</span>
-              <span>{deferredPrompt ? 'Pasang Sekarang' : 'Pasang ke HP'}</span>
+              <span>
+                {deferredPrompt
+                  ? (language === 'en' ? 'Install Now' : 'Pasang Sekarang')
+                  : (language === 'en' ? 'Install to Phone' : 'Pasang ke HP')}
+              </span>
             </button>
           </div>
         )}
@@ -155,15 +183,30 @@ export function PwaInstallCard({ notify }: Props) {
               aria-expanded={showIosGuide}
               style={{ width: '100%', justifyContent: 'space-between', marginBottom: showIosGuide ? 10 : 0 }}
             >
-              <span>🍎 Panduan Pasang di iPhone / iPad (Safari iOS)</span>
-              <span>{showIosGuide ? '▲ Sembunyikan' : '▼ Lihat Cara Pasang'}</span>
+              <span>{language === 'en' ? 'iOS Guide: Install on iPhone / iPad (Safari iOS)' : 'Panduan Pasang di iPhone / iPad (Safari iOS)'}</span>
+              <span>
+                {showIosGuide
+                  ? (language === 'en' ? '▲ Hide Guide' : '▲ Sembunyikan')
+                  : (language === 'en' ? '▼ View Guide' : '▼ Lihat Cara Pasang')}
+              </span>
             </button>
             {showIosGuide && (
               <ol className="pwa-steps-list small" style={{ marginTop: 8 }}>
-                <li>Buka link aplikasi ini di browser <strong>Safari</strong> iPhone/iPad kamu.</li>
-                <li>Ketuk ikon <strong>Bagikan (Share)</strong> [⎋] di bilah navigasi bawah Safari.</li>
-                <li>Gulir menu ke bawah lalu pilih opsi <strong>"Tambah ke Layar Utama" (Add to Home Screen)</strong>.</li>
-                <li>Ketuk tombol <strong>Tambah (Add)</strong> di pojok kanan atas. Aplikasi siap dibuka dari layar utama tanpa browser bar!</li>
+                {language === 'en' ? (
+                  <>
+                    <li>Open this website link in <strong>Safari</strong> on your iPhone/iPad.</li>
+                    <li>Tap the <strong>Share</strong> button at the bottom navigation bar of Safari.</li>
+                    <li>Scroll down and tap <strong>"Add to Home Screen"</strong>.</li>
+                    <li>Tap <strong>Add</strong> in the top right corner. The app is now on your home screen without browser bars!</li>
+                  </>
+                ) : (
+                  <>
+                    <li>Buka link aplikasi ini di browser <strong>Safari</strong> iPhone/iPad kamu.</li>
+                    <li>Ketuk ikon <strong>Bagikan (Share)</strong> di bilah navigasi bawah Safari.</li>
+                    <li>Gulir menu ke bawah lalu pilih opsi <strong>"Tambah ke Layar Utama" (Add to Home Screen)</strong>.</li>
+                    <li>Ketuk tombol <strong>Tambah (Add)</strong> di pojok kanan atas. Aplikasi siap dibuka dari layar utama tanpa browser bar!</li>
+                  </>
+                )}
               </ol>
             )}
           </div>
@@ -174,11 +217,13 @@ export function PwaInstallCard({ notify }: Props) {
       <div className="pwa-network-box">
         <div className="pwa-network-head">
           <span className="pwa-network-icon" aria-hidden="true">{ICON_WIFI}</span>
-          <strong className="small">Mau Buka di HP? Gampang:</strong>
+          <strong className="small">{language === 'en' ? 'Want to open on your phone? Easy:' : 'Mau Buka di HP? Gampang:'}</strong>
         </div>
 
         <p className="muted small">
-          Sambungin HP kamu ke Wi-Fi yang sama dengan laptop (atau nyalakan Hotspot HP), trus buka alamat ini di browser HP:
+          {language === 'en'
+            ? 'Connect your phone to the same Wi-Fi network as this computer, then open this URL in your mobile browser:'
+            : 'Sambungin HP kamu ke Wi-Fi yang sama dengan laptop (atau nyalakan Hotspot HP), trus buka alamat ini di browser HP:'}
         </p>
 
         <div className="pwa-url-bar">
@@ -189,15 +234,27 @@ export function PwaInstallCard({ notify }: Props) {
             onClick={handleCopyUrl}
             id="pwa-copy-url-btn"
           >
-            {copied ? 'Tersalin' : 'Salin Tautan'}
+            {copied
+              ? (language === 'en' ? 'Copied' : 'Tersalin')
+              : (language === 'en' ? 'Copy Link' : 'Salin Tautan')}
           </button>
         </div>
 
         <ul className="pwa-tips-list muted small">
-          <li><strong>Otomatis Offline:</strong> Setelah dibuka pertama kali di HP, aplikasi akan menyimpan cache otomatis dan dapat dibuka tanpa kuota.</li>
-          <li><strong>Sinkronisasi Cloud:</strong> Masuk dengan akun yang sama di HP dan laptop agar uang jajan kamu tersinkron otomatis via cloud Supabase.</li>
+          {language === 'en' ? (
+            <>
+              <li><strong>Automatic Offline:</strong> After opening once, the app caches files locally and works offline.</li>
+              <li><strong>Cloud Sync:</strong> Sign in with the same account across devices to automatically sync via Supabase.</li>
+            </>
+          ) : (
+            <>
+              <li><strong>Otomatis Offline:</strong> Setelah dibuka pertama kali di HP, aplikasi akan menyimpan cache otomatis dan dapat dibuka tanpa kuota.</li>
+              <li><strong>Sinkronisasi Cloud:</strong> Masuk dengan akun yang sama di HP dan laptop agar uang jajan kamu tersinkron otomatis via cloud Supabase.</li>
+            </>
+          )}
         </ul>
       </div>
     </section>
   )
 }
+

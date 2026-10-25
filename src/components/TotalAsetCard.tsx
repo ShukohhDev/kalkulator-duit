@@ -2,7 +2,7 @@ import { useState } from 'react'
 import type { AppState } from '../types'
 import { formatIDR } from '../lib/money'
 import { loadPrefs, savePrefs } from '../lib/prefs'
-import { translate, type Language } from '../lib/i18n'
+import { translate, useI18n, type Language } from '../lib/i18n'
 import { EYE_OFF, EYE_OPEN } from './icons'
 
 interface Props {
@@ -10,7 +10,9 @@ interface Props {
   lang?: Language
 }
 
-export function TotalAsetCard({ state, lang = 'id' }: Props) {
+export function TotalAsetCard({ state, lang: propLang }: Props) {
+  const { language } = useI18n()
+  const lang = propLang ?? language
   const [visible, setVisible] = useState(() => loadPrefs().asetVisible)
 
   const total = state.wallets.reduce((sum, wallet) => sum + wallet.balance, 0)

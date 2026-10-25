@@ -15,7 +15,8 @@ function isWeekend(dateISO: string): boolean {
   return day === 0 || day === 6
 }
 
-export function buildTips(state: AppState, derived: Derived): Tip[] {
+export function buildTips(state: AppState, derived: Derived, lang: 'id' | 'en' = 'id'): Tip[] {
+  const isEn = lang === 'en'
   const period = derived.period
   if (!period || state.allowance <= 0 || derived.spentInPeriod <= 0) return []
 
@@ -39,7 +40,9 @@ export function buildTips(state: AppState, derived: Derived): Tip[] {
     const cut = Math.round(topKeinginan.spent * 0.2)
     out.push({
       id: 'keinginan',
-      text: `${topKeinginan.category.name} tercatat ${formatIDR(topKeinginan.spent)} periode ini, pangkas 20% (±${formatIDR(cut)}) untuk dialihkan ke tabungan.`,
+      text: isEn
+        ? `${topKeinginan.category.name} recorded ${formatIDR(topKeinginan.spent)} this period, trim 20% (±${formatIDR(cut)}) to redirect into savings.`
+        : `${topKeinginan.category.name} tercatat ${formatIDR(topKeinginan.spent)} periode ini, pangkas 20% (±${formatIDR(cut)}) untuk dialihkan ke tabungan.`,
     })
   }
 
@@ -50,7 +53,9 @@ export function buildTips(state: AppState, derived: Derived): Tip[] {
     const aside = Math.max(10_000, Math.round(derived.remainingInPeriod * 0.2))
     out.push({
       id: 'belum-nabung',
-      text: `Belum ada setoran Ditabung periode ini: mulai dari ${formatIDR(aside)} dari sisa kamu.`,
+      text: isEn
+        ? `No savings deposit recorded this period yet: start with ${formatIDR(aside)} from your remaining balance.`
+        : `Belum ada setoran Ditabung periode ini: mulai dari ${formatIDR(aside)} dari sisa kamu.`,
     })
   }
 
@@ -61,7 +66,9 @@ export function buildTips(state: AppState, derived: Derived): Tip[] {
     const pct = Math.round((weekendTotal / derived.spentInPeriod) * 100)
     out.push({
       id: 'akhir-pekan',
-      text: `${pct}% pengeluaranmu jatuh di akhir pekan (${formatIDR(weekendTotal)}). Satukan jadi satu hari supaya lebih terkendali.`,
+      text: isEn
+        ? `${pct}% of your expenses fall on the weekend (${formatIDR(weekendTotal)}). Consolidate into one day for better control.`
+        : `${pct}% pengeluaranmu jatuh di akhir pekan (${formatIDR(weekendTotal)}). Satukan jadi satu hari supaya lebih terkendali.`,
     })
   }
 
@@ -70,7 +77,9 @@ export function buildTips(state: AppState, derived: Derived): Tip[] {
     const total = micro.reduce((sum, expense) => sum + expense.amount, 0)
     out.push({
       id: 'mikro',
-      text: `${micro.length} transaksi kecil total ${formatIDR(total)}. Gabungkan jadi belanja per hari biar mudah dilacak.`,
+      text: isEn
+        ? `${micro.length} small transactions totaling ${formatIDR(total)}. Consolidate into a single daily spend for easier tracking.`
+        : `${micro.length} transaksi kecil total ${formatIDR(total)}. Gabungkan jadi belanja per hari biar mudah dilacak.`,
     })
   }
 

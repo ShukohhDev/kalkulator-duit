@@ -19,6 +19,7 @@ import {
   type ReportStatus,
 } from '../lib/reports'
 import type { Notify } from '../types'
+import { useI18n } from '../lib/i18n'
 import { CustomSelect } from './CustomSelect'
 
 interface Props {
@@ -27,6 +28,9 @@ interface Props {
 }
 
 export function AdminPanel({ currentUser, notify }: Props) {
+  const { language } = useI18n()
+  const isEn = language === 'en'
+
   const [activeTab, setActiveTab] = useState<'users' | 'reports'>('users')
 
   // Data Pengguna
@@ -58,7 +62,7 @@ export function AdminPanel({ currentUser, notify }: Props) {
         setIsCloudActive(isSupabaseConfigured())
       })
     } catch {
-      notify?.('Gagal memuat daftar pengguna.', { error: true })
+      notify?.(isEn ? 'Failed to load user list.' : 'Gagal memuat daftar pengguna.', { error: true })
     } finally {
       setLoadingUsers(false)
     }
@@ -72,7 +76,7 @@ export function AdminPanel({ currentUser, notify }: Props) {
         setReports(data)
       })
     } catch {
-      notify?.('Gagal memuat laporan pengguna.', { error: true })
+      notify?.(isEn ? 'Failed to load user reports.' : 'Gagal memuat laporan pengguna.', { error: true })
     } finally {
       setLoadingReports(false)
     }
@@ -89,34 +93,41 @@ export function AdminPanel({ currentUser, notify }: Props) {
     const client = getSupabaseClient()
     if (client) {
       setIsCloudActive(true)
-      notify?.('Pengaturan Supabase disimpan!')
+      notify?.(isEn ? 'Supabase configuration saved!' : 'Pengaturan Supabase disimpan!')
       loadUsers()
       loadReports()
     } else {
       setIsCloudActive(false)
-      notify?.('URL atau Anon Key belum lengkap.', { error: true })
+      notify?.(isEn ? 'URL or Anon Key is incomplete.' : 'URL atau Anon Key belum lengkap.', { error: true })
     }
   }
 
   const handleToggleRole = async (targetUser: RegisteredUserInfo) => {
     if (targetUser.username.toLowerCase() === currentUser.toLowerCase()) {
-      notify?.('Tidak dapat mengubah peran akun sendiri.', { error: true })
+      notify?.(isEn ? 'Cannot change the role of your own account.' : 'Tidak dapat mengubah peran akun sendiri.', { error: true })
       return
     }
 
     const nextRole = targetUser.role === 'admin' ? 'user' : 'admin'
-    const confirmMsg =
-      nextRole === 'admin'
-        ? `Berikan hak akses Admin kepada akun "${targetUser.username}"?`
-        : `Cabut hak akses Admin dari akun "${targetUser.username}"?`
+    const confirmMsg = isEn
+      ? (nextRole === 'admin'
+          ? `Grant Admin access to account "${targetUser.username}"?`
+          : `Revoke Admin access from account "${targetUser.username}"?`)
+      : (nextRole === 'admin'
+          ? `Berikan hak akses Admin kepada akun "${targetUser.username}"?`
+          : `Cabut hak akses Admin dari akun "${targetUser.username}"?`)
 
     if (!window.confirm(confirmMsg)) return
 
     const err = await updateRemoteUserRole(targetUser.username, nextRole)
     if (err) {
-      notify?.(`Gagal mengubah peran: ${err}`, { error: true })
+      notify?.(`${isEn ? 'Failed to change role:' : 'Gagal mengubah peran:'} ${err}`, { error: true })
     } else {
-      notify?.(`Peran akun "${targetUser.username}" diubah menjadi ${nextRole}.`)
+      notify?.(
+        isEn
+          ? `Role for account "${targetUser.username}" changed to ${nextRole}.`
+          : `Peran akun "${targetUser.username}" diubah menjadi ${nextRole}.`
+      )
       loadUsers()
     }
   }
@@ -124,20 +135,20 @@ export function AdminPanel({ currentUser, notify }: Props) {
   const handleChangeReportStatus = async (reportId: string, nextStatus: ReportStatus) => {
     const err = await updateUserReportStatus(reportId, nextStatus)
     if (err) {
-      notify?.(`Gagal mengubah status: ${err}`, { error: true })
+      notify?.(`${isEn ? 'Failed to change status:' : 'Gagal mengubah status:'} ${err}`, { error: true })
     } else {
-      notify?.('Status laporan diperbarui.')
+      notify?.(isEn ? 'Report status updated.' : 'Status laporan diperbarui.')
       loadReports()
     }
   }
 
   const handleDeleteReport = async (reportId: string) => {
-    if (!window.confirm('Hapus laporan ini secara permanen?')) return
+    if (!window.confirm(isEn ? 'Permanently delete this report?' : 'Hapus laporan ini secara permanen?')) return
     const err = await deleteUserReport(reportId)
     if (err) {
-      notify?.(`Gagal menghapus laporan: ${err}`, { error: true })
+      notify?.(`${isEn ? 'Failed to delete report:' : 'Gagal menghapus laporan:'} ${err}`, { error: true })
     } else {
-      notify?.('Laporan berhasil dihapus.')
+      notify?.(isEn ? 'Report deleted successfully.' : 'Laporan berhasil dihapus.')
       loadReports()
     }
   }
@@ -145,15 +156,15 @@ export function AdminPanel({ currentUser, notify }: Props) {
   const handleSendReply = async (reportId: string, currentStatus: ReportStatus) => {
     const text = replyDrafts[reportId]?.trim()
     if (!text) {
-      notify?.('Tulis pesan balasan terlebih dahulu.', { error: true })
+      notify?.(isEn ? 'Write a reply message first.' : 'Tulis pesan balasan terlebih dahulu.', { error: true })
       return
     }
     const nextStatus = currentStatus === 'baru' ? 'diproses' : currentStatus
     const err = await replyUserReport(reportId, text, nextStatus)
     if (err) {
-      notify?.(`Gagal mengirim balasan: ${err}`, { error: true })
+      notify?.(`${isEn ? 'Failed to send reply:' : 'Gagal mengirim balasan:'} ${err}`, { error: true })
     } else {
-      notify?.('Pesan balasan berhasil dikirim ke pengguna!')
+      notify?.(isEn ? 'Reply message sent successfully to user!' : 'Pesan balasan berhasil dikirim ke pengguna!')
       setReplyDrafts((prev) => ({ ...prev, [reportId]: '' }))
       loadReports()
     }
@@ -179,7 +190,7 @@ export function AdminPanel({ currentUser, notify }: Props) {
     if (!isoString) return '-'
     try {
       const date = new Date(isoString)
-      return date.toLocaleDateString('id-ID', {
+      return date.toLocaleDateString(isEn ? 'en-US' : 'id-ID', {
         day: 'numeric',
         month: 'short',
         year: 'numeric',
@@ -230,32 +241,42 @@ create policy "Allow manage reports" on public.user_reports for all using (true)
     <div className="card admin-panel">
       <div className="card-head">
         <div>
-          <h2>Panel Pemilik & Admin</h2>
+          <h2>{isEn ? 'Owner & Admin Panel' : 'Panel Pemilik & Admin'}</h2>
           <p className="card-desc">
-            Kelola pengguna terdaftar dan pantau kritik, saran, serta laporan bug dari pengguna.
+            {isEn
+              ? 'Manage registered users and monitor feedback, feature suggestions, and bug reports from users.'
+              : 'Kelola pengguna terdaftar dan pantau kritik, saran, serta laporan bug dari pengguna.'}
           </p>
         </div>
         <div className="admin-status-badge">
           <span className={`status-dot ${isCloudActive ? 'dot-active' : 'dot-local'}`} />
-          <span>{isCloudActive ? 'Supabase Terhubung' : 'Penyimpanan Lokal'}</span>
+          <span>
+            {isCloudActive
+              ? (isEn ? 'Supabase Connected' : 'Supabase Terhubung')
+              : (isEn ? 'Local Storage' : 'Penyimpanan Lokal')}
+          </span>
         </div>
       </div>
 
-      <nav className="admin-subnav" aria-label="Sub-navigasi Admin">
+      <nav className="admin-subnav" aria-label={isEn ? 'Admin Sub-navigation' : 'Sub-navigasi Admin'}>
         <button
           type="button"
           className={`admin-subtab${activeTab === 'users' ? ' admin-subtab-active' : ''}`}
           onClick={() => setActiveTab('users')}
         >
-          Kelola Pengguna ({users.length})
+          {isEn ? 'Manage Users' : 'Kelola Pengguna'} ({users.length})
         </button>
         <button
           type="button"
           className={`admin-subtab${activeTab === 'reports' ? ' admin-subtab-active' : ''}`}
           onClick={() => setActiveTab('reports')}
         >
-          Laporan Pengguna ({reports.length})
-          {newReportsCount > 0 && <span className="admin-subtab-badge">{newReportsCount} baru</span>}
+          {isEn ? 'User Reports' : 'Laporan Pengguna'} ({reports.length})
+          {newReportsCount > 0 && (
+            <span className="admin-subtab-badge">
+              {newReportsCount} {isEn ? 'new' : 'baru'}
+            </span>
+          )}
         </button>
       </nav>
 
@@ -263,19 +284,19 @@ create policy "Allow manage reports" on public.user_reports for all using (true)
         <>
           <div className="admin-metrics-grid">
             <div className="admin-metric-card">
-              <span className="metric-label">Total Pengguna</span>
+              <span className="metric-label">{isEn ? 'Total Users' : 'Total Pengguna'}</span>
               <span className="metric-value">{users.length}</span>
-              <span className="metric-sub">Akun terdaftar</span>
+              <span className="metric-sub">{isEn ? 'Registered accounts' : 'Akun terdaftar'}</span>
             </div>
             <div className="admin-metric-card">
-              <span className="metric-label">Total Admin</span>
+              <span className="metric-label">{isEn ? 'Total Admins' : 'Total Admin'}</span>
               <span className="metric-value">{adminCount}</span>
-              <span className="metric-sub">Pemilik & pengelola</span>
+              <span className="metric-sub">{isEn ? 'Owners & managers' : 'Pemilik & pengelola'}</span>
             </div>
             <div className="admin-metric-card">
-              <span className="metric-label">Penyimpanan Aktif</span>
-              <span className="metric-value-text">{isCloudActive ? 'Cloud Database' : 'Browser Lokal'}</span>
-              <span className="metric-sub">{isCloudActive ? 'Online & Multi-device' : 'Khusus perangkat ini'}</span>
+              <span className="metric-label">{isEn ? 'Active Storage' : 'Penyimpanan Aktif'}</span>
+              <span className="metric-value-text">{isCloudActive ? 'Cloud Database' : (isEn ? 'Local Browser' : 'Browser Lokal')}</span>
+              <span className="metric-sub">{isCloudActive ? (isEn ? 'Online & Multi-device' : 'Online & Multi-device') : (isEn ? 'This device only' : 'Khusus perangkat ini')}</span>
             </div>
           </div>
 
@@ -286,14 +307,18 @@ create policy "Allow manage reports" on public.user_reports for all using (true)
                 className="btn btn-secondary btn-sm"
                 onClick={() => setShowConfig((prev) => !prev)}
               >
-                {showConfig ? 'Tutup Pengaturan Supabase' : 'Konfigurasi Supabase'}
+                {showConfig
+                  ? (isEn ? 'Close Supabase Settings' : 'Tutup Pengaturan Supabase')
+                  : (isEn ? 'Supabase Config' : 'Konfigurasi Supabase')}
               </button>
               <button
                 type="button"
                 className="btn btn-secondary btn-sm"
                 onClick={() => setShowSqlGuide((prev) => !prev)}
               >
-                {showSqlGuide ? 'Tutup Panduan SQL' : 'Skrip SQL Database'}
+                {showSqlGuide
+                  ? (isEn ? 'Close SQL Guide' : 'Tutup Panduan SQL')
+                  : (isEn ? 'Database SQL Script' : 'Skrip SQL Database')}
               </button>
             </div>
             <div className="admin-actions-right">
@@ -302,7 +327,7 @@ create policy "Allow manage reports" on public.user_reports for all using (true)
                 className="input input-sm admin-search"
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
-                placeholder="Cari pengguna..."
+                placeholder={isEn ? 'Search users...' : 'Cari pengguna...'}
               />
               <button
                 type="button"
@@ -310,16 +335,18 @@ create policy "Allow manage reports" on public.user_reports for all using (true)
                 onClick={loadUsers}
                 disabled={loadingUsers}
               >
-                {loadingUsers ? 'Memuat...' : 'Muat Ulang'}
+                {loadingUsers ? (isEn ? 'Loading...' : 'Memuat...') : (isEn ? 'Reload' : 'Muat Ulang')}
               </button>
             </div>
           </div>
 
           {showConfig && (
             <form onSubmit={handleSaveConfig} className="admin-config-box">
-              <h3>Koneksi Supabase</h3>
+              <h3>{isEn ? 'Supabase Connection' : 'Koneksi Supabase'}</h3>
               <p className="small muted">
-                Masukkan Project URL dan Anon Key dari dashboard Supabase Anda. Anda juga dapat menaruhnya di file .env dengan variabel VITE_SUPABASE_URL dan VITE_SUPABASE_ANON_KEY.
+                {isEn
+                  ? 'Enter Project URL and Anon Key from your Supabase dashboard. You can also define them in your .env file with VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY.'
+                  : 'Masukkan Project URL dan Anon Key dari dashboard Supabase Anda. Anda juga dapat menaruhnya di file .env dengan variabel VITE_SUPABASE_URL dan VITE_SUPABASE_ANON_KEY.'}
               </p>
               <div className="form-group">
                 <label className="form-label" htmlFor="supabase-url">Project URL</label>
@@ -345,7 +372,7 @@ create policy "Allow manage reports" on public.user_reports for all using (true)
               </div>
               <div className="admin-config-buttons">
                 <button type="submit" className="btn btn-primary">
-                  Simpan Koneksi
+                  {isEn ? 'Save Connection' : 'Simpan Koneksi'}
                 </button>
                 <button
                   type="button"
@@ -354,11 +381,11 @@ create policy "Allow manage reports" on public.user_reports for all using (true)
                     setConfig({ url: '', anonKey: '' })
                     setSupabaseConfig('', '')
                     setIsCloudActive(false)
-                    notify?.('Konfigurasi Supabase dihapus, kembali ke mode lokal.')
+                    notify?.(isEn ? 'Supabase configuration removed, back to local mode.' : 'Konfigurasi Supabase dihapus, kembali ke mode lokal.')
                     loadUsers()
                   }}
                 >
-                  Hapus Konfigurasi
+                  {isEn ? 'Remove Configuration' : 'Hapus Konfigurasi'}
                 </button>
               </div>
             </form>
@@ -367,20 +394,28 @@ create policy "Allow manage reports" on public.user_reports for all using (true)
           {showSqlGuide && (
             <div className="admin-sql-box">
               <div className="admin-sql-header">
-                <h3>Skrip SQL Supabase (Akun & Laporan)</h3>
+                <h3>{isEn ? 'Supabase SQL Script (Accounts & Reports)' : 'Skrip SQL Supabase (Akun & Laporan)'}</h3>
                 <button
                   type="button"
                   className="btn btn-secondary btn-sm"
                   onClick={() => {
                     navigator.clipboard?.writeText(sqlSnippet)
-                    notify?.('Skrip SQL disalin ke clipboard!')
+                    notify?.(isEn ? 'SQL script copied to clipboard!' : 'Skrip SQL disalin ke clipboard!')
                   }}
                 >
-                  Salin SQL
+                  {isEn ? 'Copy SQL' : 'Salin SQL'}
                 </button>
               </div>
               <p className="small muted">
-                Buka menu <strong>SQL Editor</strong> di dashboard Supabase Anda, tempelkan skrip di bawah ini, lalu klik <strong>Run</strong>.
+                {isEn ? (
+                  <>
+                    Open <strong>SQL Editor</strong> in your Supabase dashboard, paste the script below, and click <strong>Run</strong>.
+                  </>
+                ) : (
+                  <>
+                    Buka menu <strong>SQL Editor</strong> di dashboard Supabase Anda, tempelkan skrip di bawah ini, lalu klik <strong>Run</strong>.
+                  </>
+                )}
               </p>
               <pre className="admin-sql-pre">
                 <code>{sqlSnippet}</code>
@@ -393,18 +428,20 @@ create policy "Allow manage reports" on public.user_reports for all using (true)
               <thead>
                 <tr>
                   <th style={{ width: '48px' }}>No</th>
-                  <th>Nama Pengguna</th>
-                  <th style={{ width: '130px' }}>Peran</th>
-                  <th>Terdaftar Pada</th>
-                  <th>Terakhir Aktif</th>
-                  <th style={{ width: '140px', textAlign: 'right' }}>Aksi</th>
+                  <th>{isEn ? 'Username' : 'Nama Pengguna'}</th>
+                  <th style={{ width: '130px' }}>{isEn ? 'Role' : 'Peran'}</th>
+                  <th>{isEn ? 'Registered At' : 'Terdaftar Pada'}</th>
+                  <th>{isEn ? 'Last Active' : 'Terakhir Aktif'}</th>
+                  <th style={{ width: '140px', textAlign: 'right' }}>{isEn ? 'Action' : 'Aksi'}</th>
                 </tr>
               </thead>
               <tbody>
                 {filteredUsers.length === 0 ? (
                   <tr>
                     <td colSpan={6} className="admin-empty">
-                      {loadingUsers ? 'Sedang memuat data akun...' : 'Belum ada pengguna yang sesuai.'}
+                      {loadingUsers
+                        ? (isEn ? 'Loading account data...' : 'Sedang memuat data akun...')
+                        : (isEn ? 'No matching users found.' : 'Belum ada pengguna yang sesuai.')}
                     </td>
                   </tr>
                 ) : (
@@ -415,7 +452,7 @@ create policy "Allow manage reports" on public.user_reports for all using (true)
                         <td className="muted">{idx + 1}</td>
                         <td className="bold">
                           {u.username}
-                          {isCurrent && <span className="admin-you-tag"> (Anda)</span>}
+                          {isCurrent && <span className="admin-you-tag"> {isEn ? '(You)' : '(Anda)'}</span>}
                         </td>
                         <td>
                           <span
@@ -423,7 +460,7 @@ create policy "Allow manage reports" on public.user_reports for all using (true)
                               u.role === 'admin' ? 'role-admin' : 'role-user'
                             }`}
                           >
-                            {u.role === 'admin' ? 'Admin' : 'Pengguna'}
+                            {u.role === 'admin' ? 'Admin' : (isEn ? 'User' : 'Pengguna')}
                           </span>
                         </td>
                         <td className="small muted">{formatDate(u.created_at)}</td>
@@ -436,14 +473,16 @@ create policy "Allow manage reports" on public.user_reports for all using (true)
                               onClick={() => handleToggleRole(u)}
                               title={
                                 u.role === 'admin'
-                                ? 'Ubah jadi pengguna biasa'
-                                : 'Beri hak akses Admin'
+                                  ? (isEn ? 'Change to regular user' : 'Ubah jadi pengguna biasa')
+                                  : (isEn ? 'Grant Admin rights' : 'Beri hak akses Admin')
                               }
                             >
-                              {u.role === 'admin' ? 'Jadikan User' : 'Jadikan Admin'}
+                              {u.role === 'admin'
+                                ? (isEn ? 'Make User' : 'Jadikan User')
+                                : (isEn ? 'Make Admin' : 'Jadikan Admin')}
                             </button>
                           ) : (
-                            <span className="small muted">Akun Anda</span>
+                            <span className="small muted">{isEn ? 'Your Account' : 'Akun Anda'}</span>
                           )}
                         </td>
                       </tr>
@@ -458,24 +497,24 @@ create policy "Allow manage reports" on public.user_reports for all using (true)
         <>
           <div className="admin-metrics-grid">
             <div className="admin-metric-card">
-              <span className="metric-label">Total Laporan</span>
+              <span className="metric-label">{isEn ? 'Total Reports' : 'Total Laporan'}</span>
               <span className="metric-value">{reports.length}</span>
-              <span className="metric-sub">Kritik, saran & bug</span>
+              <span className="metric-sub">{isEn ? 'Feedback, suggestions & bugs' : 'Kritik, saran & bug'}</span>
             </div>
             <div className="admin-metric-card">
-              <span className="metric-label">Laporan Bug</span>
+              <span className="metric-label">{isEn ? 'Bug Reports' : 'Laporan Bug'}</span>
               <span className="metric-value">{bugCount}</span>
-              <span className="metric-sub">Masalah teknis</span>
+              <span className="metric-sub">{isEn ? 'Technical issues' : 'Masalah teknis'}</span>
             </div>
             <div className="admin-metric-card">
-              <span className="metric-label">Saran Fitur</span>
+              <span className="metric-label">{isEn ? 'Feature Ideas' : 'Saran Fitur'}</span>
               <span className="metric-value">{saranCount}</span>
-              <span className="metric-sub">Ide & pengembangan</span>
+              <span className="metric-sub">{isEn ? 'Ideas & development' : 'Ide & pengembangan'}</span>
             </div>
             <div className="admin-metric-card">
-              <span className="metric-label">Kritik</span>
+              <span className="metric-label">{isEn ? 'Critiques' : 'Kritik'}</span>
               <span className="metric-value">{kritikCount}</span>
-              <span className="metric-sub">Evaluasi & masukan</span>
+              <span className="metric-sub">{isEn ? 'Evaluation & feedback' : 'Evaluasi & masukan'}</span>
             </div>
           </div>
 
@@ -485,25 +524,25 @@ create policy "Allow manage reports" on public.user_reports for all using (true)
                 className="input input-sm"
                 value={filterType}
                 onChange={(e) => setFilterType(e.target.value)}
-                aria-label="Filter jenis laporan"
-                title="Filter Jenis Laporan"
+                aria-label={isEn ? 'Filter report type' : 'Filter jenis laporan'}
+                title={isEn ? 'Filter Report Type' : 'Filter Jenis Laporan'}
               >
-                <option value="all">Semua Jenis Laporan</option>
-                <option value="Bug">Khusus Bug</option>
-                <option value="Saran">Khusus Saran</option>
-                <option value="Kritik">Khusus Kritik</option>
+                <option value="all">{isEn ? 'All Report Types' : 'Semua Jenis Laporan'}</option>
+                <option value="Bug">{isEn ? 'Bugs Only' : 'Khusus Bug'}</option>
+                <option value="Saran">{isEn ? 'Suggestions Only' : 'Khusus Saran'}</option>
+                <option value="Kritik">{isEn ? 'Critiques Only' : 'Khusus Kritik'}</option>
               </CustomSelect>
               <CustomSelect
                 className="input input-sm"
                 value={filterStatus}
                 onChange={(e) => setFilterStatus(e.target.value)}
-                aria-label="Filter status laporan"
-                title="Filter Status Laporan"
+                aria-label={isEn ? 'Filter report status' : 'Filter status laporan'}
+                title={isEn ? 'Filter Report Status' : 'Filter Status Laporan'}
               >
-                <option value="all">Semua Status</option>
-                <option value="baru">Status: Baru</option>
-                <option value="diproses">Status: Diproses</option>
-                <option value="selesai">Status: Selesai</option>
+                <option value="all">{isEn ? 'All Statuses' : 'Semua Status'}</option>
+                <option value="baru">{isEn ? 'Status: New' : 'Status: Baru'}</option>
+                <option value="diproses">{isEn ? 'Status: In Progress' : 'Status: Diproses'}</option>
+                <option value="selesai">{isEn ? 'Status: Resolved' : 'Status: Selesai'}</option>
               </CustomSelect>
             </div>
             <div className="admin-actions-right">
@@ -513,7 +552,7 @@ create policy "Allow manage reports" on public.user_reports for all using (true)
                 onClick={loadReports}
                 disabled={loadingReports}
               >
-                {loadingReports ? 'Memuat...' : 'Muat Ulang Laporan'}
+                {loadingReports ? (isEn ? 'Loading...' : 'Memuat...') : (isEn ? 'Reload Reports' : 'Muat Ulang Laporan')}
               </button>
             </div>
           </div>
@@ -522,8 +561,8 @@ create policy "Allow manage reports" on public.user_reports for all using (true)
             {filteredReports.length === 0 ? (
               <div className="admin-empty card">
                 {loadingReports
-                  ? 'Sedang memuat data laporan...'
-                  : 'Belum ada laporan pengguna yang masuk.'}
+                  ? (isEn ? 'Loading report data...' : 'Sedang memuat data laporan...')
+                  : (isEn ? 'No user reports yet.' : 'Belum ada laporan pengguna yang masuk.')}
               </div>
             ) : (
               filteredReports.map((r) => {
@@ -547,11 +586,11 @@ create policy "Allow manage reports" on public.user_reports for all using (true)
                       <div className="report-item-meta">
                         <span className={`report-tag ${typeClass}`}>{r.type}</span>
                         <span className="report-item-user">
-                          Oleh: <strong>{r.username}</strong>
+                          {isEn ? 'By:' : 'Oleh:'} <strong>{r.username}</strong>
                         </span>
                         {r.page && (
                           <span className="small muted">
-                            Halaman: <em>{r.page}</em>
+                            {isEn ? 'Page:' : 'Halaman:'} <em>{r.page}</em>
                           </span>
                         )}
                         <span className="small muted">{formatDate(r.created_at)}</span>
@@ -559,10 +598,10 @@ create policy "Allow manage reports" on public.user_reports for all using (true)
                       <div className="report-item-controls">
                         <span className={`report-status-badge ${statusClass}`}>
                           {r.status === 'baru'
-                            ? 'Baru'
+                            ? (isEn ? 'New' : 'Baru')
                             : r.status === 'diproses'
-                            ? 'Diproses'
-                            : 'Selesai'}
+                            ? (isEn ? 'In Progress' : 'Diproses')
+                            : (isEn ? 'Resolved' : 'Selesai')}
                         </span>
                         <CustomSelect
                           className="input input-sm report-status-select"
@@ -570,20 +609,20 @@ create policy "Allow manage reports" on public.user_reports for all using (true)
                           onChange={(e) =>
                             handleChangeReportStatus(r.id, e.target.value as ReportStatus)
                           }
-                          aria-label={`Ubah status laporan ${r.id}`}
-                          title={`Ubah Status Laporan #${r.id}`}
+                          aria-label={isEn ? `Change report status ${r.id}` : `Ubah status laporan ${r.id}`}
+                          title={isEn ? `Change Report Status #${r.id}` : `Ubah Status Laporan #${r.id}`}
                         >
-                          <option value="baru">Tandai Baru</option>
-                          <option value="diproses">Tandai Diproses</option>
-                          <option value="selesai">Tandai Selesai</option>
+                          <option value="baru">{isEn ? 'Mark New' : 'Tandai Baru'}</option>
+                          <option value="diproses">{isEn ? 'Mark In Progress' : 'Tandai Diproses'}</option>
+                          <option value="selesai">{isEn ? 'Mark Resolved' : 'Tandai Selesai'}</option>
                         </CustomSelect>
                         <button
                           type="button"
                           className="btn btn-ghost btn-sm"
                           onClick={() => handleDeleteReport(r.id)}
-                          title="Hapus laporan ini"
+                          title={isEn ? 'Delete this report' : 'Hapus laporan ini'}
                         >
-                          Hapus
+                          {isEn ? 'Delete' : 'Hapus'}
                         </button>
                       </div>
                     </div>
@@ -594,7 +633,7 @@ create policy "Allow manage reports" on public.user_reports for all using (true)
                     {r.admin_reply && (
                       <div className="report-item-reply-box">
                         <div className="report-item-reply-header">
-                          <strong>Balasan Anda (Admin):</strong>
+                          <strong>{isEn ? 'Your Reply (Admin):' : 'Balasan Anda (Admin):'}</strong>
                           {r.replied_at && (
                             <span className="small muted">{formatDate(r.replied_at)}</span>
                           )}
@@ -607,7 +646,7 @@ create policy "Allow manage reports" on public.user_reports for all using (true)
                       <input
                         type="text"
                         className="input input-sm"
-                        placeholder={`Tulis balasan untuk ${r.username}...`}
+                        placeholder={isEn ? `Write reply for ${r.username}...` : `Tulis balasan untuk ${r.username}...`}
                         value={replyDrafts[r.id] ?? ''}
                         onChange={(e) =>
                           setReplyDrafts((prev) => ({ ...prev, [r.id]: e.target.value }))
@@ -624,7 +663,9 @@ create policy "Allow manage reports" on public.user_reports for all using (true)
                         className="btn btn-primary btn-sm"
                         onClick={() => void handleSendReply(r.id, r.status)}
                       >
-                        {r.admin_reply ? 'Ubah Balasan' : 'Kirim Balasan'}
+                        {r.admin_reply
+                          ? (isEn ? 'Edit Reply' : 'Ubah Balasan')
+                          : (isEn ? 'Send Reply' : 'Kirim Balasan')}
                       </button>
                     </div>
                   </article>

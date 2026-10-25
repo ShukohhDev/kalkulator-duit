@@ -2,6 +2,7 @@ import { useState } from 'react'
 import type { PeriodMode, ProfileId } from '../types'
 import { PROFILES } from '../lib/profiles'
 import { loadPrefs, savePrefs } from '../lib/prefs'
+import { useI18n } from '../lib/i18n'
 
 interface Props {
   current: PeriodMode | null
@@ -11,47 +12,66 @@ interface Props {
   onApplyProfile?: (id: ProfileId) => void
 }
 
-const OPTIONS: { mode: PeriodMode; title: string; desc: string }[] = [
-  {
-    mode: 'week',
-    title: '1 Minggu',
-    desc: 'Uang jajan yang kamu terima tiap minggu',
+const WIZARD_DESC: Record<ProfileId, { id: string; en: string }> = {
+  'tinggal-rumah': {
+    id: 'Ada jatah kebutuhan rumah: listrik, belanja, internet.',
+    en: 'Includes household bills: utilities, groceries, internet.',
   },
-  {
-    mode: 'month',
-    title: '1 Bulan',
-    desc: 'Uang jajan yang kamu terima tiap bulan',
+  'tinggal-kos': {
+    id: 'Fokus anak kos: laundry, WiFi, makan di luar.',
+    en: 'Focus on dorm life: laundry, WiFi, dining out.',
   },
-]
-
-const WIZARD_DESC: Record<ProfileId, string> = {
-  'tinggal-rumah': 'Ada jatah kebutuhan rumah: listrik, belanja, internet.',
-  'tinggal-kos': 'Fokus anak kos: laundry, WiFi, makan di luar.',
 }
 
 export function PeriodPicker({ current, onPick, onCancel, profile, onApplyProfile }: Props) {
+  const { language } = useI18n()
   const onboard = current === null
   const [profilePicked, setProfilePicked] = useState(() => loadPrefs().profilePicked)
 
   const pickProfile = (id: ProfileId, label: string) => {
     if (id === profile) return
-    if (!window.confirm(`Terapkan profil ${label}? Rasio alokasi akan diganti sesuai profil ini (kamu tetap bisa mengubahnya).`)) return
+    const confirmMsg =
+      language === 'en'
+        ? `Apply profile "${label}"? Budget ratios will update to match (you can still customize them later).`
+        : `Terapkan profil ${label}? Rasio alokasi akan diganti sesuai profil ini (kamu tetap bisa mengubahnya).`
+    if (!window.confirm(confirmMsg)) return
     onApplyProfile?.(id)
   }
+
+  const options: { mode: PeriodMode; title: string; desc: string }[] = [
+    {
+      mode: 'week',
+      title: language === 'en' ? '1 Week' : '1 Minggu',
+      desc: language === 'en' ? 'Allowance received every week' : 'Uang jajan yang kamu terima tiap minggu',
+    },
+    {
+      mode: 'month',
+      title: language === 'en' ? '1 Month' : '1 Bulan',
+      desc: language === 'en' ? 'Allowance received every month' : 'Uang jajan yang kamu terima tiap bulan',
+    },
+  ]
 
   return (
     <div className={`overlay${onboard ? ' overlay-onboard' : ''}`} role="dialog" aria-modal="true">
       <div className="overlay-card">
-        <h1 className="overlay-title">{onboard ? 'Kalkulator Uang Jajan' : 'Ganti periode uang jajan'}</h1>
+        <h1 className="overlay-title">
+          {onboard ? 'Kalkulator Uang Jajan' : language === 'en' ? 'Change allowance period' : 'Ganti periode uang jajan'}
+        </h1>
         <p className="overlay-sub">
           {onboard
-            ? 'Pilih dulu uang jajan kamu masuknya tiap apa, supaya alokasinya sesuai.'
+            ? language === 'en'
+              ? 'Choose how often you receive your allowance so we can budget accurately.'
+              : 'Pilih dulu uang jajan kamu masuknya tiap apa, supaya alokasinya sesuai.'
+            : language === 'en'
+            ? 'Budget allocations and recurring income will adjust automatically.'
             : 'Alokasi dan pemasukan otomatis akan ikut menyesuaikan.'}
         </p>
 
         {onboard && !profilePicked && (
           <div className="wizard-step">
-            <p className="profile-label">Langkah 1: kamu tinggal di mana?</p>
+            <p className="profile-label">
+              {language === 'en' ? 'Step 1: Where do you live?' : 'Langkah 1: kamu tinggal di mana?'}
+            </p>
             <div className="wizard-cards">
               {PROFILES.map((item) => (
                 <button
@@ -65,16 +85,18 @@ export function PeriodPicker({ current, onPick, onCancel, profile, onApplyProfil
                   }}
                 >
                   <strong className="wizard-card-title">{item.label}</strong>
-                  <span className="muted small">{WIZARD_DESC[item.id]}</span>
+                  <span className="muted small">{WIZARD_DESC[item.id][language]}</span>
                 </button>
               ))}
             </div>
-            <p className="profile-label">Langkah 2: uang jajan kamu masuknya tiap apa?</p>
+            <p className="profile-label">
+              {language === 'en' ? 'Step 2: How often do you receive your allowance?' : 'Langkah 2: uang jajan kamu masuknya tiap apa?'}
+            </p>
           </div>
         )}
 
         <div className="period-options">
-          {OPTIONS.map((option) => (
+          {options.map((option) => (
             <button
               key={option.mode}
               type="button"
@@ -89,7 +111,7 @@ export function PeriodPicker({ current, onPick, onCancel, profile, onApplyProfil
 
         {!onboard && (
           <div className="profile-block">
-            <p className="profile-label">Profil alokasi</p>
+            <p className="profile-label">{language === 'en' ? 'Allocation profile' : 'Profil alokasi'}</p>
             <div className="profile-chips">
               {PROFILES.map((item) => (
                 <button
@@ -102,13 +124,17 @@ export function PeriodPicker({ current, onPick, onCancel, profile, onApplyProfil
                 </button>
               ))}
             </div>
-            <p className="muted small">Ganti profil menukar rasio alokasi; data transaksi tetap aman.</p>
+            <p className="muted small">
+              {language === 'en'
+                ? 'Switching profiles adjusts allocation ratios; transaction data stays safe.'
+                : 'Ganti profil menukar rasio alokasi; data transaksi tetap aman.'}
+            </p>
           </div>
         )}
 
         {!onboard && onCancel && (
           <button type="button" className="btn btn-ghost" onClick={onCancel}>
-            Batal
+            {language === 'en' ? 'Cancel' : 'Batal'}
           </button>
         )}
       </div>

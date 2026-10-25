@@ -1,11 +1,14 @@
 import { useEffect, useState } from 'react'
 import { getReceipt } from '../lib/receipts'
+import { useI18n } from '../lib/i18n'
 
 interface Props {
   id: string
 }
 
 export function ReceiptView({ id }: Props) {
+  const { language } = useI18n()
+  const isEn = language === 'en'
   const [url, setUrl] = useState<string | null>(null)
   const [missing, setMissing] = useState(false)
 
@@ -27,19 +30,24 @@ export function ReceiptView({ id }: Props) {
   const close = () => setUrl(null)
 
   if (missing) {
-    return <span className="muted small">Bukti hilang</span>
+    return <span className="muted small">{isEn ? 'Receipt missing' : 'Bukti hilang'}</span>
   }
 
   return (
     <>
       <button type="button" className="btn btn-ghost btn-sm" onClick={() => void show()}>
-        Bukti
+        {isEn ? 'Receipt' : 'Bukti'}
       </button>
       {url && (
         <div className="overlay receipt-overlay" role="dialog" aria-modal="true" onClick={close}>
-          <img className="receipt-img" src={url} alt="Bukti transaksi" onClick={(e) => e.stopPropagation()} />
+          <img
+            className="receipt-img"
+            src={url}
+            alt={isEn ? 'Transaction receipt' : 'Bukti transaksi'}
+            onClick={(e) => e.stopPropagation()}
+          />
           <button type="button" className="btn receipt-close" onClick={close}>
-            Tutup
+            {isEn ? 'Close' : 'Tutup'}
           </button>
         </div>
       )}

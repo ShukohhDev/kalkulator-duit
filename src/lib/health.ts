@@ -19,7 +19,14 @@ export interface HealthResult {
 
 const clamp01 = (value: number) => Math.max(0, Math.min(1, value))
 
-function gradeOf(score: number): string {
+function gradeOf(score: number, lang: 'id' | 'en' = 'id'): string {
+  if (lang === 'en') {
+    if (score >= 85) return 'Excellent'
+    if (score >= 70) return 'Good'
+    if (score >= 50) return 'Fair'
+    if (score >= 30) return 'Needs attention'
+    return 'Critical'
+  }
   if (score >= 85) return 'Sangat baik'
   if (score >= 70) return 'Baik'
   if (score >= 50) return 'Cukup'
@@ -29,7 +36,12 @@ function gradeOf(score: number): string {
 
 // Skor 0-100 dari 4 indikator: rasio tabungan 30%, cakupan dana darurat 30%,
 // beban kewajiban 20%, kepatuhan alokasi 20%.
-export function healthScore(state: AppState, derived: Derived, now: Date = new Date()): HealthResult {
+export function healthScore(
+  state: AppState,
+  derived: Derived,
+  now: Date = new Date(),
+  lang: 'id' | 'en' = 'id',
+): HealthResult {
   const period = derived.period
 
   // 1. Rasio tabungan: setoran Ditabung periode ini / (uang jajan + pemasukan periode), penuh di 20%
@@ -79,42 +91,50 @@ export function healthScore(state: AppState, derived: Derived, now: Date = new D
   const indicators: HealthIndicator[] = [
     {
       id: 'tabungan',
-      label: 'Rasio tabungan',
+      label: lang === 'en' ? 'Savings ratio' : 'Rasio tabungan',
       score: tabungan,
       detail:
         incomeInPeriod > 0
-          ? `${formatIDR(savedInPeriod)} dari ${formatIDR(incomeInPeriod)} (target 20%)`
-          : 'Belum ada pemasukan periode ini',
+          ? (lang === 'en'
+              ? `${formatIDR(savedInPeriod)} of ${formatIDR(incomeInPeriod)} (target 20%)`
+              : `${formatIDR(savedInPeriod)} dari ${formatIDR(incomeInPeriod)} (target 20%)`)
+          : (lang === 'en' ? 'No income in this period yet' : 'Belum ada pemasukan periode ini'),
     },
     {
       id: 'cadangan',
-      label: 'Cadangan tabungan',
+      label: lang === 'en' ? 'Savings reserve' : 'Cadangan tabungan',
       score: cadangan,
       detail:
         target > 0
-          ? `${formatIDR(saved)} dari ${formatIDR(target)} (3× kewajiban)`
-          : 'Belum ada kewajiban tetap',
+          ? (lang === 'en'
+              ? `${formatIDR(saved)} of ${formatIDR(target)} (3× obligations)`
+              : `${formatIDR(saved)} dari ${formatIDR(target)} (3× kewajiban)`)
+          : (lang === 'en' ? 'No fixed obligations yet' : 'Belum ada kewajiban tetap'),
     },
     {
       id: 'beban',
-      label: 'Beban kewajiban',
+      label: lang === 'en' ? 'Obligation burden' : 'Beban kewajiban',
       score: beban,
       detail:
         monthlyIncome > 0
-          ? `${formatIDR(wajib)}/bulan dari pemasukan ±${formatIDR(monthlyIncome)}`
-          : 'Belum ada pemasukan',
+          ? (lang === 'en'
+              ? `${formatIDR(wajib)}/mo of ±${formatIDR(monthlyIncome)} income`
+              : `${formatIDR(wajib)}/bulan dari pemasukan ±${formatIDR(monthlyIncome)}`)
+          : (lang === 'en' ? 'No income recorded' : 'Belum ada pemasukan'),
     },
     {
       id: 'patuh',
-      label: 'Kepatuhan alokasi',
+      label: lang === 'en' ? 'Budget compliance' : 'Kepatuhan alokasi',
       score: patuh,
       detail:
         active.length > 0
-          ? `${over.length} dari ${active.length} kategori melebihi alokasi`
-          : 'Tidak ada kategori aktif',
+          ? (lang === 'en'
+              ? `${over.length} of ${active.length} categories exceeded budget`
+              : `${over.length} dari ${active.length} kategori melebihi alokasi`)
+          : (lang === 'en' ? 'No active categories' : 'Tidak ada kategori aktif'),
     },
   ]
 
   const score = Math.round(tabungan * 0.3 + cadangan * 0.3 + beban * 0.2 + patuh * 0.2)
-  return { score, grade: gradeOf(score), indicators }
+  return { score, grade: gradeOf(score, lang), indicators }
 }

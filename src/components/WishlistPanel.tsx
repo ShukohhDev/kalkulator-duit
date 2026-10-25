@@ -5,7 +5,7 @@ import type { Updater } from '../hooks/useAppState'
 import { formatIDR, todayISO } from '../lib/money'
 import { SAVINGS_CATEGORY } from '../lib/state'
 import { uid } from '../lib/id'
-import { translate, type Language } from '../lib/i18n'
+import { translate, useI18n, type Language } from '../lib/i18n'
 import { MoneyInput } from './MoneyInput'
 import { ProgressBar } from './ProgressBar'
 
@@ -16,13 +16,25 @@ interface Props {
   lang?: Language
 }
 
-export function WishlistPanel({ state, derived, update, lang = 'id' }: Props) {
+export function WishlistPanel({ state, derived, update, lang: propLang }: Props) {
+  const { language } = useI18n()
+  const lang = propLang ?? language
+  const isEn = lang === 'en'
+
   const [deposits, setDeposits] = useState<Record<string, number>>({})
 
   const addItem = () => {
     update((s) => ({
       ...s,
-      wishlist: [...s.wishlist, { id: uid('wish'), name: `Incaran ${s.wishlist.length + 1}`, price: 0, saved: 0 }],
+      wishlist: [
+        ...s.wishlist,
+        {
+          id: uid('wish'),
+          name: isEn ? `Wishlist ${s.wishlist.length + 1}` : `Incaran ${s.wishlist.length + 1}`,
+          price: 0,
+          saved: 0,
+        },
+      ],
     }))
   }
 
@@ -45,7 +57,9 @@ export function WishlistPanel({ state, derived, update, lang = 'id' }: Props) {
           id: uid('exp'),
           date: todayISO(),
           categoryId: SAVINGS_CATEGORY,
-          note: `Setoran ${item?.name ?? 'incaran'}`.trim(),
+          note: isEn
+            ? `Deposit ${item?.name ?? 'wishlist'}`.trim()
+            : `Setoran ${item?.name ?? 'incaran'}`.trim(),
           amount,
           wishlistId: id,
         },
@@ -75,7 +89,7 @@ export function WishlistPanel({ state, derived, update, lang = 'id' }: Props) {
                 <input
                   className="input input-name"
                   value={item.name}
-                  aria-label="Nama incaran"
+                  aria-label={isEn ? 'Wishlist item name' : 'Nama incaran'}
                   onChange={(e) => patchItem(item.id, { name: e.target.value })}
                 />
                 <div className="goal-head-actions">
@@ -87,11 +101,11 @@ export function WishlistPanel({ state, derived, update, lang = 'id' }: Props) {
 
               <div className="form-grid form-grid-2">
                 <div className="field">
-                  <label>Harga barang (Rp)</label>
+                  <label>{isEn ? 'Item price (Rp)' : 'Harga barang (Rp)'}</label>
                   <MoneyInput value={item.price} onValueChange={(value) => patchItem(item.id, { price: value })} />
                 </div>
                 <div className="field">
-                  <label>Saldo awal (opsional)</label>
+                  <label>{isEn ? 'Initial balance (optional)' : 'Saldo awal (opsional)'}</label>
                   <MoneyInput value={item.saved} onValueChange={(value) => patchItem(item.id, { saved: value })} />
                 </div>
               </div>
@@ -102,13 +116,19 @@ export function WishlistPanel({ state, derived, update, lang = 'id' }: Props) {
                   {formatIDR(effective)} / {formatIDR(item.price)} ({percent}%)
                   {item.price > 0
                     ? remaining > 0
-                      ? ` · kurang ${formatIDR(remaining)} lagi`
-                      : ' · hore udah cukup, tinggal beli!'
+                      ? isEn
+                        ? ` · ${formatIDR(remaining)} remaining`
+                        : ` · kurang ${formatIDR(remaining)} lagi`
+                      : isEn
+                        ? ' · yay enough saved, ready to buy!'
+                        : ' · hore udah cukup, tinggal beli!'
                     : ''}
                 </span>
                 {logged > 0 && (
                   <span className="muted small">
-                    = saldo awal {formatIDR(item.saved)} + setoran tercatat {formatIDR(logged)}
+                    {isEn
+                      ? `= initial balance ${formatIDR(item.saved)} + recorded deposits ${formatIDR(logged)}`
+                      : `= saldo awal ${formatIDR(item.saved)} + setoran tercatat ${formatIDR(logged)}`}
                   </span>
                 )}
               </div>
@@ -117,7 +137,7 @@ export function WishlistPanel({ state, derived, update, lang = 'id' }: Props) {
                 <MoneyInput
                   value={deposits[item.id] ?? 0}
                   onValueChange={(value) => setDeposits((prev) => ({ ...prev, [item.id]: value }))}
-                  placeholder="Mau setor berapa?"
+                  placeholder={isEn ? 'How much to deposit?' : 'Mau setor berapa?'}
                 />
                 <button
                   type="button"

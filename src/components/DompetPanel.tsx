@@ -6,7 +6,7 @@ import { loadPrefs, savePrefs, type WalletCurrency } from '../lib/prefs'
 import { onRateUpdate, refreshUsdRate } from '../lib/rates'
 import { uid } from '../lib/id'
 import { END_SAVINGS_WALLET_ID } from '../lib/state'
-import { translate, type Language } from '../lib/i18n'
+import { translate, useI18n, type Language } from '../lib/i18n'
 import { MoneyInput } from './MoneyInput'
 
 interface Props {
@@ -19,13 +19,17 @@ function formatUSD(value: number): string {
   return `$${value.toLocaleString('en-US', { maximumFractionDigits: 0 })}`
 }
 
-function formatRateAt(at: string): string {
+function formatRateAt(at: string, isEn: boolean): string {
   const stamp = Date.parse(at)
   if (!Number.isFinite(stamp)) return ''
-  return new Date(stamp).toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' })
+  return new Date(stamp).toLocaleDateString(isEn ? 'en-US' : 'id-ID', { day: 'numeric', month: 'long', year: 'numeric' })
 }
 
-export function DompetPanel({ state, update, lang = 'id' }: Props) {
+export function DompetPanel({ state, update, lang: propLang }: Props) {
+  const { language } = useI18n()
+  const lang = propLang ?? language
+  const isEn = lang === 'en'
+
   const [currency, setCurrency] = useState<WalletCurrency>(() => loadPrefs().walletCurrency)
   const [rateInfo, setRateInfo] = useState(() => {
     const prefs = loadPrefs()
@@ -47,7 +51,17 @@ export function DompetPanel({ state, update, lang = 'id' }: Props) {
   }
 
   const addWallet = () => {
-    update((s) => ({ ...s, wallets: [...s.wallets, { id: uid('wallet'), name: `Dompet ${s.wallets.length + 1}`, balance: 0 }] }))
+    update((s) => ({
+      ...s,
+      wallets: [
+        ...s.wallets,
+        {
+          id: uid('wallet'),
+          name: isEn ? `Wallet ${s.wallets.length + 1}` : `Dompet ${s.wallets.length + 1}`,
+          balance: 0,
+        },
+      ],
+    }))
   }
 
   const patchWallet = (id: string, patch: Partial<{ name: string; balance: number }>) => {
@@ -109,7 +123,7 @@ export function DompetPanel({ state, update, lang = 'id' }: Props) {
         {inUsd && (
           <span className="muted small wallet-rate" data-testid="rate-note">
             1 USD = Rp {Math.round(rateInfo.rate).toLocaleString('id-ID')} ·{' '}
-            {rateInfo.at ? translate('dompet.rateAuto', lang, { at: formatRateAt(rateInfo.at) }) : translate('dompet.rateOffline', lang)}
+            {rateInfo.at ? translate('dompet.rateAuto', lang, { at: formatRateAt(rateInfo.at, isEn) }) : translate('dompet.rateOffline', lang)}
           </span>
         )}
       </div>
@@ -122,10 +136,16 @@ export function DompetPanel({ state, update, lang = 'id' }: Props) {
             <article key={wallet.id} className="ob-row">
               <input
                 className="input input-name"
-                aria-label={`Nama dompet ${wallet.name}`}
+                aria-label={isEn ? `Wallet name ${wallet.name}` : `Nama dompet ${wallet.name}`}
                 value={wallet.name}
                 readOnly={isEnd}
-                title={isEnd ? 'Dompet otomatis terhubung ke Tabungan Akhir Periode' : undefined}
+                title={
+                  isEnd
+                    ? isEn
+                      ? 'Wallet automatically linked to End-of-period Savings'
+                      : 'Dompet otomatis terhubung ke Tabungan Akhir Periode'
+                    : undefined
+                }
                 onChange={(e) => patchWallet(wallet.id, { name: e.target.value })}
               />
               <MoneyInput
@@ -139,8 +159,12 @@ export function DompetPanel({ state, update, lang = 'id' }: Props) {
                     className="badge"
                     title={
                       isTarget
-                        ? 'Saldo otomatis sinkron dengan Tabungan Akhir Periode'
-                        : 'Dompet khusus Tabungan Akhir Periode'
+                        ? isEn
+                          ? 'Balance automatically syncs with End-of-period Savings'
+                          : 'Saldo otomatis sinkron dengan Tabungan Akhir Periode'
+                        : isEn
+                          ? 'Special wallet for End-of-period Savings'
+                          : 'Dompet khusus Tabungan Akhir Periode'
                     }
                     style={{ fontSize: '0.75rem', padding: '4px 8px' }}
                   >
@@ -151,7 +175,11 @@ export function DompetPanel({ state, update, lang = 'id' }: Props) {
                     {isTarget && (
                       <span
                         className="badge badge-accent"
-                        title="Dompet ini dipilih sebagai tujuan alokasi Tabungan Akhir Periode"
+                        title={
+                          isEn
+                            ? 'This wallet is selected as destination for End-of-period Savings'
+                            : 'Dompet ini dipilih sebagai tujuan alokasi Tabungan Akhir Periode'
+                        }
                         style={{ fontSize: '0.75rem', padding: '4px 8px', marginRight: 4 }}
                       >
                         {translate('dompet.savingsTargetBadge', lang)}

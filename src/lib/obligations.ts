@@ -262,14 +262,20 @@ export function notifyDue(state: AppState, now: Date = new Date()): number {
   return sent
 }
 
-export function dueLabel(days: number): string {
+export function dueLabel(days: number, lang: 'id' | 'en' = 'id'): string {
+  if (lang === 'en') {
+    if (days === 0) return 'due today'
+    if (days === 1) return 'due tomorrow'
+    return `in ${days} days`
+  }
   if (days === 0) return 'jatuh tempo hari ini'
   if (days === 1) return 'jatuh tempo besok'
   return `H-${days}`
 }
 
-export function dueDateLabel(dueDay: number, now: Date = new Date()): string {
+export function dueDateLabel(dueDay: number, now: Date = new Date(), lang: 'id' | 'en' = 'id'): string {
   const days = daysUntilDue(dueDay, now)
   const date = new Date(now.getFullYear(), now.getMonth(), now.getDate() + days)
-  return date.toLocaleDateString('id-ID', { day: 'numeric', month: 'short' })
+  return date.toLocaleDateString(lang === 'en' ? 'en-US' : 'id-ID', { day: 'numeric', month: 'short' })
 }
+

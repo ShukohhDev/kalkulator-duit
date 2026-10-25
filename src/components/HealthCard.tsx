@@ -1,24 +1,26 @@
 import type { AppState } from '../types'
 import type { Derived } from '../lib/derive'
 import { healthScore } from '../lib/health'
+import { useI18n } from '../lib/i18n'
 
-function getScoreGrade(score: number) {
-  if (score >= 85) return { color: 'var(--ok)', label: 'Luar biasa' }
-  if (score >= 70) return { color: 'var(--ok)', label: 'Sehat' }
-  if (score >= 50) return { color: 'var(--warn)', label: 'Perlu perhatian' }
-  return { color: 'var(--danger)', label: 'Kritis' }
+function getScoreGrade(score: number, lang: 'id' | 'en') {
+  if (score >= 85) return { color: 'var(--ok)', label: lang === 'en' ? 'Outstanding' : 'Luar biasa' }
+  if (score >= 70) return { color: 'var(--ok)', label: lang === 'en' ? 'Healthy' : 'Sehat' }
+  if (score >= 50) return { color: 'var(--warn)', label: lang === 'en' ? 'Needs Attention' : 'Perlu perhatian' }
+  return { color: 'var(--danger)', label: lang === 'en' ? 'Critical' : 'Kritis' }
 }
 
 export function HealthCard({ state, derived }: { state: AppState; derived: Derived }) {
-  const result = healthScore(state, derived)
-  const { color } = getScoreGrade(result.score)
+  const { language } = useI18n()
+  const result = healthScore(state, derived, new Date(), language)
+  const { color } = getScoreGrade(result.score, language)
   const circumference = 2 * Math.PI * 40
   const progress = (result.score / 100) * circumference
 
   return (
-    <section className="card health-card" aria-label="Skor kesehatan keuangan">
+    <section className="card health-card" aria-label={language === 'en' ? 'Financial health score' : 'Skor kesehatan keuangan'}>
       <header className="card-head">
-        <h2>Skor Kesehatan Keuangan</h2>
+        <h2>{language === 'en' ? 'Financial Health Score' : 'Skor Kesehatan Keuangan'}</h2>
       </header>
 
       <div style={{ display: 'flex', gap: '24px', alignItems: 'center', marginBottom: '20px', flexWrap: 'wrap' }}>
@@ -59,7 +61,9 @@ export function HealthCard({ state, derived }: { state: AppState; derived: Deriv
             {result.grade}
           </p>
           <p className="muted small" style={{ margin: 0, lineHeight: 1.5 }}>
-            Skor ini dinilai otomatis dari caramu ngatur alokasi, nabung, dan nahan pengeluaran.
+            {language === 'en'
+              ? 'This score is automatically calculated from how you allocate, save, and manage your spending habits.'
+              : 'Skor ini dinilai otomatis dari caramu ngatur alokasi, nabung, dan nahan pengeluaran.'}
           </p>
         </div>
       </div>

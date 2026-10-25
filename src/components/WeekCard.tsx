@@ -4,7 +4,7 @@ import type { AppState, Notify } from '../types'
 import type { Derived } from '../lib/derive'
 import { expenseLast7Days } from '../lib/derive'
 import { formatIDR, roundTo500 } from '../lib/money'
-import { translate, type Language } from '../lib/i18n'
+import { translate, useI18n, type Language } from '../lib/i18n'
 import { CHART_FONT, MUTED_COLOR } from '../lib/chartSetup'
 
 interface Props {
@@ -14,7 +14,11 @@ interface Props {
   lang?: Language
 }
 
-export function WeekCard({ state, derived, notify, lang = 'id' }: Props) {
+export function WeekCard({ state, derived, notify, lang: propLang }: Props) {
+  const { language } = useI18n()
+  const lang = propLang ?? language
+  const isEn = lang === 'en'
+
   const week = useMemo(() => expenseLast7Days(state), [state])
 
   const rawDailyBudget =
@@ -101,16 +105,17 @@ export function WeekCard({ state, derived, notify, lang = 'id' }: Props) {
     const body =
       week.today.total > 0
         ? [
-            `Pengeluaran hari ini: ${formatIDR(week.today.total)}`,
+            `${isEn ? "Today's expenses:" : 'Pengeluaran hari ini:'} ${formatIDR(week.today.total)}`,
             ...week.today.byCategory.map((item) => `- ${item.name}: ${formatIDR(item.amount)}`),
           ]
-        : ['Belum ada pengeluaran hari ini']
-    const text = [`Kalkulator Uang Jajan · ${week.today.label}`, ...body].join('\n')
+        : [isEn ? 'No expenses recorded today' : 'Belum ada pengeluaran hari ini']
+    const titleApp = isEn ? 'Pocket Money Calculator' : 'Kalkulator Uang Jajan'
+    const text = [`${titleApp} · ${week.today.label}`, ...body].join('\n')
     try {
       await navigator.clipboard.writeText(text)
-      notify('Ringkasan hari ini disalin')
+      notify(isEn ? "Today's summary copied" : 'Ringkasan hari ini disalin')
     } catch {
-      notify('Gagal menyalin ringkasan', { error: true })
+      notify(isEn ? 'Failed to copy summary' : 'Gagal menyalin ringkasan', { error: true })
     }
   }
 

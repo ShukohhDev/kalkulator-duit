@@ -7,6 +7,7 @@ import { INCOME_SOURCES, END_SAVINGS_WALLET_ID } from '../lib/state'
 import { applyDestination } from '../lib/destination'
 import { deleteReceipt, saveReceipt } from '../lib/receipts'
 import { uid } from '../lib/id'
+import { useI18n } from '../lib/i18n'
 import { MoneyInput } from './MoneyInput'
 import { ReceiptView } from './ReceiptView'
 import { CustomSelect } from './CustomSelect'
@@ -39,6 +40,7 @@ function parseDestination(key: string): IncomeDestination | undefined {
 }
 
 export function IncomePanel({ state, update, notify }: Props) {
+  const { t, language } = useI18n()
   const [date, setDate] = useState(todayISO())
   const [source, setSource] = useState(SOURCES[0])
   const [amount, setAmount] = useState(0)
@@ -172,23 +174,24 @@ export function IncomePanel({ state, update, notify }: Props) {
   return (
     <section className="card">
       <header className="card-head">
-        <h2>Pemasukan Lain</h2>
-        <span className="muted small">total {formatIDR(manualTotal)}</span>
+        <h2>{language === 'en' ? 'Other Income' : 'Pemasukan Lain'}</h2>
+        <span className="muted small">{language === 'en' ? 'total' : 'total'} {formatIDR(manualTotal)}</span>
       </header>
 
       <p className="muted small">
-        Uang jajan dibagi rata per hari dan otomatis tercatat sebagai pemasukan. Di sini kamu menambah pemasukan lain
-        seperti uang lebaran atau hasil kerja.
+        {language === 'en'
+          ? 'Your allowance is distributed evenly per day and automatically recorded as income. Here you can add other income such as bonuses or earnings.'
+          : 'Uang jajan dibagi rata per hari dan otomatis tercatat sebagai pemasukan. Di sini kamu menambah pemasukan lain seperti uang lebaran atau hasil kerja.'}
       </p>
 
       <form className="form-grid" onSubmit={submit}>
         <div className="field">
-          <label htmlFor="inc-date">Tanggal</label>
+          <label htmlFor="inc-date">{t('income.date')}</label>
           <input id="inc-date" className="input" type="date" value={date} onChange={(e) => setDate(e.target.value)} />
         </div>
         <div className="field">
-          <label htmlFor="inc-source">Sumber</label>
-          <CustomSelect id="inc-source" className="input" value={source} onChange={(e) => setSource(e.target.value)} title="Pilih Sumber Pemasukan">
+          <label htmlFor="inc-source">{t('income.sourceLabel')}</label>
+          <CustomSelect id="inc-source" className="input" value={source} onChange={(e) => setSource(e.target.value)} title={language === 'en' ? 'Select Income Source' : 'Pilih Sumber Pemasukan'}>
             {!SOURCES.includes(source) && <option value={source}>{source}</option>}
             {SOURCES.map((item) => (
               <option key={item} value={item}>
@@ -198,14 +201,14 @@ export function IncomePanel({ state, update, notify }: Props) {
           </CustomSelect>
         </div>
         <div className="field">
-          <label htmlFor="inc-amount">Nominal</label>
+          <label htmlFor="inc-amount">{t('income.amountLabel')}</label>
           <MoneyInput value={amount} onValueChange={setAmount} id="inc-amount" />
         </div>
         <div className="field">
-          <label htmlFor="inc-dest">Masukkan ke</label>
-          <CustomSelect id="inc-dest" className="input" value={destKey} onChange={(e) => setDestKey(e.target.value)} title="Pilih Tujuan Pemasukan">
-            <option value="jajan">Uang jajan</option>
-            <option value="pot">Saku Tabungan</option>
+          <label htmlFor="inc-dest">{t('income.destLabel')}</label>
+          <CustomSelect id="inc-dest" className="input" value={destKey} onChange={(e) => setDestKey(e.target.value)} title={language === 'en' ? 'Select Income Destination' : 'Pilih Tujuan Pemasukan'}>
+            <option value="jajan">{language === 'en' ? 'Pocket money budget' : 'Uang jajan'}</option>
+            <option value="pot">{language === 'en' ? 'Savings Wallet' : 'Saku Tabungan'}</option>
             {state.wallets
               .filter((wallet) => wallet.id !== END_SAVINGS_WALLET_ID)
               .map((wallet) => (
@@ -216,7 +219,7 @@ export function IncomePanel({ state, update, notify }: Props) {
           </CustomSelect>
         </div>
         <div className="field">
-          <label htmlFor="inc-receipt">Bukti (opsional)</label>
+          <label htmlFor="inc-receipt">{language === 'en' ? 'Receipt (optional)' : 'Bukti (opsional)'}</label>
           <input
             id="inc-receipt"
             className="input"
@@ -229,12 +232,12 @@ export function IncomePanel({ state, update, notify }: Props) {
               setReceiptError('')
               saveReceipt(file)
                 .then((id) => setReceiptId(id))
-                .catch(() => setReceiptError('Gagal menyimpan bukti di browser.'))
+                .catch(() => setReceiptError(language === 'en' ? 'Failed to save receipt.' : 'Gagal menyimpan bukti di browser.'))
             }}
           />
           {receiptId && (
             <div className="inline-form">
-              <span className="chip">Bukti terlampir</span>
+              <span className="chip">{language === 'en' ? 'Receipt attached' : 'Bukti terlampir'}</span>
               <button
                 type="button"
                 className="btn btn-ghost btn-sm"
@@ -244,7 +247,7 @@ export function IncomePanel({ state, update, notify }: Props) {
                   setReceiptId(null)
                 }}
               >
-                Lepas
+                {language === 'en' ? 'Detach' : 'Lepas'}
               </button>
             </div>
           )}
@@ -252,11 +255,11 @@ export function IncomePanel({ state, update, notify }: Props) {
         </div>
         <div className="form-actions">
           <button type="submit" className="btn" disabled={amount <= 0}>
-            {editingId ? 'Simpan perubahan' : 'Tambah pemasukan'}
+            {editingId ? t('income.saveChange') : (language === 'en' ? 'Add income' : 'Tambah pemasukan')}
           </button>
           {editingId && (
             <button type="button" className="btn btn-ghost" onClick={resetForm}>
-              Batal
+              {t('income.cancel')}
             </button>
           )}
         </div>
@@ -267,36 +270,36 @@ export function IncomePanel({ state, update, notify }: Props) {
           <div className="search-input-wrap">
             <input
               className="input input-search"
-              placeholder="Cari sumber atau nominal…"
+              placeholder={language === 'en' ? 'Search source or amount…' : 'Cari sumber atau nominal…'}
               value={query}
               onChange={(e) => setQuery(e.target.value)}
-              aria-label="Cari pemasukan"
+              aria-label={t('income.searchAria')}
             />
             {query && (
               <button
                 type="button"
                 className="search-clear-btn"
                 onClick={() => setQuery('')}
-                aria-label="Bersihkan pencarian"
-                title="Hapus kata kunci"
+                aria-label={language === 'en' ? 'Clear search' : 'Bersihkan pencarian'}
+                title={language === 'en' ? 'Clear keywords' : 'Hapus kata kunci'}
               >
                 {ICON_CLOSE}
               </button>
             )}
           </div>
-          <CustomSelect className="input" value={filterMonth} onChange={(e) => setFilterMonth(e.target.value)} aria-label="Filter bulan" title="Filter Bulan">
-            <option value="all">Semua bulan</option>
+          <CustomSelect className="input" value={filterMonth} onChange={(e) => setFilterMonth(e.target.value)} aria-label="Filter bulan" title={language === 'en' ? 'Filter Month' : 'Filter Bulan'}>
+            <option value="all">{language === 'en' ? 'All months' : 'Semua bulan'}</option>
             {months.map((key) => (
               <option key={key} value={key}>
                 {monthLabel(key)}
               </option>
             ))}
           </CustomSelect>
-          <CustomSelect className="input" value={sortBy} onChange={(e) => setSortBy(e.target.value as 'date' | 'date_asc' | 'amount' | 'amount_asc')} aria-label="Urutan" title="Urutan Catatan">
-            <option value="date">Terbaru</option>
-            <option value="date_asc">Terlama</option>
-            <option value="amount">Nominal terbesar</option>
-            <option value="amount_asc">Nominal terkecil</option>
+          <CustomSelect className="input" value={sortBy} onChange={(e) => setSortBy(e.target.value as 'date' | 'date_asc' | 'amount' | 'amount_asc')} aria-label="Urutan" title={language === 'en' ? 'Sort Order' : 'Urutan Catatan'}>
+            <option value="date">{t('expenses.sortNewest')}</option>
+            <option value="date_asc">{t('expenses.sortOldest')}</option>
+            <option value="amount">{t('expenses.sortLargest')}</option>
+            <option value="amount_asc">{t('expenses.sortSmallest')}</option>
           </CustomSelect>
         </div>
 
@@ -306,27 +309,30 @@ export function IncomePanel({ state, update, notify }: Props) {
             className={`filter-chip${timeRange === 'all' ? ' filter-chip-active' : ''}`}
             onClick={() => setTimeRange('all')}
           >
-            Semua Periode
+            {t('expenses.rangeAll')}
           </button>
           <button
             type="button"
             className={`filter-chip${timeRange === 'this_month' ? ' filter-chip-active' : ''}`}
             onClick={() => setTimeRange('this_month')}
           >
-            Bulan Ini
+            {t('expenses.rangeThisMonth')}
           </button>
           <button
             type="button"
             className={`filter-chip${timeRange === 'last_7_days' ? ' filter-chip-active' : ''}`}
             onClick={() => setTimeRange('last_7_days')}
           >
-            7 Hari Terakhir
+            {t('expenses.range7Days')}
           </button>
         </div>
 
         <div className="filter-summary-row">
           <span className="muted small">
-            Menampilkan {visible.length} dari {state.incomes.length} catatan · Total <strong>{formatIDR(totalVisible)}</strong>
+            {language === 'en'
+              ? `Showing ${visible.length} of ${state.incomes.length} entries · Total `
+              : `Menampilkan ${visible.length} dari ${state.incomes.length} catatan · Total `}
+            <strong>{formatIDR(totalVisible)}</strong>
           </span>
           {hasActiveFilter && (
             <button
@@ -352,34 +358,39 @@ export function IncomePanel({ state, update, notify }: Props) {
               <strong>{item.source}</strong>
               <span className="muted small">
                 {formatShortDate(item.date)}
-                {destinationLabel(state, item.destination) && ` · ke ${destinationLabel(state, item.destination)}`}
+                {destinationLabel(state, item.destination) && ` · ${language === 'en' ? 'to' : 'ke'} ${destinationLabel(state, item.destination)}`}
               </span>
             </span>
             <span className="tx-amount tx-in tabular-nums">
-              <span className="tx-kind-badge tx-kind-in" aria-label="Pemasukan">
-                <span aria-hidden="true">↑</span> Masuk
+              <span className="tx-kind-badge tx-kind-in" aria-label={language === 'en' ? 'Income' : 'Pemasukan'}>
+                <span aria-hidden="true">↑</span> {language === 'en' ? 'In' : 'Masuk'}
               </span>
               +{formatIDR(item.amount)}
             </span>
             <span className="tx-actions">
               {item.receiptId && <ReceiptView id={item.receiptId} />}
               <button type="button" className="btn btn-ghost btn-sm" onClick={() => startEdit(item)}>
-                Ubah
+                {language === 'en' ? 'Edit' : 'Ubah'}
               </button>
               <button type="button" className="btn btn-ghost btn-sm btn-danger" onClick={() => remove(item.id)}>
-                Hapus
+                {language === 'en' ? 'Delete' : 'Hapus'}
               </button>
             </span>
           </li>
         ))}
         {visible.length === 0 && (
           <li className="empty empty-state-box">
-            <span className="empty-state-icon" aria-hidden="true">💰</span>
-            <strong>Belum ada catatan pemasukan</strong>
+            <span className="empty-state-icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <circle cx="12" cy="12" r="10" />
+                <path d="M12 6v12M16 10H9.5a2.5 2.5 0 0 0 0 5h5a2.5 2.5 0 0 1 0 5H8" />
+              </svg>
+            </span>
+            <strong>{language === 'en' ? 'No income entries yet' : 'Belum ada catatan pemasukan'}</strong>
             <span className="muted small">
               {query || filterMonth !== 'all' || timeRange !== 'all'
-                ? 'Tidak ada pemasukan yang cocok dengan filter kamu.'
-                : 'Catat uang jajan masuk, gaji, atau transferan dengan tombol [+ Pemasukan] di atas!'}
+                ? (language === 'en' ? 'No income matches your filter.' : 'Tidak ada pemasukan yang cocok dengan filter kamu.')
+                : (language === 'en' ? 'Log your incoming funds, salary, or transfer with the [+ Income] button above!' : 'Catat uang jajan masuk, gaji, atau transferan dengan tombol [+ Pemasukan] di atas!')}
             </span>
           </li>
         )}

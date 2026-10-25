@@ -1,11 +1,15 @@
 import { useState } from 'react'
 import type { Alert } from '../lib/alerts'
+import { useI18n } from '../lib/i18n'
 
 interface Props {
   alerts: Alert[]
 }
 
 export function AlertsPanel({ alerts }: Props) {
+  const { language } = useI18n()
+  const isEn = language === 'en'
+
   const [dismissed, setDismissed] = useState<string[]>([])
   const visible = alerts.filter((alert) => !dismissed.includes(alert.id))
   if (visible.length === 0) return null
@@ -13,8 +17,12 @@ export function AlertsPanel({ alerts }: Props) {
   return (
     <section className="card alert-card">
       <header className="card-head">
-        <h2>Peringatan</h2>
-        <span className="muted small">dihitung otomatis dari alokasi & sisa uang</span>
+        <h2>{isEn ? 'Alerts' : 'Peringatan'}</h2>
+        <span className="muted small">
+          {isEn
+            ? 'calculated automatically from allocation & remaining funds'
+            : 'dihitung otomatis dari alokasi & sisa uang'}
+        </span>
       </header>
       <ul className="alert-list">
         {visible.map((alert) => (
@@ -26,7 +34,7 @@ export function AlertsPanel({ alerts }: Props) {
             <button
               type="button"
               className="alert-dismiss"
-              aria-label={`Tutup peringatan ${alert.id}`}
+              aria-label={isEn ? `Dismiss alert ${alert.id}` : `Tutup peringatan ${alert.id}`}
               onClick={() => setDismissed((prev) => [...prev, alert.id])}
             >
               ×

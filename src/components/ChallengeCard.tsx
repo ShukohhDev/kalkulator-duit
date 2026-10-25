@@ -2,8 +2,12 @@ import type { AppState } from '../types'
 import type { Derived } from '../lib/derive'
 import { challenge } from '../lib/challenge'
 import { formatIDR } from '../lib/money'
+import { useI18n } from '../lib/i18n'
 
 export function ChallengeCard({ state, derived }: { state: AppState; derived: Derived }) {
+  const { language } = useI18n()
+  const isEn = language === 'en'
+
   const result = challenge(state, derived)
   if (!result) return null
 
@@ -15,11 +19,11 @@ export function ChallengeCard({ state, derived }: { state: AppState; derived: De
   const statusColor = deficit ? 'var(--danger)' : result.finished ? 'var(--ok)' : 'var(--accent)'
 
   return (
-    <section className="card challenge-card" aria-label="Tantangan Hemat">
+    <section className="card challenge-card" aria-label={isEn ? 'Frugal Challenge' : 'Tantangan Hemat'}>
       <header className="card-head">
-        <h2>Tantangan Hemat</h2>
+        <h2>{isEn ? 'Frugal Challenge' : 'Tantangan Hemat'}</h2>
         <span className="chip" style={{ background: 'var(--surface-3)', color: 'var(--text)', fontWeight: 600 }}>
-          {result.points} poin
+          {result.points} {isEn ? 'pts' : 'poin'}
         </span>
       </header>
 
@@ -29,7 +33,7 @@ export function ChallengeCard({ state, derived }: { state: AppState; derived: De
           aria-valuenow={result.progressPct}
           aria-valuemin={0}
           aria-valuemax={100}
-          aria-label="Progres pengeluaran tantangan"
+          aria-label={isEn ? 'Challenge spending progress' : 'Progres pengeluaran tantangan'}
           style={{ position: 'relative', width: '80px', height: '80px', flexShrink: 0 }}
         >
           <svg width="80" height="80" style={{ transform: 'rotate(-90deg)' }}>
@@ -63,24 +67,30 @@ export function ChallengeCard({ state, derived }: { state: AppState; derived: De
 
         <div style={{ flex: 1, minWidth: '140px' }}>
           <p className="muted small" style={{ margin: '0 0 4px' }}>
-            Target: <strong style={{ color: 'var(--text)' }}>{formatIDR(result.target)}</strong>
-            <span> (80% uang jajan)</span>
+            {isEn ? 'Target:' : 'Target:'} <strong style={{ color: 'var(--text)' }}>{formatIDR(result.target)}</strong>
+            <span>{isEn ? ' (80% of allowance)' : ' (80% uang jajan)'}</span>
           </p>
           <p className="muted small" style={{ margin: '0 0 6px' }}>
-            Terpakai: <strong style={{ color: statusColor }}>{formatIDR(result.spent)}</strong>
+            {isEn ? 'Spent:' : 'Terpakai:'} <strong style={{ color: statusColor }}>{formatIDR(result.spent)}</strong>
           </p>
 
           {deficit ? (
             <p className="challenge-status text-danger" style={{ margin: 0, fontSize: '13px' }}>
-              Kelebihan {formatIDR(-result.left)}. Tantangan gagal.
+              {isEn
+                ? `Over by ${formatIDR(-result.left)}. Challenge failed.`
+                : `Kelebihan ${formatIDR(-result.left)}. Tantangan gagal.`}
             </p>
           ) : result.finished ? (
             <p className="challenge-status text-ok" style={{ margin: 0, fontSize: '13px' }}>
-              Lolos! Sisa {formatIDR(result.left)} tidak terpakai.
+              {isEn
+                ? `Passed! ${formatIDR(result.left)} remaining unused.`
+                : `Lolos! Sisa ${formatIDR(result.left)} tidak terpakai.`}
             </p>
           ) : (
             <p className="challenge-status" style={{ margin: 0, fontSize: '13px' }}>
-              Di jalur hemat: sisa {formatIDR(result.left)}.
+              {isEn
+                ? `On track: ${formatIDR(result.left)} remaining.`
+                : `Di jalur hemat: sisa ${formatIDR(result.left)}.`}
             </p>
           )}
         </div>
@@ -100,7 +110,9 @@ export function ChallengeCard({ state, derived }: { state: AppState; derived: De
             fontWeight: 600,
           }}
         >
-          Menang beruntun {result.streak} periode!
+          {isEn
+            ? `${result.streak} period winning streak!`
+            : `Menang beruntun ${result.streak} periode!`}
         </div>
       )}
     </section>

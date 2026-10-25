@@ -5,6 +5,7 @@ import { INCOME_SOURCES, SAVINGS_CATEGORY, primaryGoal, isSavingsOrEmergencyCate
 import { formatIDR, todayISO } from '../lib/money'
 import { uid } from '../lib/id'
 import { deleteReceipt, saveReceipt } from '../lib/receipts'
+import { useI18n } from '../lib/i18n'
 import { MoneyInput } from './MoneyInput'
 import { CustomSelect } from './CustomSelect'
 
@@ -23,6 +24,7 @@ const CLOSE_ICON = (
 )
 
 export function QuickEntry({ mode, state, update, notify, onClose }: Props) {
+  const { language } = useI18n()
   const [date, setDate] = useState(todayISO())
   const [categoryId, setCategoryId] = useState(() => state.categories[0]?.id ?? 'makan')
   const [source, setSource] = useState(INCOME_SOURCES[0])
@@ -88,13 +90,13 @@ export function QuickEntry({ mode, state, update, notify, onClose }: Props) {
           expenses: [expense, ...s.expenses],
         }
       })
-      notify('Pengeluaran dicatat')
+      notify(language === 'en' ? 'Expense recorded' : 'Pengeluaran dicatat')
       setReceiptId(null)
       setWalletId('')
     } else {
       const income: Income = { id: uid('inc'), date, source, amount }
       update((s) => ({ ...s, incomes: [income, ...s.incomes] }))
-      notify('Pemasukan dicatat')
+      notify(language === 'en' ? 'Income recorded' : 'Pemasukan dicatat')
     }
     setAmount(0)
   }
@@ -102,13 +104,17 @@ export function QuickEntry({ mode, state, update, notify, onClose }: Props) {
   return (
     <section ref={rootRef} className="card quick-form quick-pop">
       <header className="card-head">
-        <h2>{mode === 'expense' ? 'Catat Pengeluaran' : 'Catat Pemasukan'}</h2>
+        <h2>
+          {mode === 'expense'
+            ? language === 'en' ? 'Log Expense' : 'Catat Pengeluaran'
+            : language === 'en' ? 'Log Income' : 'Catat Pemasukan'}
+        </h2>
         <button
           type="button"
           className="btn btn-ghost btn-sm window-close"
           onClick={onClose}
-          aria-label="Tutup form catat cepat"
-          title="Tutup"
+          aria-label={language === 'en' ? 'Close quick entry' : 'Tutup form catat cepat'}
+          title={language === 'en' ? 'Close' : 'Tutup'}
         >
           {CLOSE_ICON}
         </button>
@@ -116,14 +122,20 @@ export function QuickEntry({ mode, state, update, notify, onClose }: Props) {
 
       <form className="form-grid" onSubmit={submit}>
         <div className="field">
-          <label htmlFor="qk-date">Tanggal</label>
+          <label htmlFor="qk-date">{language === 'en' ? 'Date' : 'Tanggal'}</label>
           <input id="qk-date" className="input" type="date" value={date} onChange={(e) => setDate(e.target.value)} />
         </div>
 
         {mode === 'expense' ? (
           <div className="field">
-            <label htmlFor="qk-cat">Kategori</label>
-            <CustomSelect id="qk-cat" className="input" value={categoryId} onChange={(e) => setCategoryId(e.target.value)} title="Pilih Kategori">
+            <label htmlFor="qk-cat">{language === 'en' ? 'Category' : 'Kategori'}</label>
+            <CustomSelect
+              id="qk-cat"
+              className="input"
+              value={categoryId}
+              onChange={(e) => setCategoryId(e.target.value)}
+              title={language === 'en' ? 'Select Category' : 'Pilih Kategori'}
+            >
               {state.categories.map((category) => (
                 <option key={category.id} value={category.id}>
                   {category.name}
@@ -133,14 +145,22 @@ export function QuickEntry({ mode, state, update, notify, onClose }: Props) {
             </CustomSelect>
             {isSavingsOrEmergencyCategory(categoryId, state.categories) && (
               <p className="small" style={{ color: 'var(--primary)', margin: '4px 0 0 0' }}>
-                Memotong Tabungan Akhir Periode ({formatIDR(state.endSavings)}).
+                {language === 'en'
+                  ? `Deducts End-of-Period Savings (${formatIDR(state.endSavings)}).`
+                  : `Memotong Tabungan Akhir Periode (${formatIDR(state.endSavings)}).`}
               </p>
             )}
           </div>
         ) : (
           <div className="field">
-            <label htmlFor="qk-source">Sumber</label>
-            <CustomSelect id="qk-source" className="input" value={source} onChange={(e) => setSource(e.target.value)} title="Pilih Sumber">
+            <label htmlFor="qk-source">{language === 'en' ? 'Source' : 'Sumber'}</label>
+            <CustomSelect
+              id="qk-source"
+              className="input"
+              value={source}
+              onChange={(e) => setSource(e.target.value)}
+              title={language === 'en' ? 'Select Source' : 'Pilih Sumber'}
+            >
               {INCOME_SOURCES.map((item) => (
                 <option key={item} value={item}>
                   {item}
@@ -152,18 +172,18 @@ export function QuickEntry({ mode, state, update, notify, onClose }: Props) {
 
         {mode === 'expense' && (
           <div className="field">
-            <label htmlFor="qk-wallet">Sumber dana / Dompet</label>
+            <label htmlFor="qk-wallet">{language === 'en' ? 'Wallet / Source' : 'Sumber dana / Dompet'}</label>
             <CustomSelect
               id="qk-wallet"
               className="input"
               value={walletId}
               onChange={(e) => setWalletId(e.target.value)}
-              title="Pilih Dompet / E-Wallet"
+              title={language === 'en' ? 'Select Wallet' : 'Pilih Dompet / E-Wallet'}
             >
-              <option value="">Tanpa potong dompet</option>
+              <option value="">{language === 'en' ? 'Do not deduct wallet' : 'Tanpa potong dompet'}</option>
               {state.wallets.map((wallet) => (
                 <option key={wallet.id} value={wallet.id}>
-                  {wallet.name} (Saldo: {formatIDR(wallet.balance)})
+                  {wallet.name} ({language === 'en' ? 'Balance:' : 'Saldo:'} {formatIDR(wallet.balance)})
                 </option>
               ))}
             </CustomSelect>
@@ -172,11 +192,11 @@ export function QuickEntry({ mode, state, update, notify, onClose }: Props) {
 
         {mode === 'expense' && (
           <div className="field">
-            <label htmlFor="qk-note">Untuk apa</label>
+            <label htmlFor="qk-note">{language === 'en' ? 'Description' : 'Untuk apa'}</label>
             <input
               id="qk-note"
               className="input"
-              placeholder="mis. nasi goreng di kantin"
+              placeholder={language === 'en' ? 'e.g. lunch at cafeteria' : 'mis. nasi goreng di kantin'}
               value={note}
               onChange={(e) => setNote(e.target.value)}
             />
@@ -184,13 +204,13 @@ export function QuickEntry({ mode, state, update, notify, onClose }: Props) {
         )}
 
         <div className="field">
-          <label htmlFor="qk-amount">Nominal</label>
+          <label htmlFor="qk-amount">{language === 'en' ? 'Amount' : 'Nominal'}</label>
           <MoneyInput value={amount} onValueChange={setAmount} id="qk-amount" autoFocus />
         </div>
 
         {mode === 'expense' && (
           <div className="field">
-            <label htmlFor="qk-receipt">Bukti (opsional)</label>
+            <label htmlFor="qk-receipt">{language === 'en' ? 'Receipt (optional)' : 'Bukti (opsional)'}</label>
             <input
               id="qk-receipt"
               className="input"
@@ -203,12 +223,12 @@ export function QuickEntry({ mode, state, update, notify, onClose }: Props) {
                 setReceiptError('')
                 saveReceipt(file)
                   .then((id) => setReceiptId(id))
-                  .catch(() => setReceiptError('Gagal menyimpan bukti di browser.'))
+                  .catch(() => setReceiptError(language === 'en' ? 'Failed to save receipt.' : 'Gagal menyimpan bukti di browser.'))
               }}
             />
             {receiptId && (
               <div className="inline-form">
-                <span className="chip">Bukti terlampir</span>
+                <span className="chip">{language === 'en' ? 'Receipt attached' : 'Bukti terlampir'}</span>
                 <button
                   type="button"
                   className="btn btn-ghost btn-sm"
@@ -217,7 +237,7 @@ export function QuickEntry({ mode, state, update, notify, onClose }: Props) {
                     setReceiptId(null)
                   }}
                 >
-                  Lepas
+                  {language === 'en' ? 'Remove' : 'Lepas'}
                 </button>
               </div>
             )}
@@ -227,7 +247,9 @@ export function QuickEntry({ mode, state, update, notify, onClose }: Props) {
 
         <div className="form-actions">
           <button type="submit" className="btn" disabled={amount <= 0}>
-            {mode === 'expense' ? 'Simpan pengeluaran' : 'Simpan pemasukan'}
+            {mode === 'expense'
+              ? language === 'en' ? 'Save expense' : 'Simpan pengeluaran'
+              : language === 'en' ? 'Save income' : 'Simpan pemasukan'}
           </button>
         </div>
       </form>

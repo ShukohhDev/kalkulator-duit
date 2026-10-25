@@ -1,4 +1,5 @@
 import type { ColorTheme, Theme } from '../types'
+import { useI18n } from '../lib/i18n'
 
 interface Props {
   colorTheme: ColorTheme
@@ -10,7 +11,8 @@ interface Props {
 interface ColorThemeOption {
   id: ColorTheme
   name: string
-  desc: string
+  descId: string
+  descEn: string
   color: string
 }
 
@@ -18,19 +20,22 @@ const COLOR_OPTIONS: ColorThemeOption[] = [
   {
     id: 'emerald',
     name: 'Emerald Fintech',
-    desc: 'Nuansa hijau toska segar dan profesional.',
+    descId: 'Nuansa hijau toska segar dan profesional.',
+    descEn: 'Fresh and professional emerald teal nuance.',
     color: '#0F766E',
   },
   {
     id: 'sage',
     name: 'Cozy Sage',
-    desc: 'Nuansa hijau zaitun lembut dan tenang di mata.',
+    descId: 'Nuansa hijau zaitun lembut dan tenang di mata.',
+    descEn: 'Soft and calming olive sage green nuance.',
     color: '#15803D',
   },
   {
     id: 'nordic',
     name: 'Nordic Minimalist',
-    desc: 'Nuansa monokrom bersih dengan aksen dingin.',
+    descId: 'Nuansa monokrom bersih dengan aksen dingin.',
+    descEn: 'Clean monochrome nuance with cool slate tones.',
     color: '#0F172A',
   },
 ]
@@ -47,19 +52,23 @@ export function ThemePickerCard({
   onColorThemeChange,
   onThemeModeChange,
 }: Props) {
+  const { language } = useI18n()
+
   return (
-    <section className="card theme-picker-card" aria-label="Pengaturan tema tampilan">
+    <section className="card theme-picker-card" aria-label={language === 'en' ? 'Theme and appearance settings' : 'Pengaturan tema tampilan'}>
       <header className="card-head">
         <div>
-          <h2>Tema dan Tampilan</h2>
+          <h2>{language === 'en' ? 'Theme & Appearance' : 'Tema dan Tampilan'}</h2>
           <p className="muted small" style={{ margin: '4px 0 0' }}>
-            Pilih kombinasi warna dan pencahayaan yang paling nyaman untuk Anda.
+            {language === 'en'
+              ? 'Choose your favorite color palette and lighting mode.'
+              : 'Pilih kombinasi warna dan pencahayaan yang paling nyaman untuk Anda.'}
           </p>
         </div>
       </header>
 
       <div className="theme-picker-group">
-        <label className="section-title">Pilihan Skema Warna</label>
+        <label className="section-title">{language === 'en' ? 'Color Palette' : 'Pilihan Skema Warna'}</label>
         <div className="theme-grid">
           {COLOR_OPTIONS.map((opt) => {
             const isSelected = colorTheme === opt.id
@@ -80,7 +89,7 @@ export function ThemePickerCard({
                   <strong className="theme-card-name">{opt.name}</strong>
                   {isSelected && <span className="theme-check">{CHECK_ICON}</span>}
                 </div>
-                <p className="theme-card-desc">{opt.desc}</p>
+                <p className="theme-card-desc">{language === 'en' ? opt.descEn : opt.descId}</p>
               </button>
             )
           })}
@@ -88,7 +97,7 @@ export function ThemePickerCard({
       </div>
 
       <div className="theme-picker-group" style={{ marginTop: '20px' }}>
-        <label className="section-title">Mode Pencahayaan</label>
+        <label className="section-title">{language === 'en' ? 'Lighting Mode' : 'Mode Pencahayaan'}</label>
         <div className="theme-mode-row">
           <button
             type="button"
@@ -96,7 +105,7 @@ export function ThemePickerCard({
             onClick={() => onThemeModeChange('light')}
             aria-pressed={themeMode === 'light'}
           >
-            Mode Terang
+            {language === 'en' ? 'Light Mode' : 'Mode Terang'}
           </button>
           <button
             type="button"
@@ -104,7 +113,7 @@ export function ThemePickerCard({
             onClick={() => onThemeModeChange('dark')}
             aria-pressed={themeMode === 'dark'}
           >
-            Mode Gelap
+            {language === 'en' ? 'Dark Mode' : 'Mode Gelap'}
           </button>
         </div>
       </div>

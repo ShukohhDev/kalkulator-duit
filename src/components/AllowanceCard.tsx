@@ -8,6 +8,7 @@ import { bonusAmounts, splitTotal } from '../lib/bonus'
 import { latePlan } from '../lib/lateperiod'
 import { LIFESTYLES, applyLifestyle, findLifestyle } from '../lib/lifestyles'
 import { roundAllocationCategories, roundTo500 } from '../lib/allocation'
+import { useI18n } from '../lib/i18n'
 import { MoneyInput } from './MoneyInput'
 import { ProgressBar } from './ProgressBar'
 import { AllocationEditor } from './AllocationEditor'
@@ -33,6 +34,7 @@ const BONUS_FIELDS: { key: keyof BonusSplit; label: string; id: string }[] = [
 ]
 
 export function AllowanceCard({ state, derived, update, notify, onChangePeriod }: Props) {
+  const { t, language } = useI18n()
   const mode = state.mode
   const [editing, setEditing] = useState(false)
   const [lifestyleId, setLifestyleId] = useState('')
@@ -113,18 +115,18 @@ export function AllowanceCard({ state, derived, update, notify, onChangePeriod }
   return (
     <section className="card">
       <header className="card-head">
-        <h2>Uang Jajan</h2>
+        <h2>{t('allowance.title')}</h2>
         {mode && (
           <button type="button" className="btn btn-ghost btn-sm" onClick={onChangePeriod}>
-            Ubah ke {mode === 'week' ? 'bulanan' : 'mingguan'}
+            {mode === 'week' ? t('allowance.changeToMonth') : t('allowance.changeToWeek')}
           </button>
         )}
       </header>
 
       <div className="field">
         <label htmlFor="allowance">
-          Total uang jajan {mode ? `per ${UNIT[mode]}` : ''}
-          {mode && <span className="chip">{LABEL[mode]}</span>}
+          {t('allowance.totalPocket')} {mode ? `per ${mode === 'week' ? (language === 'en' ? 'week' : 'minggu') : (language === 'en' ? 'month' : 'bulan')}` : ''}
+          {mode && <span className="chip">{mode === 'week' ? (language === 'en' ? '1 Week' : '1 Minggu') : (language === 'en' ? '1 Month' : '1 Bulan')}</span>}
         </label>
         <MoneyInput value={state.allowance} onValueChange={setAllowance} id="allowance" />
       </div>
@@ -137,16 +139,16 @@ export function AllowanceCard({ state, derived, update, notify, onChangePeriod }
             aria-pressed={varOn}
             onClick={toggleVar}
           >
-            Pemasukan tidak tetap
+            {t('allowance.variableIncome')}
           </button>
           <CustomSelect
             className="input"
-            aria-label="Gaya hidup"
+            aria-label={t('allowance.lifestyle')}
             value={lifestyleId}
             onChange={(event) => setLifestyleId(event.target.value)}
             title="Pilih Gaya Hidup"
           >
-            <option value="">Gaya hidup...</option>
+            <option value="">{t('allowance.lifestyleChoose')}</option>
             {LIFESTYLES.map((item) => (
               <option key={item.id} value={item.id}>
                 {item.name}: {item.blurb}
@@ -154,7 +156,7 @@ export function AllowanceCard({ state, derived, update, notify, onChangePeriod }
             ))}
           </CustomSelect>
           <button type="button" className="btn btn-sm" disabled={lifestyleId === ''} onClick={applyLifestyleChoice}>
-            Terapkan
+            {t('allowance.apply')}
           </button>
         </div>
         {state.lifestyle !== 'seimbang' && (
@@ -226,34 +228,34 @@ export function AllowanceCard({ state, derived, update, notify, onChangePeriod }
       {state.allowance > 0 && mode && (
         <>
           <p className="muted small">
-            Setara {formatIDR(derived.daily)}/hari · {formatIDR(derived.weekly)}/minggu · {formatIDR(derived.monthly)}/bulan
+            {language === 'en' ? 'Equiv.' : 'Setara'} {formatIDR(derived.daily)}/{language === 'en' ? 'day' : 'hari'} · {formatIDR(derived.weekly)}/{language === 'en' ? 'week' : 'minggu'} · {formatIDR(derived.monthly)}/{language === 'en' ? 'month' : 'bulan'}
           </p>
 
           <div className="safe" role="region" aria-label="Status anggaran belanja hari ini">
             <div className="safe-header-row">
-              <span className="safe-label">Boleh belanja hari ini</span>
+              <span className="safe-label">{t('allowance.safeSpend')}</span>
               <span className="chip">
-                {derived.period ? `Hari ke-${derived.elapsedDays + 1}` : 'Hari ini'}
+                {derived.period ? (language === 'en' ? `Day ${derived.elapsedDays + 1}` : `Hari ke-${derived.elapsedDays + 1}`) : (language === 'en' ? 'Today' : 'Hari ini')}
               </span>
             </div>
             <strong className="safe-value">{formatIDR(derived.safeToSpend)}</strong>
             <div className="safe-sub-row">
               <span className="muted small">
-                Sisa <strong className="tabular-nums" style={{ color: 'var(--text)' }}>{formatIDR(derived.remainingInPeriod)}</strong> dari {formatIDR(budget)} untuk periode ini
+                {language === 'en' ? 'Remaining' : 'Sisa'} <strong className="tabular-nums" style={{ color: 'var(--text)' }}>{formatIDR(derived.remainingInPeriod)}</strong> {language === 'en' ? 'of' : 'dari'} {formatIDR(budget)} {language === 'en' ? 'for this period' : 'untuk periode ini'}
               </span>
             </div>
             <ProgressBar value={derived.spentInPeriod} max={budget} />
             <div className="safe-footer-meta muted small">
-              <span>Terpakai: <strong className="tabular-nums">{formatIDR(derived.spentInPeriod)}</strong> ({Math.round(budget > 0 ? (derived.spentInPeriod / budget) * 100 : 0)}%)</span>
-              <span>Sisa: <strong className="tabular-nums">{formatIDR(derived.remainingInPeriod)}</strong></span>
+              <span>{t('allowance.spent')}: <strong className="tabular-nums">{formatIDR(derived.spentInPeriod)}</strong> ({Math.round(budget > 0 ? (derived.spentInPeriod / budget) * 100 : 0)}%)</span>
+              <span>{t('allowance.remaining')}: <strong className="tabular-nums">{formatIDR(derived.remainingInPeriod)}</strong></span>
             </div>
           </div>
 
           {late && (
             <div className="late-card">
               <header>
-                <strong>Uang tanggal tua</strong>
-                <span className="chip">Sisa {formatIDR(late.remaining)}</span>
+                <strong>{t('allowance.lateTitle')}</strong>
+                <span className="chip">{language === 'en' ? 'Remaining' : 'Sisa'} {formatIDR(late.remaining)}</span>
               </header>
               <p className="muted small">{late.text}</p>
               <ul className="late-changes">
@@ -265,17 +267,18 @@ export function AllowanceCard({ state, derived, update, notify, onChangePeriod }
               </ul>
               {late.shortfall > 0 && (
                 <p className="text-danger small">
-                  Kebutuhan sisa hari masih kurang {formatIDR(late.shortfall)}. Tahan menabung dulu sampai
-                  periode berikutnya.
+                  {language === 'en'
+                    ? `Remaining days need ${formatIDR(late.shortfall)} more. Hold savings until next period.`
+                    : `Kebutuhan sisa hari masih kurang ${formatIDR(late.shortfall)}. Tahan menabung dulu sampai periode berikutnya.`}
                 </p>
               )}
               <button type="button" className="btn btn-sm" onClick={applyLatePlan}>
-                Terapkan rencana alokasi
+                {t('allowance.applyLate')}
               </button>
             </div>
           )}
 
-          <h3 className="section-title">Hasil alokasi</h3>
+          <h3 className="section-title">{t('allowance.allocResult')}</h3>
           <div className="wallet-grid alloc-cards">
             {state.categories
               .filter((category) => category.ratio > 0)
@@ -297,22 +300,22 @@ export function AllowanceCard({ state, derived, update, notify, onChangePeriod }
                       onValueChange={(value) => setAllocAmount(category.id, value)}
                       onBlur={() => commitZeroAmount(category.id)}
                     />
-                    <p className="muted small">{pctText(category.ratio)} dari uang jajan</p>
+                    <p className="muted small">{pctText(category.ratio)} {t('allowance.fromPocket')}</p>
                   </article>
                 )
               })}
           </div>
           <p className="muted small">
-            Total alokasi = {formatIDR(state.allowance)} ({Math.round(totalRatio * 100)}% dari uang jajan{' '}
+            {language === 'en' ? 'Total allocation' : 'Total alokasi'} = {formatIDR(state.allowance)} ({Math.round(totalRatio * 100)}% {language === 'en' ? 'of pocket money' : 'dari uang jajan'}{' '}
             {LABEL[mode ?? 'week'].toLowerCase()}).
           </p>
           {Math.abs(totalRatio - 1) > 0.0005 && (
-            <p className="bonus-warn">Total persen alokasi {pctText(totalRatio)}, seharusnya 100%.</p>
+            <p className="bonus-warn">{language === 'en' ? `Total allocation percent ${pctText(totalRatio)}, should be 100%.` : `Total persen alokasi ${pctText(totalRatio)}, seharusnya 100%.`}</p>
           )}
 
           {!editing && (
             <button type="button" className="btn btn-ghost btn-sm" onClick={() => setEditing(true)}>
-              Ubah alokasi
+              {t('allowance.editAlloc')}
             </button>
           )}
 

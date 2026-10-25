@@ -5,19 +5,25 @@ import type { Updater } from '../hooks/useAppState'
 import { expenseTotalsByDay, intensity, monthGrid } from '../lib/calendar'
 import { formatIDR, formatShortDate, monthLabel, toISO } from '../lib/money'
 import { daysUntilDue, dueLabel, isBillFullyPaidThisMonth, markBillPaid, markDebtPaid } from '../lib/obligations'
+import { useI18n } from '../lib/i18n'
 
 interface Props {
   state: AppState
   update: Updater
 }
 
-const DAYS = ['Sn', 'Sl', 'Sr', 'Km', 'Jm', 'Sb', 'Mg']
+const DAYS_ID = ['Sn', 'Sl', 'Sr', 'Km', 'Jm', 'Sb', 'Mg']
+const DAYS_EN = ['Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa', 'Su']
 
 type DueMark =
   | { kind: 'bill'; name: string; paid: boolean; item: Bill }
   | { kind: 'debt'; name: string; paid: boolean; item: Debt }
 
 export function CalendarHeatmap({ state, update }: Props) {
+  const { language } = useI18n()
+  const isEn = language === 'en'
+  const daysHeader = isEn ? DAYS_EN : DAYS_ID
+
   const [today] = useState(() => new Date())
   const [year, setYear] = useState(today.getFullYear())
   const [month, setMonth] = useState(today.getMonth())
@@ -56,7 +62,7 @@ export function CalendarHeatmap({ state, update }: Props) {
   const totalMonth = [...totals.values()].reduce((sum, value) => sum + value, 0)
 
   const markText = (mark: DueMark, day: number) =>
-    `${mark.name} ${mark.paid ? 'lunas' : dueLabel(daysUntilDue(day, today))}`
+    `${mark.name} ${mark.paid ? (isEn ? 'paid' : 'lunas') : dueLabel(daysUntilDue(day, today), language)}`
 
   const payMark = (mark: DueMark) => {
     if (mark.kind === 'bill') update((s) => markBillPaid(s, mark.item))
@@ -66,23 +72,37 @@ export function CalendarHeatmap({ state, update }: Props) {
   return (
     <section className="card">
       <header className="card-head">
-        <h2>Kalender Pengeluaran</h2>
+        <h2>{isEn ? 'Expense Calendar' : 'Kalender Pengeluaran'}</h2>
         <div className="btn-row">
-          <button type="button" className="btn btn-ghost btn-sm" onClick={() => shift(-1)} aria-label="Bulan sebelumnya">
+          <button
+            type="button"
+            className="btn btn-ghost btn-sm"
+            onClick={() => shift(-1)}
+            aria-label={isEn ? 'Previous month' : 'Bulan sebelumnya'}
+          >
             ←
           </button>
-          <span className="cal-title">{monthLabel(`${year}-${String(month + 1).padStart(2, '0')}`)}</span>
-          <button type="button" className="btn btn-ghost btn-sm" onClick={() => shift(1)} aria-label="Bulan berikutnya">
+          <span className="cal-title">{monthLabel(`${year}-${String(month + 1).padStart(2, '0')}`, language)}</span>
+          <button
+            type="button"
+            className="btn btn-ghost btn-sm"
+            onClick={() => shift(1)}
+            aria-label={isEn ? 'Next month' : 'Bulan berikutnya'}
+          >
             →
           </button>
         </div>
       </header>
 
-      <p className="muted small">Total bulan ini {formatIDR(totalMonth)} · makin gelap makin boros.</p>
+      <p className="muted small">
+        {isEn
+          ? `Total this month ${formatIDR(totalMonth)} · darker means higher spending.`
+          : `Total bulan ini ${formatIDR(totalMonth)} · makin gelap makin boros.`}
+      </p>
 
       <div className="cal">
         <div className="cal-head">
-          {DAYS.map((day) => (
+          {daysHeader.map((day) => (
             <span key={day}>{day}</span>
           ))}
         </div>
@@ -102,7 +122,12 @@ export function CalendarHeatmap({ state, update }: Props) {
                   className={`cal-cell${isToday ? ' cal-today' : ''}${selected === cell.iso ? ' cal-selected' : ''}`}
                   style={{ '--heat': String(ratio) } as CSSProperties}
                   onClick={() => setSelected((prev) => (prev === cell.iso ? null : cell.iso))}
-                  title={[cell.total > 0 ? `${formatShortDate(cell.iso)} · ${formatIDR(cell.total)}` : formatShortDate(cell.iso), markNote]
+                  title={[
+                    cell.total > 0
+                      ? `${formatShortDate(cell.iso, language)} · ${formatIDR(cell.total)}`
+                      : formatShortDate(cell.iso, language),
+                    markNote,
+                  ]
                     .filter(Boolean)
                     .join(' · ')}
                 >
@@ -124,19 +149,19 @@ export function CalendarHeatmap({ state, update }: Props) {
 
       <p className="cal-legend muted small">
         <span className="legend-item">
-          <span className="cal-dot cal-dot-bill" /> Tagihan
+          <span className="cal-dot cal-dot-bill" /> {isEn ? 'Bill' : 'Tagihan'}
         </span>
         <span className="legend-item">
-          <span className="cal-dot cal-dot-debt" /> Utang
+          <span className="cal-dot cal-dot-debt" /> {isEn ? 'Debt' : 'Utang'}
         </span>
         <span className="legend-item">
-          <span className="cal-dot cal-dot-bill cal-dot-paid" /> Lunas bulan ini
+          <span className="cal-dot cal-dot-bill cal-dot-paid" /> {isEn ? 'Paid this month' : 'Lunas bulan ini'}
         </span>
       </p>
 
       {selected && (
         <div className="cal-detail">
-          <h3 className="section-title">{formatShortDate(selected)}</h3>
+          <h3 className="section-title">{formatShortDate(selected, language)}</h3>
           {dayMarks.length > 0 && (
             <ul className="tx-list">
               {dayMarks.map((mark, markIndex) => (
@@ -145,13 +170,20 @@ export function CalendarHeatmap({ state, update }: Props) {
                   <span className="tx-main">
                     <strong>{mark.name}</strong>
                     <span className="muted small">
-                      {mark.kind === 'bill' ? 'Tagihan' : 'Utang'} · {mark.paid ? 'lunas' : dueLabel(daysUntilDue(selectedDay, today))}
+                      {mark.kind === 'bill' ? (isEn ? 'Bill' : 'Tagihan') : (isEn ? 'Debt' : 'Utang')} ·{' '}
+                      {mark.paid ? (isEn ? 'paid' : 'lunas') : dueLabel(daysUntilDue(selectedDay, today), language)}
                     </span>
                   </span>
                   {!mark.paid && (
                     <span className="tx-actions">
                       <button type="button" className="btn btn-sm" onClick={() => payMark(mark)}>
-                        {mark.kind === 'bill' ? 'Tandai lunas' : 'Bayar angsuran'}
+                        {mark.kind === 'bill'
+                          ? isEn
+                            ? 'Mark as paid'
+                            : 'Tandai lunas'
+                          : isEn
+                            ? 'Pay installment'
+                            : 'Bayar angsuran'}
                       </button>
                     </span>
                   )}
@@ -160,14 +192,16 @@ export function CalendarHeatmap({ state, update }: Props) {
             </ul>
           )}
           {dayExpenses.length === 0 ? (
-            <p className="muted small">Tidak ada pengeluaran di tanggal ini.</p>
+            <p className="muted small">
+              {isEn ? 'No expenses recorded on this date.' : 'Tidak ada pengeluaran di tanggal ini.'}
+            </p>
           ) : (
             <ul className="tx-list">
               {dayExpenses.map((item) => (
                 <li key={item.id} className="tx">
                   <span className="tx-dot" style={{ background: state.categories.find((c) => c.id === item.categoryId)?.color }} />
                   <span className="tx-main">
-                    <strong>{item.note || 'Pengeluaran'}</strong>
+                    <strong>{item.note || (isEn ? 'Expense' : 'Pengeluaran')}</strong>
                     <span className="muted small">{state.categories.find((c) => c.id === item.categoryId)?.name}</span>
                   </span>
                   <span className="tx-amount">−{formatIDR(item.amount)}</span>

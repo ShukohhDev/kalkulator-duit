@@ -6,6 +6,7 @@ import { PROFILES, applyProfile, findProfile } from '../lib/profiles'
 import { applyLifestyle } from '../lib/lifestyles'
 import { roundAllocationCategories } from '../lib/allocation'
 import { uid } from '../lib/id'
+import { useI18n } from '../lib/i18n'
 import { CustomSelect } from './CustomSelect'
 
 interface Props {
@@ -68,6 +69,9 @@ function buildRows(state: AppState): Row[] {
 }
 
 export function AllocationEditor({ state, update, onDone }: Props) {
+  const { language } = useI18n()
+  const isEn = language === 'en'
+
   const [rows, setRows] = useState<Row[]>(() => buildRows(state))
   const [draft, setDraft] = useState<Record<string, string>>(() => {
     const byId = new Map(state.categories.map((category) => [category.id, category]))
@@ -228,14 +232,22 @@ export function AllocationEditor({ state, update, onDone }: Props) {
       {/* Live Allocation & Auto-balance Banner */}
       <div className={`alloc-status-banner ${sumOk ? 'status-ok' : remaining > 0 ? 'status-under' : 'status-over'}`}>
         <div className="alloc-status-info">
-          <span className="alloc-status-label">Total Alokasi Berjalan:</span>
+          <span className="alloc-status-label">
+            {isEn ? 'Running Allocation Total:' : 'Total Alokasi Berjalan:'}
+          </span>
           <strong className="alloc-status-pct">{sumText(activeSum)}%</strong>
           <span className="alloc-status-badge">
             {sumOk
-              ? 'Pas 100%'
+              ? isEn
+                ? 'Exact 100%'
+                : 'Pas 100%'
               : remaining > 0
-              ? `Sisa ${sumText(remaining)}% belum dialokasikan`
-              : `Kelebihan ${sumText(Math.abs(remaining))}% dari 100%`}
+              ? isEn
+                ? `Remaining ${sumText(remaining)}% unallocated`
+                : `Sisa ${sumText(remaining)}% belum dialokasikan`
+              : isEn
+                ? `Excess ${sumText(Math.abs(remaining))}% over 100%`
+                : `Kelebihan ${sumText(Math.abs(remaining))}% dari 100%`}
           </span>
         </div>
         {!sumOk && (
@@ -243,9 +255,13 @@ export function AllocationEditor({ state, update, onDone }: Props) {
             type="button"
             className="btn btn-sm btn-ghost alloc-autobalance-btn"
             onClick={autoBalance}
-            title="Seimbangkan semua persen secara proporsional agar tepat 100%"
+            title={
+              isEn
+                ? 'Balance all percentages proportionally to exact 100%'
+                : 'Seimbangkan semua persen secara proporsional agar tepat 100%'
+            }
           >
-            Seimbangkan Otomatis
+            {isEn ? 'Auto Balance' : 'Seimbangkan Otomatis'}
           </button>
         )}
       </div>
@@ -254,12 +270,12 @@ export function AllocationEditor({ state, update, onDone }: Props) {
         <table className="alloc-table">
           <thead>
             <tr>
-              <th>Kategori</th>
+              <th>{isEn ? 'Category' : 'Kategori'}</th>
               <th className="alloc-col-active">{activeProfile.label}</th>
               <th>{otherProfile.label}</th>
-              <th>Opsional?</th>
-              <th>Jenis</th>
-              <th>Aksi</th>
+              <th>{isEn ? 'Optional?' : 'Opsional?'}</th>
+              <th>{isEn ? 'Type' : 'Jenis'}</th>
+              <th>{isEn ? 'Action' : 'Aksi'}</th>
             </tr>
           </thead>
           <tbody>
@@ -298,7 +314,7 @@ export function AllocationEditor({ state, update, onDone }: Props) {
                         onChange={() => toggleOff(row)}
                       />
                     ) : (
-                      <span className="alloc-pct-static">Tidak</span>
+                      <span className="alloc-pct-static">{isEn ? 'No' : 'Tidak'}</span>
                     )}
                   </td>
                   <td>
@@ -317,9 +333,9 @@ export function AllocationEditor({ state, update, onDone }: Props) {
                       }
                       title={`Pilih Jenis Kategori ${row.name}`}
                     >
-                      <option value="harian">Harian</option>
-                      <option value="keinginan">Keinginan</option>
-                      <option value="tabungan">Tabungan</option>
+                      <option value="harian">{isEn ? 'Daily' : 'Harian'}</option>
+                      <option value="keinginan">{isEn ? 'Wants' : 'Keinginan'}</option>
+                      <option value="tabungan">{isEn ? 'Savings' : 'Tabungan'}</option>
                     </CustomSelect>
                   </td>
                   <td className="alloc-action-cell">
@@ -329,7 +345,7 @@ export function AllocationEditor({ state, update, onDone }: Props) {
                       disabled={isOff || pct(row.id) === 0}
                       onClick={() => setDraft((prev) => ({ ...prev, [row.id]: '0' }))}
                     >
-                      Kurangi
+                      {isEn ? 'Reduce' : 'Kurangi'}
                     </button>
                   </td>
                 </tr>
@@ -344,13 +360,15 @@ export function AllocationEditor({ state, update, onDone }: Props) {
               <td />
             </tr>
             <tr className="alloc-total">
-              <td>Cek 100%</td>
+              <td>{isEn ? '100% Check' : 'Cek 100%'}</td>
               <td>
                 <span className={sumOk ? 'alloc-check alloc-check-ok' : 'alloc-check text-danger'}>
-                  {sumOk ? 'OK' : 'BELUM'}
+                  {sumOk ? 'OK' : isEn ? 'NOT YET' : 'BELUM'}
                 </span>
               </td>
-              <td className="alloc-check alloc-check-ok">{Math.abs(otherSum - 100) <= 0.1 ? 'OK' : 'BELUM'}</td>
+              <td className="alloc-check alloc-check-ok">
+                {Math.abs(otherSum - 100) <= 0.1 ? 'OK' : isEn ? 'NOT YET' : 'BELUM'}
+              </td>
               <td />
               <td />
               <td />
@@ -363,35 +381,56 @@ export function AllocationEditor({ state, update, onDone }: Props) {
         <input
           className="input"
           type="text"
-          placeholder="Nama kategori baru"
+          placeholder={isEn ? 'New category name' : 'Nama kategori baru'}
           value={newName}
-          aria-label="Nama kategori baru"
+          aria-label={isEn ? 'New category name' : 'Nama kategori baru'}
           onChange={(event) => setNewName(event.target.value)}
         />
         <button type="button" className="btn btn-ghost btn-sm" onClick={addRow} disabled={newName.trim() === ''}>
-          + Tambah kategori
+          {isEn ? '+ Add category' : '+ Tambah kategori'}
         </button>
       </div>
 
       <div className="alloc-legend muted small">
-        <span>Kolom angka di atas bisa kamu atur sesukamu. Total persen bakal kehitung otomatis.</span>
-        <span>Kategori opsional yang dimatikan bakal otomatis dibagi rata ke kategori lain biar pas 100%.</span>
-        <span>Tombol kurangi bakal ngeset persen jadi 0, tapi riwayat transaksi lamamu tetap aman kok.</span>
         <span>
-          Jenis menentukan sisa uang periode lalu: <strong>Harian</strong> dibawa ke periode depan,{' '}
-          <strong>Keinginan</strong> ditawarkan masuk tabungan, <strong>Tabungan</strong> nambah terus secara natural.
+          {isEn
+            ? 'The percentage figures above can be customized freely. The total percentage will be calculated automatically.'
+            : 'Kolom angka di atas bisa kamu atur sesukamu. Total persen bakal kehitung otomatis.'}
+        </span>
+        <span>
+          {isEn
+            ? 'Disabled optional categories will be automatically divided evenly across other categories to stay at 100%.'
+            : 'Kategori opsional yang dimatikan bakal otomatis dibagi rata ke kategori lain biar pas 100%.'}
+        </span>
+        <span>
+          {isEn
+            ? 'The reduce button sets the percent to 0, but your past transaction history remains safe.'
+            : 'Tombol kurangi bakal ngeset persen jadi 0, tapi riwayat transaksi lamamu tetap aman kok.'}
+        </span>
+        <span>
+          {isEn ? (
+            <>
+              Type determines leftover handling: <strong>Daily</strong> is carried forward,{' '}
+              <strong>Wants</strong> is offered to savings, <strong>Savings</strong> grows naturally.
+            </>
+          ) : (
+            <>
+              Jenis menentukan sisa uang periode lalu: <strong>Harian</strong> dibawa ke periode depan,{' '}
+              <strong>Keinginan</strong> ditawarkan masuk tabungan, <strong>Tabungan</strong> nambah terus secara natural.
+            </>
+          )}
         </span>
       </div>
 
       <div className="btn-row">
         <button type="button" className="btn btn-sm" disabled={!sumOk} onClick={save}>
-          Simpan alokasi
+          {isEn ? 'Save allocation' : 'Simpan alokasi'}
         </button>
         <button type="button" className="btn btn-ghost btn-sm" onClick={reset}>
-          Reset ke default
+          {isEn ? 'Reset to default' : 'Reset ke default'}
         </button>
         <button type="button" className="btn btn-ghost btn-sm" onClick={onDone}>
-          Batal
+          {isEn ? 'Cancel' : 'Batal'}
         </button>
       </div>
     </div>

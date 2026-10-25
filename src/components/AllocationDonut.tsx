@@ -5,6 +5,7 @@ import type { Derived } from '../lib/derive'
 import { CHART_FONT, MUTED_COLOR } from '../lib/chartSetup'
 import { formatIDR } from '../lib/money'
 import { roundTo500 } from '../lib/allocation'
+import { useI18n } from '../lib/i18n'
 
 interface Props {
   state: AppState
@@ -12,6 +13,7 @@ interface Props {
 }
 
 export function AllocationDonut({ state, derived }: Props) {
+  const { language } = useI18n()
   const [viewMode, setViewMode] = useState<'bar' | 'donut'>('bar')
 
   const rows = useMemo(
@@ -35,21 +37,25 @@ export function AllocationDonut({ state, derived }: Props) {
 
   if (totalSpent <= 0) {
     return (
-      <section className="card" aria-label="Alokasi versus realisasi pengeluaran">
+      <section className="card" aria-label={language === 'en' ? 'Allocation versus actual spending' : 'Alokasi versus realisasi pengeluaran'}>
         <header className="card-head">
-          <h2>Alokasi vs Realisasi</h2>
+          <h2>{language === 'en' ? 'Allocation vs Spending' : 'Alokasi vs Realisasi'}</h2>
         </header>
-        <p className="muted">Belum ada pengeluaran pada periode ini, jadi grafiknya masih kosong.</p>
+        <p className="muted">
+          {language === 'en'
+            ? 'No expenses recorded in this period yet, chart is empty.'
+            : 'Belum ada pengeluaran pada periode ini, jadi grafiknya masih kosong.'}
+        </p>
       </section>
     )
   }
 
   return (
-    <section className="card" aria-label="Alokasi versus realisasi pengeluaran">
+    <section className="card" aria-label={language === 'en' ? 'Allocation versus actual spending' : 'Alokasi versus realisasi pengeluaran'}>
       <header className="card-head">
         <div>
-          <h2>Alokasi vs Realisasi</h2>
-          <span className="muted small">periode berjalan</span>
+          <h2>{language === 'en' ? 'Allocation vs Spending' : 'Alokasi vs Realisasi'}</h2>
+          <span className="muted small">{language === 'en' ? 'current period' : 'periode berjalan'}</span>
         </div>
         <div className="btn-row" style={{ margin: 0 }}>
           <button
@@ -57,24 +63,24 @@ export function AllocationDonut({ state, derived }: Props) {
             className={`btn btn-sm ${viewMode === 'bar' ? 'btn-active' : 'btn-ghost'}`}
             onClick={() => setViewMode('bar')}
             aria-pressed={viewMode === 'bar'}
-            title="Tampilan grafik batang horizontal yang diurutkan (mudah dibaca)"
+            title={language === 'en' ? 'Ranked horizontal bar view' : 'Tampilan grafik batang horizontal yang diurutkan (mudah dibaca)'}
           >
-            📊 Batang Terurut
+            {language === 'en' ? 'Ranked Bars' : 'Batang Terurut'}
           </button>
           <button
             type="button"
             className={`btn btn-sm ${viewMode === 'donut' ? 'btn-active' : 'btn-ghost'}`}
             onClick={() => setViewMode('donut')}
             aria-pressed={viewMode === 'donut'}
-            title="Tampilan grafik donut"
+            title={language === 'en' ? 'Donut chart view' : 'Tampilan grafik donut'}
           >
-            🍩 Donut
+            {language === 'en' ? 'Donut' : 'Donut'}
           </button>
         </div>
       </header>
 
       {viewMode === 'bar' ? (
-        <div className="horizontal-bars-wrap" role="region" aria-label="Daftar pengeluaran per kategori terurut dari yang terbesar">
+        <div className="horizontal-bars-wrap" role="region" aria-label={language === 'en' ? 'Sorted category expense list' : 'Daftar pengeluaran per kategori terurut dari yang terbesar'}>
           {sortedRows.map((row) => {
             const pctSpent = row.allocated > 0 ? Math.min(100, Math.round((row.spent / row.allocated) * 100)) : 100
             const isOver = row.allocated > 0 && row.spent > row.allocated
@@ -95,7 +101,14 @@ export function AllocationDonut({ state, derived }: Props) {
                     )}
                   </span>
                 </div>
-                <div className="hbar-track" role="progressbar" aria-valuenow={row.spent} aria-valuemin={0} aria-valuemax={Math.max(row.allocated, row.spent)} aria-label={`${row.category.name}: ${formatIDR(row.spent)} dari ${formatIDR(row.allocated)}`}>
+                <div
+                  className="hbar-track"
+                  role="progressbar"
+                  aria-valuenow={row.spent}
+                  aria-valuemin={0}
+                  aria-valuemax={Math.max(row.allocated, row.spent)}
+                  aria-label={`${row.category.name}: ${formatIDR(row.spent)} / ${formatIDR(row.allocated)}`}
+                >
                   <div
                     className={`hbar-fill ${isOver ? 'hbar-over' : ''}`}
                     style={{
@@ -113,7 +126,7 @@ export function AllocationDonut({ state, derived }: Props) {
           <div
             className="chart-box chart-box-donut"
             role="img"
-            aria-label={`Grafik donat pengeluaran. Total terpakai ${formatIDR(totalSpent)} dari alokasi ${formatIDR(derived.allocationInPeriod)}`}
+            aria-label={`${language === 'en' ? 'Expense donut chart. Total spent' : 'Grafik donat pengeluaran. Total terpakai'} ${formatIDR(totalSpent)} ${language === 'en' ? 'of allocation' : 'dari alokasi'} ${formatIDR(derived.allocationInPeriod)}`}
           >
             <Doughnut
               data={{
@@ -139,12 +152,12 @@ export function AllocationDonut({ state, derived }: Props) {
           </div>
 
           <div className="table-responsive">
-            <table className="table" aria-label="Tabel perbandingan alokasi dan realisasi">
+            <table className="table" aria-label={language === 'en' ? 'Allocation versus actual spending table' : 'Tabel perbandingan alokasi dan realisasi'}>
               <thead>
                 <tr>
-                  <th>Kategori</th>
-                  <th>Alokasi</th>
-                  <th>Realisasi</th>
+                  <th>{language === 'en' ? 'Category' : 'Kategori'}</th>
+                  <th>{language === 'en' ? 'Allocation' : 'Alokasi'}</th>
+                  <th>{language === 'en' ? 'Spending' : 'Realisasi'}</th>
                 </tr>
               </thead>
               <tbody>
@@ -167,7 +180,9 @@ export function AllocationDonut({ state, derived }: Props) {
       )}
 
       <p className="muted small" style={{ marginTop: 12 }}>
-        Total terpakai <strong className="tabular-nums">{formatIDR(totalSpent)}</strong> dari alokasi{' '}
+        {language === 'en' ? 'Total spent ' : 'Total terpakai '}
+        <strong className="tabular-nums">{formatIDR(totalSpent)}</strong>
+        {language === 'en' ? ' of allocation ' : ' dari alokasi '}
         <strong className="tabular-nums">{formatIDR(derived.allocationInPeriod)}</strong>.
       </p>
     </section>

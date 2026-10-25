@@ -5,6 +5,7 @@ import { CATEGORY_COLORS, SAVINGS_CATEGORY, primaryGoal, isSavingsOrEmergencyCat
 import { deleteReceipt, saveReceipt } from '../lib/receipts'
 import { formatIDR, formatShortDate, monthKey, monthLabel, todayISO } from '../lib/money'
 import { uid } from '../lib/id'
+import { useI18n } from '../lib/i18n'
 import { MoneyInput } from './MoneyInput'
 import { ReceiptView } from './ReceiptView'
 import { CustomSelect } from './CustomSelect'
@@ -19,6 +20,7 @@ interface Props {
 const QUICK_ADDS = [5_000, 10_000, 20_000]
 
 export function ExpensesPanel({ state, update, notify }: Props) {
+  const { t, language } = useI18n()
   const [date, setDate] = useState(todayISO())
   const [categoryId, setCategoryId] = useState(() => state.categories[0]?.id ?? 'makan')
   const [note, setNote] = useState('')
@@ -272,19 +274,23 @@ export function ExpensesPanel({ state, update, notify }: Props) {
   return (
     <section className="card">
       <header className="card-head">
-        <h2>Pengeluaran</h2>
-        <span className="muted small">{state.expenses.length} catatan</span>
+        <h2>{t('expenses.title')}</h2>
+        <span className="muted small">
+          {language === 'en'
+            ? `${state.expenses.length} ${state.expenses.length === 1 ? 'entry' : 'entries'}`
+            : `${state.expenses.length} catatan`}
+        </span>
       </header>
 
       <form className="form-grid" onSubmit={submit}>
         <div className="field">
-          <label htmlFor="exp-date">Tanggal</label>
+          <label htmlFor="exp-date">{t('expenses.date')}</label>
           <input id="exp-date" className="input" type="date" value={date} onChange={(e) => setDate(e.target.value)} />
         </div>
 
         <div className="field">
-          <label htmlFor="exp-cat">Kategori</label>
-          <CustomSelect id="exp-cat" className="input" value={categoryId} onChange={(e) => setCategoryId(e.target.value)} title="Pilih Kategori Pengeluaran">
+          <label htmlFor="exp-cat">{t('expenses.category')}</label>
+          <CustomSelect id="exp-cat" className="input" value={categoryId} onChange={(e) => setCategoryId(e.target.value)} title={language === 'en' ? 'Select Expense Category' : 'Pilih Kategori Pengeluaran'}>
             {state.categories.map((category) => (
               <option key={category.id} value={category.id}>
                 {category.name}
@@ -294,60 +300,62 @@ export function ExpensesPanel({ state, update, notify }: Props) {
           </CustomSelect>
           {isSavingsOrEmergencyCategory(categoryId, state.categories) && (
             <p className="small" style={{ color: 'var(--primary)', margin: '4px 0 0 0' }}>
-              Pengeluaran di kategori ini otomatis motong Tabungan Akhir Periode kamu ya (saldo saat ini: {formatIDR(state.endSavings)}).
+              {language === 'en'
+                ? `Spending in this category automatically deducts from your End-of-Period Savings (current balance: ${formatIDR(state.endSavings)}).`
+                : `Pengeluaran di kategori ini otomatis motong Tabungan Akhir Periode kamu ya (saldo saat ini: ${formatIDR(state.endSavings)}).`}
             </p>
           )}
           <button type="button" className="link" onClick={() => setShowCategoryForm((v) => !v)}>
-            {showCategoryForm ? 'Batal tambah kategori' : '+ Tambah kategori sendiri'}
+            {showCategoryForm ? t('expenses.cancelAddCat') : t('expenses.addCategory')}
           </button>
           {showCategoryForm && (
             <div className="inline-form">
               <input
                 className="input"
-                placeholder="Nama kategori (mis. Beli Buku)"
+                placeholder={t('expenses.catNamePlaceholder')}
                 value={newCategory}
                 onChange={(e) => setNewCategory(e.target.value)}
               />
               <button type="button" className="btn btn-sm" onClick={addCategory}>
-                Tambah
+                {t('expenses.addBtn')}
               </button>
             </div>
           )}
         </div>
         {categoryId === SAVINGS_CATEGORY && (state.goals.length > 0 || state.wishlist.length > 0) && (
           <div className="field">
-            <label htmlFor="exp-goal">Masukkan ke</label>
-            <CustomSelect id="exp-goal" className="input" value={goalTarget} onChange={(e) => setGoalTarget(e.target.value)} title="Masukkan ke Target Tabungan">
-              {state.goals.length > 0 && <option value="auto">Target utama (otomatis)</option>}
-              <option value="none">Tidak masuk target/incaran</option>
+            <label htmlFor="exp-goal">{t('expenses.targetLabel')}</label>
+            <CustomSelect id="exp-goal" className="input" value={goalTarget} onChange={(e) => setGoalTarget(e.target.value)} title={language === 'en' ? 'Allocate to Goal' : 'Masukkan ke Target Tabungan'}>
+              {state.goals.length > 0 && <option value="auto">{t('expenses.autoGoal')}</option>}
+              <option value="none">{t('expenses.noneGoal')}</option>
               {state.goals.map((goal) => (
                 <option key={goal.id} value={goal.id}>
-                  {goal.name} · target tabungan
+                  {goal.name} · {t('expenses.targetGoalSuffix')}
                 </option>
               ))}
               {state.wishlist.map((item) => (
                 <option key={item.id} value={`wish:${item.id}`}>
-                  {item.name} · incaran
+                  {item.name} · {t('expenses.targetWishSuffix')}
                 </option>
               ))}
             </CustomSelect>
-            <span className="muted small">Saldo tabungan/incaran yang kamu pilih otomatis ikut nambah.</span>
+            <span className="muted small">{t('expenses.targetNotice')}</span>
           </div>
         )}
 
         <div className="field">
-          <label htmlFor="exp-wallet">Sumber dana / Dompet</label>
+          <label htmlFor="exp-wallet">{t('expenses.walletLabel')}</label>
           <CustomSelect
             id="exp-wallet"
             className="input"
             value={walletId}
             onChange={(e) => setWalletId(e.target.value)}
-            title="Pilih Sumber Dana Pengeluaran"
+            title={language === 'en' ? 'Select Funding Wallet' : 'Pilih Sumber Dana Pengeluaran'}
           >
-            <option value="">Tanpa potong dompet</option>
+            <option value="">{t('expenses.noWallet')}</option>
             {state.wallets.map((wallet) => (
               <option key={wallet.id} value={wallet.id}>
-                {wallet.name} (Saldo: {formatIDR(wallet.balance)})
+                {wallet.name} ({language === 'en' ? 'Balance' : 'Saldo'}: {formatIDR(wallet.balance)})
               </option>
             ))}
           </CustomSelect>
@@ -357,25 +365,27 @@ export function ExpensesPanel({ state, update, notify }: Props) {
             const sisa = Math.max(0, selected.balance - amount)
             return (
               <p className="small" style={{ color: 'var(--primary)', margin: '4px 0 0 0' }}>
-                Saldo {selected.name} saat ini: {formatIDR(selected.balance)} (sisa setelah dicatat: {formatIDR(sisa)}).
+                {language === 'en'
+                  ? `Current ${selected.name} balance: ${formatIDR(selected.balance)} (remaining after recording: ${formatIDR(sisa)}).`
+                  : `Saldo ${selected.name} saat ini: ${formatIDR(selected.balance)} (sisa setelah dicatat: ${formatIDR(sisa)}).`}
               </p>
             )
           })()}
         </div>
 
         <div className="field">
-          <label htmlFor="exp-note">Untuk apa</label>
+          <label htmlFor="exp-note">{t('expenses.noteLabel')}</label>
           <input
             id="exp-note"
             className="input"
-            placeholder="mis. nasi goreng di kantin"
+            placeholder={t('expenses.notePlaceholder')}
             value={note}
             onChange={(e) => setNote(e.target.value)}
           />
         </div>
 
         <div className="field">
-          <label htmlFor="exp-amount">Nominal</label>
+          <label htmlFor="exp-amount">{t('expenses.amountLabel')}</label>
           <MoneyInput value={amount} onValueChange={setAmount} id="exp-amount" />
           <div className="quick-row">
             {QUICK_ADDS.map((value) => (
@@ -385,14 +395,14 @@ export function ExpensesPanel({ state, update, notify }: Props) {
             ))}
             {amount > 0 && (
               <button type="button" className="chip chip-btn" onClick={() => setAmount(0)}>
-                Kosongkan
+                {t('expenses.clear')}
               </button>
             )}
           </div>
         </div>
 
         <div className="field">
-          <label htmlFor="exp-receipt">Bukti (opsional)</label>
+          <label htmlFor="exp-receipt">{t('expenses.receiptLabel')}</label>
           <input
             id="exp-receipt"
             className="input"
@@ -405,12 +415,12 @@ export function ExpensesPanel({ state, update, notify }: Props) {
               setReceiptError('')
               saveReceipt(file)
                 .then((id) => setReceiptId(id))
-                .catch(() => setReceiptError('Gagal menyimpan bukti di browser.'))
+                .catch(() => setReceiptError(t('expenses.receiptError')))
             }}
           />
           {receiptId && (
             <div className="inline-form">
-              <span className="chip">Bukti terlampir</span>
+              <span className="chip">{t('expenses.receiptAttached')}</span>
               <button
                 type="button"
                 className="btn btn-ghost btn-sm"
@@ -422,7 +432,7 @@ export function ExpensesPanel({ state, update, notify }: Props) {
                   setReceiptId(null)
                 }}
               >
-                Lepas
+                {t('expenses.receiptDetach')}
               </button>
             </div>
           )}
@@ -431,11 +441,11 @@ export function ExpensesPanel({ state, update, notify }: Props) {
 
         <div className="form-actions">
           <button type="submit" className="btn" disabled={amount <= 0}>
-            {editingId ? 'Simpan perubahan' : 'Catat pengeluaran'}
+            {editingId ? t('expenses.saveChange') : t('expenses.submit')}
           </button>
           {editingId && (
             <button type="button" className="btn btn-ghost" onClick={resetForm}>
-              Batal
+              {t('expenses.cancel')}
             </button>
           )}
         </div>
@@ -446,44 +456,44 @@ export function ExpensesPanel({ state, update, notify }: Props) {
           <div className="search-input-wrap">
             <input
               className="input input-search"
-              placeholder="Cari catatan, kategori, atau nominal…"
+              placeholder={t('expenses.searchPlaceholder')}
               value={query}
               onChange={(e) => setQuery(e.target.value)}
-              aria-label="Cari pengeluaran"
+              aria-label={t('expenses.searchAria')}
             />
             {query && (
               <button
                 type="button"
                 className="search-clear-btn"
                 onClick={() => setQuery('')}
-                aria-label="Bersihkan pencarian"
-                title="Hapus kata kunci"
+                aria-label={language === 'en' ? 'Clear search' : 'Bersihkan pencarian'}
+                title={language === 'en' ? 'Clear keywords' : 'Hapus kata kunci'}
               >
                 {ICON_CLOSE}
               </button>
             )}
           </div>
-          <CustomSelect className="input" value={filterCategory} onChange={(e) => setFilterCategory(e.target.value)} aria-label="Filter kategori" title="Filter Kategori">
-            <option value="all">Semua kategori</option>
+          <CustomSelect className="input" value={filterCategory} onChange={(e) => setFilterCategory(e.target.value)} aria-label="Filter kategori" title={language === 'en' ? 'Filter Category' : 'Filter Kategori'}>
+            <option value="all">{t('expenses.filterCatAll')}</option>
             {state.categories.map((category) => (
               <option key={category.id} value={category.id}>
                 {category.name}
               </option>
             ))}
           </CustomSelect>
-          <CustomSelect className="input" value={filterMonth} onChange={(e) => setFilterMonth(e.target.value)} aria-label="Filter bulan" title="Filter Bulan">
-            <option value="all">Semua bulan</option>
+          <CustomSelect className="input" value={filterMonth} onChange={(e) => setFilterMonth(e.target.value)} aria-label="Filter bulan" title={language === 'en' ? 'Filter Month' : 'Filter Bulan'}>
+            <option value="all">{t('expenses.filterMonthAll')}</option>
             {months.map((key) => (
               <option key={key} value={key}>
                 {monthLabel(key)}
               </option>
             ))}
           </CustomSelect>
-          <CustomSelect className="input" value={sortBy} onChange={(e) => setSortBy(e.target.value as 'date' | 'date_asc' | 'amount' | 'amount_asc')} aria-label="Urutan" title="Urutan Catatan">
-            <option value="date">Terbaru</option>
-            <option value="date_asc">Terlama</option>
-            <option value="amount">Nominal terbesar</option>
-            <option value="amount_asc">Nominal terkecil</option>
+          <CustomSelect className="input" value={sortBy} onChange={(e) => setSortBy(e.target.value as 'date' | 'date_asc' | 'amount' | 'amount_asc')} aria-label="Urutan" title={language === 'en' ? 'Sort Order' : 'Urutan Catatan'}>
+            <option value="date">{t('expenses.sortNewest')}</option>
+            <option value="date_asc">{t('expenses.sortOldest')}</option>
+            <option value="amount">{t('expenses.sortLargest')}</option>
+            <option value="amount_asc">{t('expenses.sortSmallest')}</option>
           </CustomSelect>
         </div>
 
@@ -493,27 +503,30 @@ export function ExpensesPanel({ state, update, notify }: Props) {
             className={`filter-chip${timeRange === 'all' ? ' filter-chip-active' : ''}`}
             onClick={() => setTimeRange('all')}
           >
-            Semua Periode
+            {t('expenses.rangeAll')}
           </button>
           <button
             type="button"
             className={`filter-chip${timeRange === 'this_month' ? ' filter-chip-active' : ''}`}
             onClick={() => setTimeRange('this_month')}
           >
-            Bulan Ini
+            {t('expenses.rangeThisMonth')}
           </button>
           <button
             type="button"
             className={`filter-chip${timeRange === 'last_7_days' ? ' filter-chip-active' : ''}`}
             onClick={() => setTimeRange('last_7_days')}
           >
-            7 Hari Terakhir
+            {t('expenses.range7Days')}
           </button>
         </div>
 
         <div className="filter-summary-row">
           <span className="muted small">
-            Menampilkan {visible.length} dari {state.expenses.length} catatan · Total <strong>{formatIDR(totalVisible)}</strong>
+            {language === 'en'
+              ? `Showing ${visible.length} of ${state.expenses.length} entries · Total `
+              : `Menampilkan ${visible.length} dari ${state.expenses.length} catatan · Total `}
+            <strong>{formatIDR(totalVisible)}</strong>
           </span>
           {hasActiveFilter && (
             <button
@@ -540,25 +553,25 @@ export function ExpensesPanel({ state, update, notify }: Props) {
             <li key={item.id} className={`tx${editingId === item.id ? ' tx-active' : ''}`}>
               <span className="tx-dot" style={{ background: category?.color ?? '#868e96' }} />
               <span className="tx-main">
-                <strong>{item.note || category?.name || 'Pengeluaran'}</strong>
+                <strong>{item.note || category?.name || (language === 'en' ? 'Expense' : 'Pengeluaran')}</strong>
                 <span className="muted small">
-                  {formatShortDate(item.date)} · {category?.name ?? 'Tanpa kategori'}
+                  {formatShortDate(item.date)} · {category?.name ?? (language === 'en' ? 'Uncategorized' : 'Tanpa kategori')}
                   {wallet && ` · ${wallet.name}`}
                 </span>
               </span>
               <span className="tx-amount tx-out tabular-nums">
-                <span className="tx-kind-badge tx-kind-out" aria-label="Pengeluaran">
-                  <span aria-hidden="true">↓</span> Keluar
+                <span className="tx-kind-badge tx-kind-out" aria-label={language === 'en' ? 'Expense' : 'Pengeluaran'}>
+                  <span aria-hidden="true">↓</span> {language === 'en' ? 'Out' : 'Keluar'}
                 </span>
                 −{formatIDR(item.amount)}
               </span>
               <span className="tx-actions">
                 {item.receiptId && <ReceiptView id={item.receiptId} />}
                 <button type="button" className="btn btn-ghost btn-sm" onClick={() => startEdit(item)}>
-                  Ubah
+                  {t('expenses.edit')}
                 </button>
                 <button type="button" className="btn btn-ghost btn-sm btn-danger" onClick={() => remove(item.id)}>
-                  Hapus
+                  {t('expenses.delete')}
                 </button>
               </span>
             </li>
@@ -566,12 +579,19 @@ export function ExpensesPanel({ state, update, notify }: Props) {
         })}
         {visible.length === 0 && (
           <li className="empty empty-state-box">
-            <span className="empty-state-icon" aria-hidden="true">📝</span>
-            <strong>Belum ada catatan pengeluaran</strong>
+            <span className="empty-state-icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+                <polyline points="14 2 14 8 20 8" />
+                <line x1="16" y1="13" x2="8" y2="13" />
+                <line x1="16" y1="17" x2="8" y2="17" />
+              </svg>
+            </span>
+            <strong>{language === 'en' ? 'No expense entries yet' : 'Belum ada catatan pengeluaran'}</strong>
             <span className="muted small">
               {query || filterCategory !== 'all' || filterMonth !== 'all' || timeRange !== 'all'
-                ? 'Tidak ada pengeluaran yang cocok dengan filter kamu.'
-                : 'Yuk catat pengeluaran pertamamu lewat form di atas atau tombol [+ Pengeluaran]!'}
+                ? (language === 'en' ? 'No expenses match your active filter.' : 'Tidak ada pengeluaran yang cocok dengan filter kamu.')
+                : (language === 'en' ? 'Start recording your expenses with the form above or the [+ Expense] button!' : 'Yuk catat pengeluaran pertamamu lewat form di atas atau tombol [+ Pengeluaran]!')}
             </span>
           </li>
         )}

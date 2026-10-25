@@ -6,7 +6,7 @@ import { formatIDR } from '../lib/money'
 import { activeGoals, effectiveSaved } from '../lib/state'
 import { uid } from '../lib/id'
 import { ageAfter, formatDuration, futureValue, monthsToTarget, requiredDeposit } from '../lib/savings'
-import { translate, type Language } from '../lib/i18n'
+import { translate, useI18n, type Language } from '../lib/i18n'
 import { MoneyInput } from './MoneyInput'
 import { ProgressBar } from './ProgressBar'
 
@@ -32,7 +32,11 @@ function projection(goal: Goal, currentAge: number, savingsByGoal: Record<string
   return { need, projected, value, months, deposits, interest: Math.max(0, value - saved - deposits) }
 }
 
-export function SavingsPanel({ state, derived, update, lang = 'id' }: Props) {
+export function SavingsPanel({ state, derived, update, lang: propLang }: Props) {
+  const { language } = useI18n()
+  const lang = propLang ?? language
+  const isEn = lang === 'en'
+
   const recommendations = useMemo(
     () =>
       activeGoals(state.goals)
@@ -44,7 +48,7 @@ export function SavingsPanel({ state, derived, update, lang = 'id' }: Props) {
   const addGoal = () => {
     const goal: Goal = {
       id: uid('goal'),
-      name: `Target ${state.goals.length + 1}`,
+      name: isEn ? `Goal ${state.goals.length + 1}` : `Target ${state.goals.length + 1}`,
       target: 0,
       saved: 0,
       deposit: defaultDeposit(derived),
@@ -68,7 +72,6 @@ export function SavingsPanel({ state, derived, update, lang = 'id' }: Props) {
       return { ...s, goals: rest }
     })
   }
-
 
   return (
     <section className="card">
@@ -105,7 +108,7 @@ export function SavingsPanel({ state, derived, update, lang = 'id' }: Props) {
                   className="input input-name"
                   value={goal.name}
                   onChange={(e) => patchGoal(goal.id, { name: e.target.value })}
-                  aria-label="Nama target"
+                  aria-label={isEn ? 'Goal name' : 'Nama target'}
                 />
                 <div className="goal-head-actions">
                   <button
@@ -141,11 +144,11 @@ export function SavingsPanel({ state, derived, update, lang = 'id' }: Props) {
                   <MoneyInput value={goal.saved} onValueChange={(value) => patchGoal(goal.id, { saved: value })} />
                 </div>
                 <div className="field">
-                  <label>Setoran riil / bulan (Rp)</label>
+                  <label>{isEn ? 'Actual monthly deposit (Rp)' : 'Setoran riil / bulan (Rp)'}</label>
                   <MoneyInput value={goal.deposit} onValueChange={(value) => patchGoal(goal.id, { deposit: value })} />
                 </div>
                 <div className="field">
-                  <label>Dicapai di umur</label>
+                  <label>{isEn ? 'Target age' : 'Dicapai di umur'}</label>
                   <input
                     className="input"
                     type="number"
@@ -160,11 +163,19 @@ export function SavingsPanel({ state, derived, update, lang = 'id' }: Props) {
                 <ProgressBar value={savedNow} max={goal.target} />
                 <span className="muted small">
                   {formatIDR(savedNow)} / {formatIDR(goal.target)} ({percent}%)
-                  {months > 0 ? ` · ${formatDuration(months)} lagi` : ' · umur target sudah lewat nih'}
+                  {months > 0
+                    ? isEn
+                      ? ` · ${formatDuration(months, lang)} left`
+                      : ` · ${formatDuration(months, lang)} lagi`
+                    : isEn
+                      ? ' · target age has passed'
+                      : ' · umur target sudah lewat nih'}
                 </span>
                 {logged > 0 && (
                   <span className="muted small">
-                    = saldo manual {formatIDR(goal.saved)} + dari catatan kategori tabungan {formatIDR(logged)}
+                    {isEn
+                      ? `= manual balance ${formatIDR(goal.saved)} + from savings category ${formatIDR(logged)}`
+                      : `= saldo manual ${formatIDR(goal.saved)} + dari catatan kategori tabungan ${formatIDR(logged)}`}
                   </span>
                 )}
               </div>
@@ -173,46 +184,69 @@ export function SavingsPanel({ state, derived, update, lang = 'id' }: Props) {
         })}
       </div>
 
-
       <button type="button" className="btn btn-ghost" onClick={addGoal}>
         {translate('savings.addBtn', lang)}
       </button>
-      {state.goals.length === 0 && <p className="muted small">Belum ada target tabungan nih. Bikin satu yuk biar semangat nabungnya!</p>}
+      {state.goals.length === 0 && (
+        <p className="muted small">
+          {isEn
+            ? 'No savings goals yet. Create one to stay motivated!'
+            : 'Belum ada target tabungan nih. Bikin satu yuk biar semangat nabungnya!'}
+        </p>
+      )}
 
       {recommendations.map(({ goal, calc }) => (
         <div className="recommend" key={goal.id}>
-          <h3 className="section-title">Perhitungan untuk {goal.name}</h3>
+          <h3 className="section-title">
+            {isEn ? `Projection for ${goal.name}` : `Perhitungan untuk ${goal.name}`}
+          </h3>
           <ul className="rec-list">
             <li>
-              <span>Rekomendasi setoran</span>
-              <strong>{calc.need === null ? '·' : `${formatIDR(calc.need)} / bulan`}</strong>
-            </li>
-            <li>
-              <span>Setoran riil kamu</span>
-              <strong>{formatIDR(goal.deposit)} / bulan</strong>
-            </li>
-            <li>
-              <span>Perkiraan tercapai</span>
+              <span>{isEn ? 'Recommended deposit' : 'Rekomendasi setoran'}</span>
               <strong>
-                {calc.projected === null
-                  ? 'Belum kehitung (masukin setoran dulu yuk)'
-                  : calc.projected === 0
-                    ? 'Sudah tercapai'
-                    : `umur ${ageAfter(state.currentAge, calc.projected).label} (${formatDuration(calc.projected)})`}
+                {calc.need === null ? '·' : `${formatIDR(calc.need)} ${isEn ? '/ month' : '/ bulan'}`}
               </strong>
             </li>
             <li>
-              <span>Nilai tabungan di umur {goal.targetAge}</span>
+              <span>{isEn ? 'Your actual deposit' : 'Setoran riil kamu'}</span>
+              <strong>{formatIDR(goal.deposit)} {isEn ? '/ month' : '/ bulan'}</strong>
+            </li>
+            <li>
+              <span>{isEn ? 'Estimated completion' : 'Perkiraan tercapai'}</span>
+              <strong>
+                {calc.projected === null
+                  ? isEn
+                    ? 'Not calculated yet (enter deposit first)'
+                    : 'Belum kehitung (masukin setoran dulu yuk)'
+                  : calc.projected === 0
+                    ? isEn
+                      ? 'Already reached'
+                      : 'Sudah tercapai'
+                    : `${isEn ? 'age' : 'umur'} ${ageAfter(state.currentAge, calc.projected, lang).label} (${formatDuration(calc.projected, lang)})`}
+              </strong>
+            </li>
+            <li>
+              <span>
+                {isEn ? `Savings value at age ${goal.targetAge}` : `Nilai tabungan di umur ${goal.targetAge}`}
+              </span>
               <strong>
                 {formatIDR(calc.value)}
-                <span className="muted small"> (setoran {formatIDR(calc.deposits)} + bunga {formatIDR(calc.interest)})</span>
+                <span className="muted small">
+                  {isEn
+                    ? ` (deposits ${formatIDR(calc.deposits)} + interest ${formatIDR(calc.interest)})`
+                    : ` (setoran ${formatIDR(calc.deposits)} + bunga ${formatIDR(calc.interest)})`}
+                </span>
               </strong>
             </li>
           </ul>
         </div>
       ))}
       {state.goals.length > 0 && recommendations.length === 0 && (
-        <p className="muted small">Belum ada target aktif yang bisa dihitung nih. Coba aktifkan salah satu target di atas ya.</p>
+        <p className="muted small">
+          {isEn
+            ? 'No active target to calculate yet. Please activate one of the goals above.'
+            : 'Belum ada target aktif yang bisa dihitung nih. Coba aktifkan salah satu target di atas ya.'}
+        </p>
       )}
     </section>
   )

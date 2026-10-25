@@ -1,6 +1,7 @@
 import React, { useState, useMemo, useRef, useEffect } from 'react'
 import { createPortal } from 'react-dom'
 import { ICON_CLOSE } from './icons'
+import { useI18n } from '../lib/i18n'
 
 export interface CustomSelectOption {
   value: string
@@ -64,6 +65,8 @@ export function CustomSelect({
   'aria-label': ariaLabel,
   ...rest
 }: CustomSelectProps) {
+  const { language } = useI18n()
+  const isEn = language === 'en'
   const [isOpen, setIsOpen] = useState(false)
   const [search, setSearch] = useState('')
   const nativeSelectRef = useRef<HTMLSelectElement>(null)
@@ -129,7 +132,7 @@ export function CustomSelect({
     return () => window.removeEventListener('keydown', onKeyDown)
   }, [isOpen])
 
-  const modalTitle = title || ariaLabel || 'Pilihan'
+  const modalTitle = title || ariaLabel || (isEn ? 'Options' : 'Pilihan')
 
   const modalContent = isOpen && typeof document !== 'undefined' ? (
     <div
@@ -151,7 +154,9 @@ export function CustomSelect({
         <div className="select-sheet-head">
           <div className="select-sheet-title-group">
             <h3 className="select-sheet-title">{modalTitle}</h3>
-            <p className="select-sheet-subtitle">Ketuk salah satu pilihan untuk menggunakannya</p>
+            <p className="select-sheet-subtitle">
+              {isEn ? 'Tap an option to select it' : 'Ketuk salah satu pilihan untuk menggunakannya'}
+            </p>
           </div>
           <button
             type="button"
@@ -160,7 +165,7 @@ export function CustomSelect({
               setIsOpen(false)
               setSearch('')
             }}
-            aria-label="Tutup jendela pilihan"
+            aria-label={isEn ? 'Close selection dialog' : 'Tutup jendela pilihan'}
           >
             <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round">
               <path d="M18 6L6 18M6 6l12 12" />
@@ -177,7 +182,7 @@ export function CustomSelect({
             <input
               type="text"
               className="input select-sheet-search-input"
-              placeholder="Cari dalam pilihan..."
+              placeholder={isEn ? 'Search options...' : 'Cari dalam pilihan...'}
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               autoFocus
@@ -187,7 +192,7 @@ export function CustomSelect({
                 type="button"
                 className="select-sheet-search-clear"
                 onClick={() => setSearch('')}
-                aria-label="Hapus pencarian"
+                aria-label={isEn ? 'Clear search' : 'Hapus pencarian'}
               >
                 {ICON_CLOSE}
               </button>
@@ -217,7 +222,7 @@ export function CustomSelect({
           })}
           {filteredOptions.length === 0 && (
             <div className="select-sheet-empty">
-              <span>Tidak ada pilihan yang cocok dengan "{search}"</span>
+              <span>{isEn ? `No options matching "${search}"` : `Tidak ada pilihan yang cocok dengan "${search}"`}</span>
             </div>
           )}
         </div>
@@ -231,7 +236,7 @@ export function CustomSelect({
               setSearch('')
             }}
           >
-            Batal
+            {isEn ? 'Cancel' : 'Batal'}
           </button>
         </div>
       </div>

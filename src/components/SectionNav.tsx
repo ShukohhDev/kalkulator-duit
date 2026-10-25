@@ -1,5 +1,6 @@
 import type { ReactNode } from 'react'
 import { NAV_SVG_ICONS } from './icons'
+import { useI18n } from '../lib/i18n'
 
 export interface NavItem {
   id: string
@@ -16,11 +17,13 @@ interface Props {
 }
 
 export function SectionNav({ items, openId, onOpen, extraActions, isStickyDesktop, isSticky }: Props) {
+  const { language } = useI18n()
+  const isEn = language === 'en'
   const isStickyActive = isSticky ?? isStickyDesktop
   return (
     <nav
       className={`section-nav${isStickyActive ? ' section-nav-sticky' : ''}`}
-      aria-label="Navigasi panel"
+      aria-label={isEn ? 'Panel navigation' : 'Navigasi panel'}
     >
       <div className="section-nav-items">
         {items.map((item) => {

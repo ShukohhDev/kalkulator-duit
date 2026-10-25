@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react'
 import { createPortal } from 'react-dom'
 import type { NotificationItem } from '../lib/notifications'
 import { ICON_CLOSE } from './icons'
+import { useI18n } from '../lib/i18n'
 
 interface Props {
   items: NotificationItem[]
@@ -11,6 +12,7 @@ interface Props {
 }
 
 export function NotificationCenter({ items, onClose, onMarkAllRead, onMarkRead }: Props) {
+  const { language } = useI18n()
   const [filter, setFilter] = useState<'all' | 'finance' | 'reports'>('all')
 
   const filteredItems = items.filter((item) => {
@@ -32,7 +34,7 @@ export function NotificationCenter({ items, onClose, onMarkAllRead, onMarkRead }
   const formatDate = (isoString: string) => {
     try {
       const date = new Date(isoString)
-      return date.toLocaleDateString('id-ID', {
+      return date.toLocaleDateString(language === 'en' ? 'en-US' : 'id-ID', {
         day: 'numeric',
         month: 'short',
         hour: '2-digit',
@@ -49,15 +51,19 @@ export function NotificationCenter({ items, onClose, onMarkAllRead, onMarkRead }
       <div
         className="notif-dropdown card"
         role="region"
-        aria-label="Pusat Notifikasi"
+        aria-label={language === 'en' ? 'Notification Center' : 'Pusat Notifikasi'}
         onClick={(e) => e.stopPropagation()}
       >
         <div className="notif-mobile-handle" />
 
         <div className="notif-header">
           <div className="notif-title-group">
-            <h3>Kabar & Notifikasi</h3>
-            {unreadCount > 0 && <span className="notif-count-badge">{unreadCount} baru</span>}
+            <h3>{language === 'en' ? 'Updates & Notifications' : 'Kabar & Notifikasi'}</h3>
+            {unreadCount > 0 && (
+              <span className="notif-count-badge">
+                {unreadCount} {language === 'en' ? 'new' : 'baru'}
+              </span>
+            )}
           </div>
           <div className="notif-actions">
             {unreadCount > 0 && (
@@ -66,14 +72,14 @@ export function NotificationCenter({ items, onClose, onMarkAllRead, onMarkRead }
                 className="btn btn-ghost btn-sm notif-btn-action"
                 onClick={onMarkAllRead}
               >
-                Tandai sudah dibaca
+                {language === 'en' ? 'Mark all as read' : 'Tandai sudah dibaca'}
               </button>
             )}
             <button
               type="button"
               className="btn btn-ghost btn-sm notif-close"
               onClick={onClose}
-              aria-label="Tutup notifikasi"
+              aria-label={language === 'en' ? 'Close notifications' : 'Tutup notifikasi'}
             >
               {ICON_CLOSE}
             </button>
@@ -86,28 +92,36 @@ export function NotificationCenter({ items, onClose, onMarkAllRead, onMarkRead }
             className={`notif-tab${filter === 'all' ? ' notif-tab-active' : ''}`}
             onClick={() => setFilter('all')}
           >
-            Semua ({items.length})
+            {language === 'en' ? `All (${items.length})` : `Semua (${items.length})`}
           </button>
           <button
             type="button"
             className={`notif-tab${filter === 'finance' ? ' notif-tab-active' : ''}`}
             onClick={() => setFilter('finance')}
           >
-            Keuangan ({items.filter((i) => i.kind === 'finance').length})
+            {language === 'en'
+              ? `Finance (${items.filter((i) => i.kind === 'finance').length})`
+              : `Keuangan (${items.filter((i) => i.kind === 'finance').length})`}
           </button>
           <button
             type="button"
             className={`notif-tab${filter === 'reports' ? ' notif-tab-active' : ''}`}
             onClick={() => setFilter('reports')}
           >
-            Laporan & Balasan ({items.filter((i) => i.kind !== 'finance').length})
+            {language === 'en'
+              ? `Reports & Replies (${items.filter((i) => i.kind !== 'finance').length})`
+              : `Laporan & Balasan (${items.filter((i) => i.kind !== 'finance').length})`}
           </button>
         </div>
 
         <div className="notif-list">
           {filteredItems.length === 0 ? (
             <div className="notif-empty">
-              <p className="muted">Belum ada notifikasi baru di kategori ini.</p>
+              <p className="muted">
+                {language === 'en'
+                  ? 'No notifications in this category.'
+                  : 'Belum ada notifikasi baru di kategori ini.'}
+              </p>
             </div>
           ) : (
             filteredItems.map((item) => {
@@ -130,7 +144,12 @@ export function NotificationCenter({ items, onClose, onMarkAllRead, onMarkRead }
                   <div className="notif-item-top">
                     <span className={`notif-tag ${tagClass}`}>{item.tag}</span>
                     <span className="notif-time muted small">{formatDate(item.timestamp)}</span>
-                    {isUnread && <span className="notif-unread-dot" title="Belum dibaca" />}
+                    {isUnread && (
+                      <span
+                        className="notif-unread-dot"
+                        title={language === 'en' ? 'Unread' : 'Belum dibaca'}
+                      />
+                    )}
                   </div>
                   <h4 className="notif-item-title">{item.title}</h4>
                   <p className="notif-item-msg">{item.message}</p>
@@ -139,10 +158,10 @@ export function NotificationCenter({ items, onClose, onMarkAllRead, onMarkRead }
                       Status:{' '}
                       <strong>
                         {item.metadata.status === 'selesai'
-                          ? 'Selesai'
+                          ? language === 'en' ? 'Resolved' : 'Selesai'
                           : item.metadata.status === 'diproses'
-                          ? 'Diproses'
-                          : 'Baru'}
+                          ? language === 'en' ? 'In Progress' : 'Diproses'
+                          : language === 'en' ? 'New' : 'Baru'}
                       </strong>
                     </div>
                   )}

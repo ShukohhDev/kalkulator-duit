@@ -16,6 +16,7 @@ import {
 import { uid } from '../lib/id'
 import { buildICS } from '../lib/ics'
 import { END_SAVINGS_WALLET_ID } from '../lib/state'
+import { useI18n } from '../lib/i18n'
 import { MiniCalendar } from './MiniCalendar'
 import { MoneyInput } from './MoneyInput'
 import { ProgressBar } from './ProgressBar'
@@ -48,6 +49,7 @@ function getSourceName(state: AppState, source: string): string {
 }
 
 export function ObligationsPanel({ state, update, notify }: Props) {
+  const { language } = useI18n()
   const [billName, setBillName] = useState('')
   const [billAmount, setBillAmount] = useState(0)
   const [billDay, setBillDay] = useState(1)
@@ -72,9 +74,9 @@ export function ObligationsPanel({ state, update, notify }: Props) {
       link.download = 'kewajiban.ics'
       link.click()
       URL.revokeObjectURL(url)
-      notify('Kalender kewajiban diunduh (.ics).')
+      notify(language === 'en' ? 'Obligations calendar downloaded (.ics).' : 'Kalender kewajiban diunduh (.ics).')
     } catch {
-      notify('Gagal membuat file .ics.', { error: true })
+      notify(language === 'en' ? 'Failed to create .ics file.' : 'Gagal membuat file .ics.', { error: true })
     }
   }
 
@@ -115,10 +117,16 @@ export function ObligationsPanel({ state, update, notify }: Props) {
     const nextRemaining = remaining - actualPay
     const sourceLabel = sourceKey ? ` via ${getSourceName(state, sourceKey)}` : ''
     if (nextRemaining <= 0) {
-      notify(`Tagihan ${bill.name} lunas bulan ini (${formatIDR(actualPay)}${sourceLabel}).`)
+      notify(
+        language === 'en'
+          ? `Bill ${bill.name} paid in full this month (${formatIDR(actualPay)}${sourceLabel}).`
+          : `Tagihan ${bill.name} lunas bulan ini (${formatIDR(actualPay)}${sourceLabel}).`
+      )
     } else {
       notify(
-        `Pembayaran ${bill.name} berhasil dicatat (${formatIDR(actualPay)}${sourceLabel}). Sisa tagihan: ${formatIDR(nextRemaining)}.`,
+        language === 'en'
+          ? `Payment for ${bill.name} recorded (${formatIDR(actualPay)}${sourceLabel}). Remaining bill: ${formatIDR(nextRemaining)}.`
+          : `Pembayaran ${bill.name} berhasil dicatat (${formatIDR(actualPay)}${sourceLabel}). Sisa tagihan: ${formatIDR(nextRemaining)}.`
       )
     }
     setPayingBillId(null)
@@ -132,7 +140,7 @@ export function ObligationsPanel({ state, update, notify }: Props) {
     const target = state.bills[index]
     if (!target) return
     update((s) => ({ ...s, bills: s.bills.filter((item) => item.id !== id) }))
-    notify('Tagihan dihapus.', {
+    notify(language === 'en' ? 'Bill deleted.' : 'Tagihan dihapus.', {
       undo: () =>
         update((s) => {
           const next = [...s.bills]
@@ -180,10 +188,16 @@ export function ObligationsPanel({ state, update, notify }: Props) {
     const nextRemaining = remaining - actualPay
     const sourceLabel = sourceKey ? ` via ${getSourceName(state, sourceKey)}` : ''
     if (nextRemaining <= 0) {
-      notify(`Utang ${debt.name} berhasil dilunasi (${formatIDR(actualPay)}${sourceLabel}).`)
+      notify(
+        language === 'en'
+          ? `Debt ${debt.name} paid off completely (${formatIDR(actualPay)}${sourceLabel}).`
+          : `Utang ${debt.name} berhasil dilunasi (${formatIDR(actualPay)}${sourceLabel}).`
+      )
     } else {
       notify(
-        `Pembayaran angsuran ${debt.name} berhasil dicatat (${formatIDR(actualPay)}${sourceLabel}). Sisa utang: ${formatIDR(nextRemaining)}.`,
+        language === 'en'
+          ? `Installment for ${debt.name} recorded (${formatIDR(actualPay)}${sourceLabel}). Remaining debt: ${formatIDR(nextRemaining)}.`
+          : `Pembayaran angsuran ${debt.name} berhasil dicatat (${formatIDR(actualPay)}${sourceLabel}). Sisa utang: ${formatIDR(nextRemaining)}.`
       )
     }
     setPayingDebtId(null)
@@ -197,7 +211,7 @@ export function ObligationsPanel({ state, update, notify }: Props) {
     const target = state.debts[index]
     if (!target) return
     update((s) => ({ ...s, debts: s.debts.filter((item) => item.id !== id) }))
-    notify('Utang dihapus.', {
+    notify(language === 'en' ? 'Debt deleted.' : 'Utang dihapus.', {
       undo: () =>
         update((s) => {
           const next = [...s.debts]
@@ -212,20 +226,20 @@ export function ObligationsPanel({ state, update, notify }: Props) {
       <section className="card obligations-top-card">
         <header className="card-head">
           <div>
-            <h2>Kewajiban</h2>
+            <h2>{language === 'en' ? 'Obligations' : 'Kewajiban'}</h2>
             <p className="muted small" style={{ margin: '4px 0 0 0' }}>
-              pantau tagihan &amp; cicilan biar gak kelupaan
+              {language === 'en' ? 'track bills & debts so you never miss a due date' : 'pantau tagihan & cicilan biar gak kelupaan'}
             </p>
           </div>
           <div className="report-actions no-print">
             <button type="button" className="btn btn-ghost btn-sm" onClick={exportIcs}>
-              Ekspor .ics
+              {language === 'en' ? 'Export .ics' : 'Ekspor .ics'}
             </button>
           </div>
         </header>
       </section>
 
-      <div className="catat-mobile-switch" role="tablist" aria-label="Pilihan tampilan kewajiban">
+      <div className="catat-mobile-switch" role="tablist" aria-label={language === 'en' ? 'Obligation view options' : 'Pilihan tampilan kewajiban'}>
         <button
           type="button"
           role="tab"
@@ -233,7 +247,7 @@ export function ObligationsPanel({ state, update, notify }: Props) {
           className={`catat-switch-btn ${obView === 'all' ? 'active' : ''}`}
           onClick={() => setObView('all')}
         >
-          Semua
+          {language === 'en' ? 'All' : 'Semua'}
         </button>
         <button
           type="button"
@@ -242,7 +256,7 @@ export function ObligationsPanel({ state, update, notify }: Props) {
           className={`catat-switch-btn ${obView === 'bills' ? 'active' : ''}`}
           onClick={() => setObView('bills')}
         >
-          Tagihan Rutin
+          {language === 'en' ? 'Recurring Bills' : 'Tagihan Rutin'}
         </button>
         <button
           type="button"
@@ -251,7 +265,7 @@ export function ObligationsPanel({ state, update, notify }: Props) {
           className={`catat-switch-btn ${obView === 'debts' ? 'active' : ''}`}
           onClick={() => setObView('debts')}
         >
-          Utang Berjalan
+          {language === 'en' ? 'Active Debts' : 'Utang Berjalan'}
         </button>
       </div>
 
@@ -260,8 +274,8 @@ export function ObligationsPanel({ state, update, notify }: Props) {
         <section className="card ob-column ob-col-bills">
           <header className="card-head">
             <div>
-              <h3 className="section-title" style={{ margin: 0 }}>Tagihan rutin</h3>
-              <span className="muted small">{state.bills.length} tagihan</span>
+              <h3 className="section-title" style={{ margin: 0 }}>{language === 'en' ? 'Recurring Bills' : 'Tagihan rutin'}</h3>
+              <span className="muted small">{state.bills.length} {language === 'en' ? (state.bills.length === 1 ? 'bill' : 'bills') : 'tagihan'}</span>
             </div>
           </header>
       <div className="goal-list">
@@ -282,11 +296,13 @@ export function ObligationsPanel({ state, update, notify }: Props) {
                 <span className="muted small">
                   {paidAmount > 0 && remaining > 0 ? (
                     <>
-                      Terbayar {formatIDR(paidAmount)} dari {formatIDR(bill.amount)} · sisa {formatIDR(remaining)} · tiap tgl {bill.dueDay} ({dueDateLabel(bill.dueDay)})
+                      {language === 'en'
+                        ? `Paid ${formatIDR(paidAmount)} of ${formatIDR(bill.amount)} · left ${formatIDR(remaining)} · every ${bill.dueDay}th (${dueDateLabel(bill.dueDay, now, language)})`
+                        : `Terbayar ${formatIDR(paidAmount)} dari ${formatIDR(bill.amount)} · sisa ${formatIDR(remaining)} · tiap tgl ${bill.dueDay} (${dueDateLabel(bill.dueDay, now, language)})`}
                     </>
                   ) : (
                     <>
-                      {formatIDR(bill.amount)} · tiap tgl {bill.dueDay} ({dueDateLabel(bill.dueDay)})
+                      {formatIDR(bill.amount)} · {language === 'en' ? `every ${bill.dueDay}th` : `tiap tgl ${bill.dueDay}`} ({dueDateLabel(bill.dueDay, now, language)})
                     </>
                   )}
                 </span>
@@ -296,7 +312,11 @@ export function ObligationsPanel({ state, update, notify }: Props) {
                   isPaid ? 'ob-badge-ok' : paidAmount > 0 ? 'ob-badge-warn' : days <= 3 ? 'ob-badge-due' : ''
                 }`}
               >
-                {isPaid ? 'Lunas bulan ini' : paidAmount > 0 ? `Sisa ${formatIDR(remaining)}` : dueLabel(days)}
+                {isPaid
+                  ? (language === 'en' ? 'Paid this month' : 'Lunas bulan ini')
+                  : paidAmount > 0
+                  ? (language === 'en' ? `Left ${formatIDR(remaining)}` : `Sisa ${formatIDR(remaining)}`)
+                  : dueLabel(days, language)}
               </span>
               <div className="ob-actions">
                 <button
@@ -305,14 +325,14 @@ export function ObligationsPanel({ state, update, notify }: Props) {
                   disabled={isPaid}
                   onClick={() => (isPayingThis ? cancelPayBill() : openPayBill(bill))}
                 >
-                  {isPayingThis ? 'Batal' : 'Bayar'}
+                  {isPayingThis ? (language === 'en' ? 'Cancel' : 'Batal') : (language === 'en' ? 'Pay' : 'Bayar')}
                 </button>
                 <button
                   type="button"
                   className="btn btn-ghost btn-sm btn-danger"
                   onClick={() => removeBill(bill.id)}
                 >
-                  Hapus
+                  {language === 'en' ? 'Delete' : 'Hapus'}
                 </button>
               </div>
 
@@ -320,37 +340,39 @@ export function ObligationsPanel({ state, update, notify }: Props) {
                 <div className="ob-pay-drawer">
                   <div className="ob-pay-info">
                     <span className="small">
-                      Sisa tagihan: <strong>{formatIDR(remaining)}</strong>
+                      {language === 'en' ? 'Remaining bill:' : 'Sisa tagihan:'} <strong>{formatIDR(remaining)}</strong>
                     </span>
-                    <span className="muted small">Pilih dompet dan masukin nominal yang mau dibayar</span>
+                    <span className="muted small">
+                      {language === 'en' ? 'Select wallet and enter amount to pay' : 'Pilih dompet dan masukin nominal yang mau dibayar'}
+                    </span>
                   </div>
                   <div className="ob-pay-input-row">
                     <div className="field ob-pay-field">
-                      <label htmlFor={`pay-amount-${bill.id}`}>Nominal bayar (Rp)</label>
+                      <label htmlFor={`pay-amount-${bill.id}`}>{language === 'en' ? 'Payment amount (Rp)' : 'Nominal bayar (Rp)'}</label>
                       <MoneyInput
                         id={`pay-amount-${bill.id}`}
                         value={payNominal}
                         onValueChange={setPayNominal}
-                        placeholder="Masukkan nominal bayar…"
+                        placeholder={language === 'en' ? 'Enter payment amount…' : 'Masukkan nominal bayar…'}
                         autoFocus
                       />
                     </div>
                     <div className="field ob-pay-field">
-                      <label htmlFor={`pay-source-${bill.id}`}>Sumber pembayaran</label>
+                      <label htmlFor={`pay-source-${bill.id}`}>{language === 'en' ? 'Payment source' : 'Sumber pembayaran'}</label>
                       <CustomSelect
                         id={`pay-source-${bill.id}`}
                         className="input"
                         value={paySource}
                         onChange={(e) => setPaySource(e.target.value)}
-                        title="Pilih Sumber Pembayaran Tagihan"
+                        title={language === 'en' ? 'Select Bill Payment Source' : 'Pilih Sumber Pembayaran Tagihan'}
                       >
-                        <option value="none">Tanpa potong dompet (catat pengeluaran saja)</option>
-                        <option value="pot">Saku Tabungan (saldo: {formatIDR(state.endSavings)})</option>
+                        <option value="none">{language === 'en' ? 'No wallet deduction (log expense only)' : 'Tanpa potong dompet (catat pengeluaran saja)'}</option>
+                        <option value="pot">{language === 'en' ? `Savings Pocket (balance: ${formatIDR(state.endSavings)})` : `Saku Tabungan (saldo: ${formatIDR(state.endSavings)})`}</option>
                         {state.wallets
                           .filter((w) => w.id !== END_SAVINGS_WALLET_ID)
                           .map((w) => (
                             <option key={w.id} value={`wallet:${w.id}`}>
-                              {w.name} (saldo: {formatIDR(w.balance)})
+                              {w.name} ({language === 'en' ? 'balance:' : 'saldo:'} {formatIDR(w.balance)})
                             </option>
                           ))}
                       </CustomSelect>
@@ -366,14 +388,14 @@ export function ObligationsPanel({ state, update, notify }: Props) {
                         }
                         onClick={() => confirmPayBill(bill)}
                       >
-                        Konfirmasi Bayar
+                        {language === 'en' ? 'Confirm Payment' : 'Konfirmasi Bayar'}
                       </button>
                       <button
                         type="button"
                         className="btn btn-ghost btn-sm"
                         onClick={cancelPayBill}
                       >
-                        Batal
+                        {language === 'en' ? 'Cancel' : 'Batal'}
                       </button>
                     </div>
                   </div>
@@ -383,7 +405,7 @@ export function ObligationsPanel({ state, update, notify }: Props) {
                       className="btn btn-ghost btn-xs"
                       onClick={() => setPayNominal(remaining)}
                     >
-                      Bayar lunas ({formatIDR(remaining)})
+                      {language === 'en' ? `Pay in full (${formatIDR(remaining)})` : `Bayar lunas (${formatIDR(remaining)})`}
                     </button>
                     {remaining >= 50_000 && Math.round(remaining / 2) !== remaining && (
                       <button
@@ -391,18 +413,20 @@ export function ObligationsPanel({ state, update, notify }: Props) {
                         className="btn btn-ghost btn-xs"
                         onClick={() => setPayNominal(Math.round(remaining / 2))}
                       >
-                        Cicil 50% ({formatIDR(Math.round(remaining / 2))})
+                        {language === 'en' ? `Pay 50% (${formatIDR(Math.round(remaining / 2))})` : `Cicil 50% (${formatIDR(Math.round(remaining / 2))})`}
                       </button>
                     )}
                   </div>
                   {payNominal > remaining && (
                     <p className="small" style={{ color: 'var(--danger)', margin: 0 }}>
-                      Nominal melebihi sisa tagihan ({formatIDR(remaining)}).
+                      {language === 'en' ? `Amount exceeds remaining bill (${formatIDR(remaining)}).` : `Nominal melebihi sisa tagihan (${formatIDR(remaining)}).`}
                     </p>
                   )}
                   {paySource !== 'none' && payNominal > getSourceBalance(state, paySource) && (
                     <p className="small" style={{ color: 'var(--danger)', margin: 0 }}>
-                      Saldo {getSourceName(state, paySource)} tidak mencukupi (tersedia: {formatIDR(getSourceBalance(state, paySource))}).
+                      {language === 'en'
+                        ? `${getSourceName(state, paySource)} balance is insufficient (available: ${formatIDR(getSourceBalance(state, paySource))}).`
+                        : `Saldo ${getSourceName(state, paySource)} tidak mencukupi (tersedia: ${formatIDR(getSourceBalance(state, paySource))}).`}
                     </p>
                   )}
                 </div>
@@ -411,28 +435,30 @@ export function ObligationsPanel({ state, update, notify }: Props) {
           )
         })}
         {state.bills.length === 0 && (
-          <p className="muted small">Belum ada tagihan nih. Yuk catat listrik, wifi, atau kosan kamu di bawah.</p>
+          <p className="muted small">
+            {language === 'en' ? 'No recurring bills yet. Record your electricity, internet, or rent below.' : 'Belum ada tagihan nih. Yuk catat listrik, wifi, atau kosan kamu di bawah.'}
+          </p>
         )}
       </div>
 
       <form className="ob-form" onSubmit={addBill}>
         <div className="field">
-          <label htmlFor="bill-name">Nama tagihan</label>
+          <label htmlFor="bill-name">{language === 'en' ? 'Bill name' : 'Nama tagihan'}</label>
           <input
             id="bill-name"
             className="input"
             value={billName}
-            placeholder="Listrik, internet, sewa…"
+            placeholder={language === 'en' ? 'Electricity, internet, rent…' : 'Listrik, internet, sewa…'}
             onChange={(e) => setBillName(e.target.value)}
           />
         </div>
         <div className="field">
-          <label htmlFor="bill-amount">Nominal (Rp)</label>
+          <label htmlFor="bill-amount">{language === 'en' ? 'Amount (Rp)' : 'Nominal (Rp)'}</label>
           <MoneyInput id="bill-amount" value={billAmount} onValueChange={setBillAmount} />
         </div>
         <MiniCalendar id="bill-due" value={billDay} onChange={setBillDay} />
         <button type="submit" className="btn" disabled={!billName.trim() || billAmount <= 0}>
-          + Tambah tagihan
+          {language === 'en' ? '+ Add bill' : '+ Tambah tagihan'}
         </button>
       </form>
     </section>
@@ -441,8 +467,10 @@ export function ObligationsPanel({ state, update, notify }: Props) {
     <section className="card ob-column ob-col-debts">
       <header className="card-head">
         <div>
-          <h3 className="section-title" style={{ margin: 0 }}>Utang berjalan</h3>
-          <span className="muted small">{state.debts.length} utang</span>
+          <h3 className="section-title" style={{ margin: 0 }}>{language === 'en' ? 'Active debts' : 'Utang berjalan'}</h3>
+          <span className="muted small">
+            {state.debts.length} {language === 'en' ? (state.debts.length === 1 ? 'debt' : 'debts') : 'utang'}
+          </span>
         </div>
       </header>
       <div className="goal-list">
@@ -460,12 +488,13 @@ export function ObligationsPanel({ state, update, notify }: Props) {
                 <strong>{debt.name}</strong>
                 <ProgressBar value={debt.paid} max={debt.total} />
                 <span className="muted small">
-                  Terbayar {formatIDR(debt.paid)} dari {formatIDR(debt.total)} · sisa {formatIDR(remaining)} ·
-                  angsuran {formatIDR(debt.installment)} tiap tgl {debt.dueDay}
+                  {language === 'en'
+                    ? `Paid ${formatIDR(debt.paid)} of ${formatIDR(debt.total)} · left ${formatIDR(remaining)} · installment ${formatIDR(debt.installment)} every ${debt.dueDay}th`
+                    : `Terbayar ${formatIDR(debt.paid)} dari ${formatIDR(debt.total)} · sisa ${formatIDR(remaining)} · angsuran ${formatIDR(debt.installment)} tiap tgl ${debt.dueDay}`}
                 </span>
               </div>
               <span className={`ob-badge ${lunas ? 'ob-badge-ok' : days <= 3 ? 'ob-badge-due' : ''}`}>
-                {lunas ? 'Lunas' : dueLabel(days)}
+                {lunas ? (language === 'en' ? 'Paid off' : 'Lunas') : dueLabel(days, language)}
               </span>
               <div className="ob-actions">
                 <button
@@ -474,14 +503,14 @@ export function ObligationsPanel({ state, update, notify }: Props) {
                   disabled={lunas}
                   onClick={() => (isPayingThisDebt ? cancelPayDebt() : openPayDebt(debt))}
                 >
-                  {isPayingThisDebt ? 'Batal' : 'Bayar angsuran'}
+                  {isPayingThisDebt ? (language === 'en' ? 'Cancel' : 'Batal') : (language === 'en' ? 'Pay installment' : 'Bayar angsuran')}
                 </button>
                 <button
                   type="button"
                   className="btn btn-ghost btn-sm btn-danger"
                   onClick={() => removeDebt(debt.id)}
                 >
-                  Hapus
+                  {language === 'en' ? 'Delete' : 'Hapus'}
                 </button>
               </div>
 
@@ -489,38 +518,40 @@ export function ObligationsPanel({ state, update, notify }: Props) {
                 <div className="ob-pay-drawer">
                   <div className="ob-pay-info">
                     <span className="small">
-                      Sisa utang: <strong>{formatIDR(remaining)}</strong> · Angsuran: <strong>{formatIDR(debt.installment)}</strong>
+                      {language === 'en' ? 'Remaining debt:' : 'Sisa utang:'} <strong>{formatIDR(remaining)}</strong> · {language === 'en' ? 'Installment:' : 'Angsuran:'} <strong>{formatIDR(debt.installment)}</strong>
                     </span>
-                    <span className="muted small">Pilih dompet dan masukin nominal yang mau dibayar</span>
+                    <span className="muted small">
+                      {language === 'en' ? 'Select wallet and enter amount to pay' : 'Pilih dompet dan masukin nominal yang mau dibayar'}
+                    </span>
                   </div>
 
                   <div className="ob-pay-input-row">
                     <div className="field ob-pay-field">
-                      <label htmlFor={`debt-amount-${debt.id}`}>Nominal bayar (Rp)</label>
+                      <label htmlFor={`debt-amount-${debt.id}`}>{language === 'en' ? 'Payment amount (Rp)' : 'Nominal bayar (Rp)'}</label>
                       <MoneyInput
                         id={`debt-amount-${debt.id}`}
                         value={debtPayNominal}
                         onValueChange={setDebtPayNominal}
-                        placeholder="Masukkan nominal bayar…"
+                        placeholder={language === 'en' ? 'Enter payment amount…' : 'Masukkan nominal bayar…'}
                         autoFocus
                       />
                     </div>
                     <div className="field ob-pay-field">
-                      <label htmlFor={`debt-source-${debt.id}`}>Sumber pembayaran</label>
+                      <label htmlFor={`debt-source-${debt.id}`}>{language === 'en' ? 'Payment source' : 'Sumber pembayaran'}</label>
                       <CustomSelect
                         id={`debt-source-${debt.id}`}
                         className="input"
                         value={debtPaySource}
                         onChange={(e) => setDebtPaySource(e.target.value)}
-                        title="Pilih Sumber Pembayaran Angsuran"
+                        title={language === 'en' ? 'Select Installment Payment Source' : 'Pilih Sumber Pembayaran Angsuran'}
                       >
-                        <option value="none">Tanpa potong dompet (catat pengeluaran saja)</option>
-                        <option value="pot">Saku Tabungan (saldo: {formatIDR(state.endSavings)})</option>
+                        <option value="none">{language === 'en' ? 'No wallet deduction (log expense only)' : 'Tanpa potong dompet (catat pengeluaran saja)'}</option>
+                        <option value="pot">{language === 'en' ? `Savings Pocket (balance: ${formatIDR(state.endSavings)})` : `Saku Tabungan (saldo: ${formatIDR(state.endSavings)})`}</option>
                         {state.wallets
                           .filter((w) => w.id !== END_SAVINGS_WALLET_ID)
                           .map((w) => (
                             <option key={w.id} value={`wallet:${w.id}`}>
-                              {w.name} (saldo: {formatIDR(w.balance)})
+                              {w.name} ({language === 'en' ? 'balance:' : 'saldo:'} {formatIDR(w.balance)})
                             </option>
                           ))}
                       </CustomSelect>
@@ -532,14 +563,14 @@ export function ObligationsPanel({ state, update, notify }: Props) {
                         disabled={debtPayNominal <= 0 || debtPayNominal > remaining || isDebtInsufficient}
                         onClick={() => confirmPayDebt(debt)}
                       >
-                        Konfirmasi Bayar
+                        {language === 'en' ? 'Confirm Payment' : 'Konfirmasi Bayar'}
                       </button>
                       <button
                         type="button"
                         className="btn btn-ghost btn-sm"
                         onClick={cancelPayDebt}
                       >
-                        Batal
+                        {language === 'en' ? 'Cancel' : 'Batal'}
                       </button>
                     </div>
                   </div>
@@ -550,26 +581,28 @@ export function ObligationsPanel({ state, update, notify }: Props) {
                       className="btn btn-ghost btn-xs"
                       onClick={() => setDebtPayNominal(Math.min(debt.installment, remaining))}
                     >
-                      Sesuai angsuran ({formatIDR(Math.min(debt.installment, remaining))})
+                      {language === 'en' ? `Installment amount (${formatIDR(Math.min(debt.installment, remaining))})` : `Sesuai angsuran (${formatIDR(Math.min(debt.installment, remaining))})`}
                     </button>
                     <button
                       type="button"
                       className="btn btn-ghost btn-xs"
                       onClick={() => setDebtPayNominal(remaining)}
                     >
-                      Bayar lunas ({formatIDR(remaining)})
+                      {language === 'en' ? `Pay in full (${formatIDR(remaining)})` : `Bayar lunas (${formatIDR(remaining)})`}
                     </button>
                   </div>
 
                   {debtPayNominal > remaining && (
                     <p className="small" style={{ color: 'var(--danger)', margin: 0 }}>
-                      Nominal melebihi sisa utang ({formatIDR(remaining)}).
+                      {language === 'en' ? `Amount exceeds remaining debt (${formatIDR(remaining)}).` : `Nominal melebihi sisa utang (${formatIDR(remaining)}).`}
                     </p>
                   )}
 
                   {isDebtInsufficient && (
                     <p className="small" style={{ color: 'var(--danger)', margin: 0 }}>
-                      Saldo {getSourceName(state, debtPaySource)} tidak mencukupi (tersedia: {formatIDR(debtSourceBal)}).
+                      {language === 'en'
+                        ? `${getSourceName(state, debtPaySource)} balance is insufficient (available: ${formatIDR(debtSourceBal)}).`
+                        : `Saldo ${getSourceName(state, debtPaySource)} tidak mencukupi (tersedia: ${formatIDR(debtSourceBal)}).`}
                     </p>
                   )}
                 </div>
@@ -578,27 +611,29 @@ export function ObligationsPanel({ state, update, notify }: Props) {
           )
         })}
         {state.debts.length === 0 && (
-          <p className="muted small">Belum ada catatan utang. Catat cicilan, pinjaman, atau paylater kamu di bawah biar tenang.</p>
+          <p className="muted small">
+            {language === 'en' ? 'No debt recorded. Track your installments or loans below to stay ahead.' : 'Belum ada catatan utang. Catat cicilan, pinjaman, atau paylater kamu di bawah biar tenang.'}
+          </p>
         )}
       </div>
 
       <form className="ob-form" onSubmit={addDebt}>
         <div className="field">
-          <label htmlFor="debt-name">Nama utang</label>
+          <label htmlFor="debt-name">{language === 'en' ? 'Debt name' : 'Nama utang'}</label>
           <input
             id="debt-name"
             className="input"
             value={debtName}
-            placeholder="Motor, pinjaman, paylater…"
+            placeholder={language === 'en' ? 'Motorcycle, loan, paylater…' : 'Motor, pinjaman, paylater…'}
             onChange={(e) => setDebtName(e.target.value)}
           />
         </div>
         <div className="field">
-          <label htmlFor="debt-total">Total utang (Rp)</label>
+          <label htmlFor="debt-total">{language === 'en' ? 'Total debt (Rp)' : 'Total utang (Rp)'}</label>
           <MoneyInput id="debt-total" value={debtTotal} onValueChange={setDebtTotal} />
         </div>
         <div className="field">
-          <label htmlFor="debt-installment">Angsuran / bulan (Rp)</label>
+          <label htmlFor="debt-installment">{language === 'en' ? 'Monthly installment (Rp)' : 'Angsuran / bulan (Rp)'}</label>
           <MoneyInput id="debt-installment" value={debtInstallment} onValueChange={setDebtInstallment} />
         </div>
         <MiniCalendar id="debt-due" value={debtDay} onChange={setDebtDay} />
@@ -607,7 +642,7 @@ export function ObligationsPanel({ state, update, notify }: Props) {
           className="btn"
           disabled={!debtName.trim() || debtTotal <= 0 || debtInstallment <= 0}
         >
-          + Tambah utang
+          {language === 'en' ? '+ Add debt' : '+ Tambah utang'}
         </button>
       </form>
     </section>

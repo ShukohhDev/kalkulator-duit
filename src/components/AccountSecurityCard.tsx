@@ -1,6 +1,7 @@
 import { useState, type FormEvent } from 'react'
 import type { Notify } from '../types'
 import { changePassword } from '../lib/auth'
+import { useI18n } from '../lib/i18n'
 
 interface Props {
   username: string
@@ -25,6 +26,7 @@ const LockIcon = () => (
 )
 
 export function AccountSecurityCard({ username, notify }: Props) {
+  const { language } = useI18n()
   const [isOpen, setIsOpen] = useState(false)
   const [oldPassword, setOldPassword] = useState('')
   const [newPassword, setNewPassword] = useState('')
@@ -37,15 +39,15 @@ export function AccountSecurityCard({ username, notify }: Props) {
     setErrorMessage('')
 
     if (!oldPassword) {
-      setErrorMessage('Kata sandi saat ini harus diisi.')
+      setErrorMessage(language === 'en' ? 'Current password is required.' : 'Kata sandi saat ini harus diisi.')
       return
     }
     if (newPassword.length < 4) {
-      setErrorMessage('Kata sandi baru minimal 4 karakter.')
+      setErrorMessage(language === 'en' ? 'New password must be at least 4 characters.' : 'Kata sandi baru minimal 4 karakter.')
       return
     }
     if (newPassword !== confirmPassword) {
-      setErrorMessage('Konfirmasi kata sandi baru tidak cocok.')
+      setErrorMessage(language === 'en' ? 'New password confirmation does not match.' : 'Konfirmasi kata sandi baru tidak cocok.')
       return
     }
 
@@ -61,20 +63,22 @@ export function AccountSecurityCard({ username, notify }: Props) {
       setNewPassword('')
       setConfirmPassword('')
       setIsOpen(false)
-      notify('Kata sandi akun berhasil diperbarui!')
+      notify(language === 'en' ? 'Account password updated successfully!' : 'Kata sandi akun berhasil diperbarui!')
     }
   }
 
   return (
-    <section className="card account-security-card" aria-label="Keamanan Akun">
+    <section className="card account-security-card" aria-label={language === 'en' ? 'Account Security' : 'Keamanan Akun'}>
       <header className="card-head">
         <div className="security-title-wrap">
           <span className="security-icon">
             <LockIcon />
           </span>
           <div>
-            <h3>Keamanan Akun</h3>
-            <span className="muted small">Kelola kata sandi akun {username}</span>
+            <h3>{language === 'en' ? 'Account Security' : 'Keamanan Akun'}</h3>
+            <span className="muted small">
+              {language === 'en' ? `Manage password for ${username}` : `Kelola kata sandi akun ${username}`}
+            </span>
           </div>
         </div>
         <button
@@ -85,19 +89,21 @@ export function AccountSecurityCard({ username, notify }: Props) {
             setErrorMessage('')
           }}
         >
-          {isOpen ? 'Tutup' : 'Ubah Kata Sandi'}
+          {isOpen
+            ? (language === 'en' ? 'Close' : 'Tutup')
+            : (language === 'en' ? 'Change Password' : 'Ubah Kata Sandi')}
         </button>
       </header>
 
       {isOpen && (
         <form onSubmit={handleSubmit} className="security-form">
           <div className="field">
-            <label htmlFor="old-pass">Kata Sandi Saat Ini</label>
+            <label htmlFor="old-pass">{language === 'en' ? 'Current Password' : 'Kata Sandi Saat Ini'}</label>
             <input
               id="old-pass"
               className="input"
               type="password"
-              placeholder="Masukkan kata sandi lama"
+              placeholder={language === 'en' ? 'Enter current password' : 'Masukkan kata sandi lama'}
               value={oldPassword}
               onChange={(e) => setOldPassword(e.target.value)}
               disabled={loading}
@@ -106,12 +112,12 @@ export function AccountSecurityCard({ username, notify }: Props) {
           </div>
 
           <div className="field">
-            <label htmlFor="new-pass">Kata Sandi Baru</label>
+            <label htmlFor="new-pass">{language === 'en' ? 'New Password' : 'Kata Sandi Baru'}</label>
             <input
               id="new-pass"
               className="input"
               type="password"
-              placeholder="Minimal 4 karakter"
+              placeholder={language === 'en' ? 'At least 4 characters' : 'Minimal 4 karakter'}
               value={newPassword}
               onChange={(e) => setNewPassword(e.target.value)}
               disabled={loading}
@@ -120,12 +126,12 @@ export function AccountSecurityCard({ username, notify }: Props) {
           </div>
 
           <div className="field">
-            <label htmlFor="confirm-pass">Konfirmasi Kata Sandi Baru</label>
+            <label htmlFor="confirm-pass">{language === 'en' ? 'Confirm New Password' : 'Konfirmasi Kata Sandi Baru'}</label>
             <input
               id="confirm-pass"
               className="input"
               type="password"
-              placeholder="Ulangi kata sandi baru"
+              placeholder={language === 'en' ? 'Repeat new password' : 'Ulangi kata sandi baru'}
               value={confirmPassword}
               onChange={(e) => setConfirmPassword(e.target.value)}
               disabled={loading}
@@ -137,7 +143,9 @@ export function AccountSecurityCard({ username, notify }: Props) {
 
           <div className="security-form-actions">
             <button type="submit" className="btn btn-sm" disabled={loading}>
-              {loading ? 'Menyimpan...' : 'Simpan Kata Sandi'}
+              {loading
+                ? (language === 'en' ? 'Saving...' : 'Menyimpan...')
+                : (language === 'en' ? 'Save Password' : 'Simpan Kata Sandi')}
             </button>
             <button
               type="button"
@@ -148,7 +156,7 @@ export function AccountSecurityCard({ username, notify }: Props) {
               }}
               disabled={loading}
             >
-              Batal
+              {language === 'en' ? 'Cancel' : 'Batal'}
             </button>
           </div>
         </form>

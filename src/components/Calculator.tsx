@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { reversePlan } from '../lib/reverse'
 import { formatIDR, roundTo500 } from '../lib/money'
+import { useI18n } from '../lib/i18n'
 import { MoneyInput } from './MoneyInput'
 
 const KEYS = [
@@ -17,6 +18,7 @@ interface Props {
 }
 
 export function Calculator({ onUseNumber, onClose }: Props) {
+  const { language } = useI18n()
   const [display, setDisplay] = useState('0')
   const [accumulator, setAccumulator] = useState<number | null>(null)
   const [pending, setPending] = useState<string | null>(null)
@@ -37,7 +39,7 @@ export function Calculator({ onUseNumber, onClose }: Props) {
   }
 
   const show = (value: number) => {
-    if (!Number.isFinite(value)) return 'Tidak bisa dibagi nol'
+    if (!Number.isFinite(value)) return language === 'en' ? 'Cannot divide by zero' : 'Tidak bisa dibagi nol'
     const rounded = Math.round(value * 1e10) / 1e10
     return String(rounded).replace('.', ',')
   }
@@ -89,7 +91,7 @@ export function Calculator({ onUseNumber, onClose }: Props) {
       }
       return
     }
-    setDisplay((prev) => (fresh || prev === '0' || prev.includes('bagi') ? key : `${prev}${key}`))
+    setDisplay((prev) => (fresh || prev === '0' || prev.includes('bagi') || prev.includes('divide') ? key : `${prev}${key}`))
     setFresh(false)
   }
 
@@ -98,7 +100,7 @@ export function Calculator({ onUseNumber, onClose }: Props) {
   return (
     <section className="card">
       <header className="card-head">
-        <h2>Kalkulator</h2>
+        <h2>{language === 'en' ? 'Calculator' : 'Kalkulator'}</h2>
         {mode === 'standar' && (
           <button
             type="button"
@@ -107,9 +109,9 @@ export function Calculator({ onUseNumber, onClose }: Props) {
               onUseNumber(Math.round(Math.abs(current)))
               onClose?.()
             }}
-            title="Pakai angka ini di form uang jajan"
+            title={language === 'en' ? 'Use this number in allowance form' : 'Pakai angka ini di form uang jajan'}
           >
-            Pakai angka
+            {language === 'en' ? 'Use number' : 'Pakai angka'}
           </button>
         )}
       </header>
@@ -122,7 +124,7 @@ export function Calculator({ onUseNumber, onClose }: Props) {
           className={`btn btn-ghost btn-sm${mode === 'standar' ? ' btn-active' : ''}`}
           onClick={() => setMode('standar')}
         >
-          Standar
+          {language === 'en' ? 'Standard' : 'Standar'}
         </button>
         <button
           type="button"
@@ -131,25 +133,27 @@ export function Calculator({ onUseNumber, onClose }: Props) {
           className={`btn btn-ghost btn-sm${mode === 'terbalik' ? ' btn-active' : ''}`}
           onClick={() => setMode('terbalik')}
         >
-          Terbalik
+          {language === 'en' ? 'Reverse' : 'Terbalik'}
         </button>
       </div>
 
       {mode === 'terbalik' ? (
         <div className="reverse">
           <p className="muted small">
-            Punya target tapi bingung harus nyisihin berapa per bulan? Hitung otomatis di sini yuk!
+            {language === 'en'
+              ? 'Have a savings target and wondering how much to set aside per month? Calculate it automatically here!'
+              : 'Punya target tapi bingung harus nyisihin berapa per bulan? Hitung otomatis di sini yuk!'}
           </p>
           <div className="field">
-            <label htmlFor="rev-target">Target (Rp)</label>
+            <label htmlFor="rev-target">{language === 'en' ? 'Target (Rp)' : 'Target (Rp)'}</label>
             <MoneyInput id="rev-target" value={revTarget} onValueChange={setRevTarget} />
           </div>
           <div className="field">
-            <label htmlFor="rev-saved">Sudah punya (Rp)</label>
+            <label htmlFor="rev-saved">{language === 'en' ? 'Already saved (Rp)' : 'Sudah punya (Rp)'}</label>
             <MoneyInput id="rev-saved" value={revSaved} onValueChange={setRevSaved} />
           </div>
           <div className="field">
-            <label htmlFor="rev-months">Dalam waktu (bulan)</label>
+            <label htmlFor="rev-months">{language === 'en' ? 'Timeframe (months)' : 'Dalam waktu (bulan)'}</label>
             <input
               id="rev-months"
               className="input"
@@ -165,24 +169,24 @@ export function Calculator({ onUseNumber, onClose }: Props) {
               {reverse.achieved ? (
                 <li>
                   <span>Status</span>
-                  <strong>Target sudah tercapai</strong>
+                  <strong>{language === 'en' ? 'Target already achieved' : 'Target sudah tercapai'}</strong>
                 </li>
               ) : (
                 <>
                   <li>
-                    <span>Sisa yang dibutuhkan</span>
+                    <span>{language === 'en' ? 'Remaining needed' : 'Sisa yang dibutuhkan'}</span>
                     <strong>{formatIDR(reverse.gap)}</strong>
                   </li>
                   <li>
-                    <span>Setoran per bulan</span>
+                    <span>{language === 'en' ? 'Monthly deposit' : 'Setoran per bulan'}</span>
                     <strong>{formatIDR(reverse.perMonth)}</strong>
                   </li>
                   <li>
-                    <span>Setoran per minggu</span>
+                    <span>{language === 'en' ? 'Weekly deposit' : 'Setoran per minggu'}</span>
                     <strong>{formatIDR(reverse.perWeek)}</strong>
                   </li>
                   <li>
-                    <span>Setoran per hari</span>
+                    <span>{language === 'en' ? 'Daily deposit' : 'Setoran per hari'}</span>
                     <strong>{formatIDR(roundTo500(reverse.perDay))}</strong>
                   </li>
                 </>

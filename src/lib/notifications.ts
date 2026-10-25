@@ -65,10 +65,12 @@ export async function buildUserNotifications(
   username: string,
   state: AppState,
   derived: Derived,
+  lang: 'id' | 'en' = 'id',
 ): Promise<NotificationItem[]> {
   const items: NotificationItem[] = []
   const readIds = getReadNotificationIds(username)
   const now = new Date()
+  const isEn = lang === 'en'
 
   // 1. Notifikasi Finansial: Peringatan Pengeluaran & Anggaran Kategori
   for (const cat of state.categories) {
@@ -81,21 +83,29 @@ export async function buildUserNotifications(
       items.push({
         id: `fin-cat-over-${cat.id}`,
         kind: 'finance',
-        title: `Kategori ${cat.name} Melebihi Batas`,
-        message: `Pengeluaran sudah melampaui batas alokasi sebesar Rp ${over.toLocaleString('id-ID')}. Pertimbangkan berhemat untuk pos ini.`,
+        title: isEn
+          ? `Category ${cat.name} Exceeded Budget`
+          : `Kategori ${cat.name} Melebihi Batas`,
+        message: isEn
+          ? `Spending has exceeded the allocation limit by Rp ${over.toLocaleString('id-ID')}. Consider economizing in this category.`
+          : `Pengeluaran sudah melampaui batas alokasi sebesar Rp ${over.toLocaleString('id-ID')}. Pertimbangkan berhemat untuk pos ini.`,
         timestamp: new Date(now.getTime() - 1000 * 60 * 30).toISOString(),
         read: readIds.has(`fin-cat-over-${cat.id}`),
-        tag: 'Peringatan Anggaran',
+        tag: isEn ? 'Budget Alert' : 'Peringatan Anggaran',
       })
     } else if (alloc > 0 && spent >= alloc * 0.85) {
       items.push({
         id: `fin-cat-warn-${cat.id}`,
         kind: 'finance',
-        title: `Kategori ${cat.name} Hampir Mencapai Batas`,
-        message: `Pengeluaran sudah mencapai ${Math.round((spent / alloc) * 100)}% dari batas yang direncanakan.`,
+        title: isEn
+          ? `Category ${cat.name} Almost at Budget Limit`
+          : `Kategori ${cat.name} Hampir Mencapai Batas`,
+        message: isEn
+          ? `Spending has reached ${Math.round((spent / alloc) * 100)}% of the planned limit.`
+          : `Pengeluaran sudah mencapai ${Math.round((spent / alloc) * 100)}% dari batas yang direncanakan.`,
         timestamp: new Date(now.getTime() - 1000 * 60 * 60).toISOString(),
         read: readIds.has(`fin-cat-warn-${cat.id}`),
-        tag: 'Peringatan Anggaran',
+        tag: isEn ? 'Budget Alert' : 'Peringatan Anggaran',
       })
     }
   }
@@ -110,21 +120,29 @@ export async function buildUserNotifications(
       items.push({
         id: `fin-bill-today-${bill.id}`,
         kind: 'finance',
-        title: `Tagihan Jatuh Tempo Hari Ini: ${bill.name}`,
-        message: `Tagihan sebesar Rp ${remaining.toLocaleString('id-ID')} jatuh tempo hari ini.`,
+        title: isEn
+          ? `Bill Due Today: ${bill.name}`
+          : `Tagihan Jatuh Tempo Hari Ini: ${bill.name}`,
+        message: isEn
+          ? `Bill of Rp ${remaining.toLocaleString('id-ID')} is due today.`
+          : `Tagihan sebesar Rp ${remaining.toLocaleString('id-ID')} jatuh tempo hari ini.`,
         timestamp: new Date(now.getTime() - 1000 * 60 * 10).toISOString(),
         read: readIds.has(`fin-bill-today-${bill.id}`),
-        tag: 'Jatuh Tempo',
+        tag: isEn ? 'Due Date' : 'Jatuh Tempo',
       })
     } else if (days <= 3) {
       items.push({
         id: `fin-bill-soon-${bill.id}`,
         kind: 'finance',
-        title: `Tagihan Mendekati Tenggat: ${bill.name}`,
-        message: `Tagihan sebesar Rp ${remaining.toLocaleString('id-ID')} jatuh tempo dalam ${days} hari lagi.`,
+        title: isEn
+          ? `Bill Due Soon: ${bill.name}`
+          : `Tagihan Mendekati Tenggat: ${bill.name}`,
+        message: isEn
+          ? `Bill of Rp ${remaining.toLocaleString('id-ID')} is due in ${days} day${days > 1 ? 's' : ''}.`
+          : `Tagihan sebesar Rp ${remaining.toLocaleString('id-ID')} jatuh tempo dalam ${days} hari lagi.`,
         timestamp: new Date(now.getTime() - 1000 * 60 * 30).toISOString(),
         read: readIds.has(`fin-bill-soon-${bill.id}`),
-        tag: 'Jatuh Tempo',
+        tag: isEn ? 'Due Date' : 'Jatuh Tempo',
       })
     }
   }
@@ -137,21 +155,29 @@ export async function buildUserNotifications(
       items.push({
         id: `fin-debt-today-${debt.id}`,
         kind: 'finance',
-        title: `Cicilan Utang Jatuh Tempo Hari Ini: ${debt.name}`,
-        message: `Cicilan sebesar Rp ${debt.installment.toLocaleString('id-ID')} jatuh tempo hari ini. Sisa utang: Rp ${remaining.toLocaleString('id-ID')}.`,
+        title: isEn
+          ? `Debt Installment Due Today: ${debt.name}`
+          : `Cicilan Utang Jatuh Tempo Hari Ini: ${debt.name}`,
+        message: isEn
+          ? `Installment of Rp ${debt.installment.toLocaleString('id-ID')} is due today. Remaining debt: Rp ${remaining.toLocaleString('id-ID')}.`
+          : `Cicilan sebesar Rp ${debt.installment.toLocaleString('id-ID')} jatuh tempo hari ini. Sisa utang: Rp ${remaining.toLocaleString('id-ID')}.`,
         timestamp: new Date(now.getTime() - 1000 * 60 * 10).toISOString(),
         read: readIds.has(`fin-debt-today-${debt.id}`),
-        tag: 'Jatuh Tempo',
+        tag: isEn ? 'Due Date' : 'Jatuh Tempo',
       })
     } else if (days <= 3) {
       items.push({
         id: `fin-debt-soon-${debt.id}`,
         kind: 'finance',
-        title: `Cicilan Utang Segera Jatuh Tempo: ${debt.name}`,
-        message: `Cicilan sebesar Rp ${debt.installment.toLocaleString('id-ID')} jatuh tempo dalam ${days} hari lagi.`,
+        title: isEn
+          ? `Debt Installment Due Soon: ${debt.name}`
+          : `Cicilan Utang Segera Jatuh Tempo: ${debt.name}`,
+        message: isEn
+          ? `Installment of Rp ${debt.installment.toLocaleString('id-ID')} is due in ${days} day${days > 1 ? 's' : ''}.`
+          : `Cicilan sebesar Rp ${debt.installment.toLocaleString('id-ID')} jatuh tempo dalam ${days} hari lagi.`,
         timestamp: new Date(now.getTime() - 1000 * 60 * 30).toISOString(),
         read: readIds.has(`fin-debt-soon-${debt.id}`),
-        tag: 'Jatuh Tempo',
+        tag: isEn ? 'Due Date' : 'Jatuh Tempo',
       })
     }
   }
@@ -171,11 +197,13 @@ export async function buildUserNotifications(
         items.push({
           id: replyNotifId,
           kind: 'admin_reply',
-          title: `Balasan Admin atas ${rep.type}: "${rep.message.slice(0, 30)}${rep.message.length > 30 ? '...' : ''}"`,
+          title: isEn
+            ? `Admin reply on ${rep.type}: "${rep.message.slice(0, 30)}${rep.message.length > 30 ? '...' : ''}"`
+            : `Balasan Admin atas ${rep.type}: "${rep.message.slice(0, 30)}${rep.message.length > 30 ? '...' : ''}"`,
           message: rep.admin_reply,
           timestamp: rep.replied_at || rep.created_at,
           read: readIds.has(replyNotifId),
-          tag: 'Balasan Admin',
+          tag: isEn ? 'Admin Reply' : 'Balasan Admin',
           metadata: {
             reportId: rep.id,
             status: rep.status,
@@ -187,15 +215,21 @@ export async function buildUserNotifications(
       // B. Notifikasi Pembaruan Status Laporan (Diproses / Selesai)
       if (rep.status !== 'baru') {
         const statusNotifId = `rep-status-${rep.id}-${rep.status}`
-        const statusLabel = rep.status === 'selesai' ? 'Sudah Selesai Diproses' : 'Sedang Diproses'
+        const statusLabel = isEn
+          ? (rep.status === 'selesai' ? 'Resolved' : 'In Progress')
+          : (rep.status === 'selesai' ? 'Sudah Selesai Diproses' : 'Sedang Diproses')
         items.push({
           id: statusNotifId,
           kind: 'report_status',
-          title: `Status ${rep.type} Diperbarui: ${statusLabel}`,
-          message: `Laporan Anda: "${rep.message.slice(0, 40)}${rep.message.length > 40 ? '...' : ''}" saat ini ${statusLabel.toLowerCase()} oleh pemilik website.`,
+          title: isEn
+            ? `${rep.type} Status Updated: ${statusLabel}`
+            : `Status ${rep.type} Diperbarui: ${statusLabel}`,
+          message: isEn
+            ? `Your report: "${rep.message.slice(0, 40)}${rep.message.length > 40 ? '...' : ''}" is currently ${statusLabel.toLowerCase()} by the site admin.`
+            : `Laporan Anda: "${rep.message.slice(0, 40)}${rep.message.length > 40 ? '...' : ''}" saat ini ${statusLabel.toLowerCase()} oleh pemilik website.`,
           timestamp: rep.created_at,
           read: readIds.has(statusNotifId),
-          tag: 'Status Laporan',
+          tag: isEn ? 'Report Status' : 'Status Laporan',
           metadata: {
             reportId: rep.id,
             status: rep.status,

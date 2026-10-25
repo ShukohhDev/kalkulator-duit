@@ -12,7 +12,8 @@ export interface Alert {
 const MAX_ALERTS = 4
 const ALERT_REMIND_KEY = 'kalkulator-duitmu:remind-alerts'
 
-export function buildAlerts(state: AppState, derived: Derived): Alert[] {
+export function buildAlerts(state: AppState, derived: Derived, lang: 'id' | 'en' = 'id'): Alert[] {
+  const isEn = lang === 'en'
   const out: Alert[] = []
   if (!state.mode || state.allowance <= 0 || !derived.period) return out
 
@@ -28,7 +29,9 @@ export function buildAlerts(state: AppState, derived: Derived): Alert[] {
     out.push({
       id: `over-${item.category.id}`,
       tone: 'danger',
-      text: `${item.category.name} sudah ${item.pct}% dari alokasi periode ini, kelebihan ${formatIDR(item.over)}.`,
+      text: isEn
+        ? `${item.category.name} is at ${item.pct}% of allocation this period, over by ${formatIDR(item.over)}.`
+        : `${item.category.name} sudah ${item.pct}% dari alokasi periode ini, kelebihan ${formatIDR(item.over)}.`,
     })
   }
 
@@ -39,7 +42,9 @@ export function buildAlerts(state: AppState, derived: Derived): Alert[] {
     out.push({
       id: `near-${item.category.id}`,
       tone: 'warn',
-      text: `${item.category.name} sudah terpakai ${item.pct}% dari alokasi, hampir mencapai batas. Sisa ${formatIDR(item.alloc - item.spent)}.`,
+      text: isEn
+        ? `${item.category.name} has used ${item.pct}% of its allocation, close to limit. Remaining ${formatIDR(item.alloc - item.spent)}.`
+        : `${item.category.name} sudah terpakai ${item.pct}% dari alokasi, hampir mencapai batas. Sisa ${formatIDR(item.alloc - item.spent)}.`,
     })
   }
 
@@ -53,7 +58,9 @@ export function buildAlerts(state: AppState, derived: Derived): Alert[] {
       out.push({
         id: 'low-remaining',
         tone: 'danger',
-        text: `Sisa ${formatIDR(derived.remainingInPeriod)} untuk ${daysLeft} hari ke depan. Kebutuhan harian butuh sekitar ${formatIDR(need)}.`,
+        text: isEn
+          ? `Remaining ${formatIDR(derived.remainingInPeriod)} for next ${daysLeft} days. Daily needs require about ${formatIDR(need)}.`
+          : `Sisa ${formatIDR(derived.remainingInPeriod)} untuk ${daysLeft} hari ke depan. Kebutuhan harian butuh sekitar ${formatIDR(need)}.`,
       })
     }
   }
