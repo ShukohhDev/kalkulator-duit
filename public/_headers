@@ -1,0 +1,24 @@
+# Aturan HTTP Header untuk Cloudflare Pages
+
+# 1. Service Worker: jangan di-cache agar pembaruan PWA langsung terdeteksi
+/sw.js
+  Cache-Control: no-cache, no-store, must-revalidate
+
+# 2. Manifest Web App
+/manifest.webmanifest
+  Content-Type: application/manifest+json
+  Cache-Control: public, max-age=0, must-revalidate
+
+/manifest.json
+  Content-Type: application/manifest+json
+  Cache-Control: public, max-age=0, must-revalidate
+
+# 3. Aset Vite dengan hash unik (aman di-cache jangka panjang 1 tahun)
+/assets/*
+  Cache-Control: public, max-age=31536000, immutable
+
+# 4. Security Headers standar untuk seluruh rute
+/*
+  X-Content-Type-Options: nosniff
+  X-Frame-Options: SAMEORIGIN
+  Referrer-Policy: strict-origin-when-cross-origin
