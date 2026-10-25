@@ -6,11 +6,13 @@ import { loadPrefs, savePrefs, type WalletCurrency } from '../lib/prefs'
 import { onRateUpdate, refreshUsdRate } from '../lib/rates'
 import { uid } from '../lib/id'
 import { END_SAVINGS_WALLET_ID } from '../lib/state'
+import { translate, type Language } from '../lib/i18n'
 import { MoneyInput } from './MoneyInput'
 
 interface Props {
   state: AppState
   update: Updater
+  lang?: Language
 }
 
 function formatUSD(value: number): string {
@@ -23,7 +25,7 @@ function formatRateAt(at: string): string {
   return new Date(stamp).toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' })
 }
 
-export function DompetPanel({ state, update }: Props) {
+export function DompetPanel({ state, update, lang = 'id' }: Props) {
   const [currency, setCurrency] = useState<WalletCurrency>(() => loadPrefs().walletCurrency)
   const [rateInfo, setRateInfo] = useState(() => {
     const prefs = loadPrefs()
@@ -82,7 +84,7 @@ export function DompetPanel({ state, update }: Props) {
   return (
     <section className="card">
       <header className="card-head">
-        <h2>Dompet &amp; E-wallet</h2>
+        <h2>{translate('dompet.title', lang)}</h2>
         <div className="profile-chips">
           <button
             type="button"
@@ -102,12 +104,12 @@ export function DompetPanel({ state, update }: Props) {
       </header>
 
       <div className="wallet-total">
-        <span className="muted small">Total aset</span>
+        <span className="muted small">{translate('dompet.totalAsset', lang)}</span>
         <strong className="wallet-total-value">{inUsd ? formatUSD(total / rateInfo.rate) : formatIDR(total)}</strong>
         {inUsd && (
           <span className="muted small wallet-rate" data-testid="rate-note">
             1 USD = Rp {Math.round(rateInfo.rate).toLocaleString('id-ID')} ·{' '}
-            {rateInfo.at ? `kurs otomatis, diperbarui ${formatRateAt(rateInfo.at)}` : 'kurs terakhir, offline'}
+            {rateInfo.at ? translate('dompet.rateAuto', lang, { at: formatRateAt(rateInfo.at) }) : translate('dompet.rateOffline', lang)}
           </span>
         )}
       </div>
@@ -142,7 +144,7 @@ export function DompetPanel({ state, update }: Props) {
                     }
                     style={{ fontSize: '0.75rem', padding: '4px 8px' }}
                   >
-                    {isTarget ? 'Otomatis' : 'Khusus'}
+                    {isTarget ? translate('dompet.autoBadge', lang) : translate('dompet.specialBadge', lang)}
                   </span>
                 ) : (
                   <>
@@ -152,11 +154,11 @@ export function DompetPanel({ state, update }: Props) {
                         title="Dompet ini dipilih sebagai tujuan alokasi Tabungan Akhir Periode"
                         style={{ fontSize: '0.75rem', padding: '4px 8px', marginRight: 4 }}
                       >
-                        Tujuan Tabungan
+                        {translate('dompet.savingsTargetBadge', lang)}
                       </span>
                     )}
                     <button type="button" className="btn btn-ghost btn-sm btn-danger" onClick={() => removeWallet(wallet.id)}>
-                      Hapus
+                      {translate('dompet.deleteBtn', lang)}
                     </button>
                   </>
                 )}
@@ -165,12 +167,12 @@ export function DompetPanel({ state, update }: Props) {
           )
         })}
         {state.wallets.length === 0 && (
-          <p className="muted small">Belum ada dompet nih. Yuk tambahin rekening, e-wallet, atau uang tunai kamu di bawah.</p>
+          <p className="muted small">{translate('dompet.empty', lang)}</p>
         )}
       </div>
 
       <button type="button" className="btn btn-ghost" onClick={addWallet}>
-        + Tambah dompet
+        {translate('dompet.addBtn', lang)}
       </button>
     </section>
   )

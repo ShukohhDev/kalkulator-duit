@@ -4,15 +4,17 @@ import type { Updater } from '../hooks/useAppState'
 import { formatIDR } from '../lib/money'
 import { END_SAVINGS_WALLET_ID, syncEndSavingsWallet } from '../lib/state'
 import { appendActivity } from '../lib/activity'
+import { translate, type Language } from '../lib/i18n'
 import { MoneyInput } from './MoneyInput'
 
 interface Props {
   state: AppState
   update?: Updater
   notify?: Notify
+  lang?: Language
 }
 
-export function EndSavingsCard({ state, update, notify }: Props) {
+export function EndSavingsCard({ state, update, notify, lang = 'id' }: Props) {
   const [isTransferOpen, setIsTransferOpen] = useState(false)
   const [transferDestId, setTransferDestId] = useState<string>('')
   const [transferAmount, setTransferAmount] = useState<number>(0)
@@ -119,15 +121,15 @@ export function EndSavingsCard({ state, update, notify }: Props) {
   }
 
   return (
-    <section className="card aset-card" aria-label="Tabungan akhir periode">
+    <section className="card aset-card" aria-label={lang === 'en' ? 'End-of-period savings' : 'Tabungan akhir periode'}>
       <header className="card-head">
-        <h2>Tabungan Akhir Periode</h2>
+        <h2>{translate('endsavings.title', lang)}</h2>
         <span
           className="badge badge-accent"
           style={{ fontSize: '0.75rem', padding: '4px 8px' }}
           title={`Tujuan saat ini: ${targetWallet ? targetWallet.name : 'Dompet Khusus'}`}
         >
-          {currentTargetId === END_SAVINGS_WALLET_ID ? 'Dompet Khusus' : (targetWallet?.name ?? 'Dompet Terpilih')}
+          {currentTargetId === END_SAVINGS_WALLET_ID ? translate('endsavings.specialBadge', lang) : (targetWallet?.name ?? translate('endsavings.selectedBadge', lang))}
         </span>
       </header>
       <p className="aset-total">{formatIDR(state.endSavings)}</p>
@@ -135,7 +137,7 @@ export function EndSavingsCard({ state, update, notify }: Props) {
       {update && (
         <div className="end-savings-target-box" style={{ marginTop: 12 }}>
           <label htmlFor="end-savings-target-select" className="label small" style={{ display: 'block', marginBottom: 6 }}>
-            Tujuan simpan saldo akhir periode:
+            {translate('endsavings.targetLabel', lang)}
           </label>
           <select
             id="end-savings-target-select"
@@ -145,7 +147,7 @@ export function EndSavingsCard({ state, update, notify }: Props) {
             style={{ width: '100%' }}
           >
             <option value={END_SAVINGS_WALLET_ID}>
-              Dompet Khusus: Tabungan Akhir Periode (Bawaan)
+              {translate('endsavings.defaultOption', lang)}
             </option>
             {userWallets.map((w) => (
               <option key={w.id} value={w.id}>
@@ -159,9 +161,9 @@ export function EndSavingsCard({ state, update, notify }: Props) {
       <p className="muted small" style={{ marginTop: 10, lineHeight: 1.5 }}>
         {currentTargetId === END_SAVINGS_WALLET_ID
           ? state.endSavings > 0
-            ? 'Sisa bersih uang jajan otomatis disapu ke dompet khusus ini saat periode berganti dan tersimpan di data dompet.'
-            : 'Belum ada sisa. Sisa uang jajan tiap periode akan otomatis masuk ke dompet khusus ini dan tersimpan di data dompet.'
-          : `Sisa bersih uang jajan tiap pergantian periode otomatis dialokasikan ke ${targetWallet?.name ?? 'dompet tujuan'} dan menambah saldo dompet tersebut.`}
+            ? translate('endsavings.filledSpecial', lang)
+            : translate('endsavings.emptySpecial', lang)
+          : translate('endsavings.targetAllocated', lang, { wallet: targetWallet?.name ?? 'dompet tujuan' })}
       </p>
 
       {update && state.endSavings > 0 && userWallets.length > 0 && (
@@ -173,7 +175,7 @@ export function EndSavingsCard({ state, update, notify }: Props) {
               onClick={handleOpenTransfer}
               style={{ width: '100%' }}
             >
-              Pindahkan Saldo ke Dompet / E-wallet
+              {translate('endsavings.btnOpenTransfer', lang)}
             </button>
           ) : (
             <div
@@ -186,10 +188,10 @@ export function EndSavingsCard({ state, update, notify }: Props) {
                 marginTop: '8px',
               }}
             >
-              <h4 style={{ margin: '0 0 10px 0', fontSize: '0.9rem' }}>Pindahkan Saldo ke Dompet</h4>
+              <h4 style={{ margin: '0 0 10px 0', fontSize: '0.9rem' }}>{translate('endsavings.transferTitle', lang)}</h4>
               <div style={{ marginBottom: 10 }}>
                 <label htmlFor="tf-dest-wallet" className="label small" style={{ display: 'block', marginBottom: 4 }}>
-                  Pilih dompet tujuan:
+                  {translate('endsavings.chooseDest', lang)}
                 </label>
                 <select
                   id="tf-dest-wallet"
@@ -208,7 +210,7 @@ export function EndSavingsCard({ state, update, notify }: Props) {
 
               <div style={{ marginBottom: 12 }}>
                 <label htmlFor="tf-end-savings-amt" className="label small" style={{ display: 'block', marginBottom: 4 }}>
-                  Nominal yang dipindahkan:
+                  {translate('endsavings.amountLabel', lang)}
                 </label>
                 <div style={{ display: 'flex', gap: 6, alignItems: 'center' }}>
                   <div style={{ flex: 1 }}>
@@ -224,7 +226,7 @@ export function EndSavingsCard({ state, update, notify }: Props) {
                     onClick={() => setTransferAmount(state.endSavings)}
                     title="Pindahkan seluruh saldo"
                   >
-                    Semua
+                    {translate('endsavings.allBtn', lang)}
                   </button>
                 </div>
               </div>
@@ -235,14 +237,14 @@ export function EndSavingsCard({ state, update, notify }: Props) {
                   className="btn btn-sm btn-ghost"
                   onClick={() => setIsTransferOpen(false)}
                 >
-                  Batal
+                  {translate('endsavings.cancelBtn', lang)}
                 </button>
                 <button
                   type="button"
                   className="btn btn-sm btn-primary btn-confirm-transfer"
                   onClick={handleConfirmTransfer}
                 >
-                  Konfirmasi Pindahkan
+                  {translate('endsavings.confirmBtn', lang)}
                 </button>
               </div>
             </div>

@@ -450,7 +450,7 @@ function AppShell({ user, onLogout }: { user: string; onLogout: () => void }) {
           <div className="topbar-brand-wrap">
             <h1 className="brand">
               <img src="/favicon.png" alt="Logo" className="brand-logo-img" width="28" height="28" />
-              <span>Kalkulator Uang Jajan</span>
+              <span>{translate('topbar.brand', language)}</span>
             </h1>
           </div>
           <div className="topbar-user-area">
@@ -599,12 +599,12 @@ function AppShell({ user, onLogout }: { user: string; onLogout: () => void }) {
           <div className="panel-hero-main">
             <div className="panel-hero-icon">{NAV_SVG_ICONS['nav-catat']}</div>
             <div className="panel-hero-body">
-              <h2 className="panel-hero-title">Catat Transaksi</h2>
-              <p className="panel-hero-desc">Catat jajan harian atau duit masuk biar keuanganmu tetap aman dan gak boncos!</p>
+              <h2 className="panel-hero-title">{translate('hero.catat.title', language)}</h2>
+              <p className="panel-hero-desc">{translate('hero.catat.desc', language)}</p>
             </div>
           </div>
           <div className="panel-hero-badge">
-            <span>{state.expenses.length} pengeluaran · {state.incomes.length} pemasukan</span>
+            <span>{translate('hero.catat.badge', language, { expenses: state.expenses.length, incomes: state.incomes.length })}</span>
           </div>
         </div>
         <div className="catat-mobile-switch" role="tablist" aria-label="Pilihan tampilan pencatatan">
@@ -615,7 +615,7 @@ function AppShell({ user, onLogout }: { user: string; onLogout: () => void }) {
             className={`catat-switch-btn ${catatView === 'all' ? 'active' : ''}`}
             onClick={() => setCatatView('all')}
           >
-            Semua
+            {translate('catat.switchAll', language)}
           </button>
           <button
             type="button"
@@ -624,7 +624,7 @@ function AppShell({ user, onLogout }: { user: string; onLogout: () => void }) {
             className={`catat-switch-btn ${catatView === 'expenses' ? 'active' : ''}`}
             onClick={() => setCatatView('expenses')}
           >
-            Pengeluaran
+            {translate('catat.switchExpenses', language)}
           </button>
           <button
             type="button"
@@ -633,7 +633,7 @@ function AppShell({ user, onLogout }: { user: string; onLogout: () => void }) {
             className={`catat-switch-btn ${catatView === 'income' ? 'active' : ''}`}
             onClick={() => setCatatView('income')}
           >
-            Pemasukan
+            {translate('catat.switchIncome', language)}
           </button>
         </div>
 
@@ -652,12 +652,12 @@ function AppShell({ user, onLogout }: { user: string; onLogout: () => void }) {
           <div className="panel-hero-main">
             <div className="panel-hero-icon">{NAV_SVG_ICONS['nav-kewajiban']}</div>
             <div className="panel-hero-body">
-              <h2 className="panel-hero-title">Kewajiban & Tagihan</h2>
-              <p className="panel-hero-desc">Catat tagihan dan cicilanmu biar gak ada yang kelupaan atau nunggak!</p>
+              <h2 className="panel-hero-title">{translate('hero.kewajiban.title', language)}</h2>
+              <p className="panel-hero-desc">{translate('hero.kewajiban.desc', language)}</p>
             </div>
           </div>
           <div className="panel-hero-badge">
-            <span>{state.bills.length} tagihan · {state.debts.length} utang</span>
+            <span>{translate('hero.kewajiban.badge', language, { bills: state.bills.length, debts: state.debts.length })}</span>
           </div>
         </div>
         <ObligationsPanel state={state} update={update} notify={notify} />
@@ -667,12 +667,12 @@ function AppShell({ user, onLogout }: { user: string; onLogout: () => void }) {
           <div className="panel-hero-main">
             <div className="panel-hero-icon">{NAV_SVG_ICONS['nav-analisis']}</div>
             <div className="panel-hero-body">
-              <h2 className="panel-hero-title">Analisis Finansial</h2>
-              <p className="panel-hero-desc">Cek skor kesehatan dompet, tren jajan, dan simulasi pengeluaranmu!</p>
+              <h2 className="panel-hero-title">{translate('hero.analisis.title', language)}</h2>
+              <p className="panel-hero-desc">{translate('hero.analisis.desc', language)}</p>
             </div>
           </div>
           <div className="panel-hero-badge">
-            <span>Evaluasi otomatis</span>
+            <span>{translate('hero.analisis.badge', language)}</span>
           </div>
         </div>
         <HealthCard state={state} derived={derived} />
@@ -688,31 +688,31 @@ function AppShell({ user, onLogout }: { user: string; onLogout: () => void }) {
           <div className="panel-hero-main">
             <div className="panel-hero-icon">{NAV_SVG_ICONS['nav-tabungan']}</div>
             <div className="panel-hero-body">
-              <h2 className="panel-hero-title">Tabungan & Aset</h2>
-              <p className="panel-hero-desc">Kumpulin tabungan, pantau saldo dompet, dan wujudkan barang impianmu!</p>
+              <h2 className="panel-hero-title">{translate('hero.tabungan.title', language)}</h2>
+              <p className="panel-hero-desc">{translate('hero.tabungan.desc', language)}</p>
             </div>
           </div>
           <div className="panel-hero-badge">
-            <span>{state.wallets.length} dompet terdaftar</span>
+            <span>{translate('hero.tabungan.badge', language, { count: state.wallets.length })}</span>
           </div>
         </div>
         {/* Baris 1: Tabungan Akhir Periode (Kiri) & Dompet / E-wallet (Kanan) */}
         <div className="tabungan-split-grid">
           <div className="tabungan-col tabungan-col-left">
-            <EndSavingsCard state={state} update={update} notify={notify} />
+            <EndSavingsCard state={state} update={update} notify={notify} lang={language} />
           </div>
           <div className="tabungan-col tabungan-col-right">
-            <DompetPanel state={state} update={update} />
+            <DompetPanel state={state} update={update} lang={language} />
           </div>
         </div>
 
         {/* Baris 2: Target Tabungan (Kiri) & Wishlist / Incaran Beli (Kanan) */}
         <div className="tabungan-split-grid">
           <div className="tabungan-col tabungan-col-left">
-            <SavingsPanel state={state} derived={derived} update={update} />
+            <SavingsPanel state={state} derived={derived} update={update} lang={language} />
           </div>
           <div className="tabungan-col tabungan-col-right">
-            <WishlistPanel state={state} derived={derived} update={update} />
+            <WishlistPanel state={state} derived={derived} update={update} lang={language} />
           </div>
         </div>
 
@@ -724,12 +724,12 @@ function AppShell({ user, onLogout }: { user: string; onLogout: () => void }) {
           <div className="panel-hero-main">
             <div className="panel-hero-icon">{NAV_SVG_ICONS['nav-laporan']}</div>
             <div className="panel-hero-body">
-              <h2 className="panel-hero-title">Laporan Keuangan</h2>
-              <p className="panel-hero-desc">Intip rangkuman keluar-masuk duitmu secara rapi dan siap disalin atau dicetak!</p>
+              <h2 className="panel-hero-title">{translate('hero.laporan.title', language)}</h2>
+              <p className="panel-hero-desc">{translate('hero.laporan.desc', language)}</p>
             </div>
           </div>
           <div className="panel-hero-badge">
-            <span>{state.mode === 'week' ? 'Mode 1 Minggu' : 'Mode 1 Bulan'}</span>
+            <span>{state.mode === 'week' ? translate('hero.laporan.weekBadge', language) : translate('hero.laporan.monthBadge', language)}</span>
           </div>
         </div>
         <ReportCard state={state} notify={notify} />
@@ -739,12 +739,12 @@ function AppShell({ user, onLogout }: { user: string; onLogout: () => void }) {
           <div className="panel-hero-main">
             <div className="panel-hero-icon">{NAV_SVG_ICONS['nav-data']}</div>
             <div className="panel-hero-body">
-              <h2 className="panel-hero-title">Pengaturan & Akun</h2>
-              <p className="panel-hero-desc">Atur akunmu, cadangkan data, atau cek riwayat aktivitas kapan aja.</p>
+              <h2 className="panel-hero-title">{translate('hero.data.title', language)}</h2>
+              <p className="panel-hero-desc">{translate('hero.data.desc', language)}</p>
             </div>
           </div>
           <div className="panel-hero-badge">
-            <span>Akun: {user}</span>
+            <span>{translate('hero.data.badge', language, { user })}</span>
           </div>
         </div>
         <ThemePickerCard

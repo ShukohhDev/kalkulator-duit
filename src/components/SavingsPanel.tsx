@@ -6,6 +6,7 @@ import { formatIDR } from '../lib/money'
 import { activeGoals, effectiveSaved } from '../lib/state'
 import { uid } from '../lib/id'
 import { ageAfter, formatDuration, futureValue, monthsToTarget, requiredDeposit } from '../lib/savings'
+import { translate, type Language } from '../lib/i18n'
 import { MoneyInput } from './MoneyInput'
 import { ProgressBar } from './ProgressBar'
 
@@ -13,6 +14,7 @@ interface Props {
   state: AppState
   derived: Derived
   update: Updater
+  lang?: Language
 }
 
 const defaultDeposit = (derived: Derived) => Math.round(derived.monthly * 0.2)
@@ -30,7 +32,7 @@ function projection(goal: Goal, currentAge: number, savingsByGoal: Record<string
   return { need, projected, value, months, deposits, interest: Math.max(0, value - saved - deposits) }
 }
 
-export function SavingsPanel({ state, derived, update }: Props) {
+export function SavingsPanel({ state, derived, update, lang = 'id' }: Props) {
   const recommendations = useMemo(
     () =>
       activeGoals(state.goals)
@@ -71,12 +73,12 @@ export function SavingsPanel({ state, derived, update }: Props) {
   return (
     <section className="card">
       <header className="card-head">
-        <h2>Target Tabungan</h2>
-        <span className="muted small">estimasi bunga ~8% per tahun buat bantu wujudin impianmu</span>
+        <h2>{translate('savings.title', lang)}</h2>
+        <span className="muted small">{translate('savings.sub', lang)}</span>
       </header>
 
       <div className="field field-inline">
-        <label htmlFor="age-now">Umur kamu sekarang</label>
+        <label htmlFor="age-now">{translate('savings.ageLabel', lang)}</label>
         <input
           id="age-now"
           className="input input-narrow"
@@ -86,7 +88,7 @@ export function SavingsPanel({ state, derived, update }: Props) {
           value={state.currentAge}
           onChange={(e) => update((s) => ({ ...s, currentAge: Math.max(1, Number(e.target.value) || 1) }))}
         />
-        <span className="muted small">tahun (minimal target umur 18 ya)</span>
+        <span className="muted small">{translate('savings.ageUnit', lang)}</span>
       </div>
 
       <div className="goal-list">
@@ -112,7 +114,7 @@ export function SavingsPanel({ state, derived, update }: Props) {
                     aria-pressed={goal.active}
                     onClick={() => patchGoal(goal.id, { active: !goal.active })}
                   >
-                    {goal.active ? 'Aktif' : 'Nonaktif'}
+                    {goal.active ? translate('savings.active', lang) : translate('savings.inactive', lang)}
                   </button>
                   <button
                     type="button"
@@ -121,21 +123,21 @@ export function SavingsPanel({ state, derived, update }: Props) {
                       update((s) => ({ ...s, goals: s.goals.map((item) => ({ ...item, primary: item.id === goal.id })) }))
                     }
                   >
-                    {goal.primary ? 'Utama' : 'Jadikan utama'}
+                    {goal.primary ? translate('savings.primary', lang) : translate('savings.setPrimary', lang)}
                   </button>
                   <button type="button" className="btn btn-ghost btn-sm btn-danger" onClick={() => removeGoal(goal.id)}>
-                    Hapus
+                    {translate('savings.deleteBtn', lang)}
                   </button>
                 </div>
               </header>
 
               <div className="form-grid form-grid-2">
                 <div className="field">
-                  <label>Target (Rp)</label>
+                  <label>{translate('savings.targetAmount', lang)}</label>
                   <MoneyInput value={goal.target} onValueChange={(value) => patchGoal(goal.id, { target: value })} />
                 </div>
                 <div className="field">
-                  <label>Saldo lain (opsional)</label>
+                  <label>{translate('savings.otherSaved', lang)}</label>
                   <MoneyInput value={goal.saved} onValueChange={(value) => patchGoal(goal.id, { saved: value })} />
                 </div>
                 <div className="field">
@@ -173,7 +175,7 @@ export function SavingsPanel({ state, derived, update }: Props) {
 
 
       <button type="button" className="btn btn-ghost" onClick={addGoal}>
-        + Tambah target baru
+        {translate('savings.addBtn', lang)}
       </button>
       {state.goals.length === 0 && <p className="muted small">Belum ada target tabungan nih. Bikin satu yuk biar semangat nabungnya!</p>}
 

@@ -5,6 +5,7 @@ import type { Updater } from '../hooks/useAppState'
 import { formatIDR, todayISO } from '../lib/money'
 import { SAVINGS_CATEGORY } from '../lib/state'
 import { uid } from '../lib/id'
+import { translate, type Language } from '../lib/i18n'
 import { MoneyInput } from './MoneyInput'
 import { ProgressBar } from './ProgressBar'
 
@@ -12,9 +13,10 @@ interface Props {
   state: AppState
   derived: Derived
   update: Updater
+  lang?: Language
 }
 
-export function WishlistPanel({ state, derived, update }: Props) {
+export function WishlistPanel({ state, derived, update, lang = 'id' }: Props) {
   const [deposits, setDeposits] = useState<Record<string, number>>({})
 
   const addItem = () => {
@@ -56,8 +58,8 @@ export function WishlistPanel({ state, derived, update }: Props) {
   return (
     <section className="card">
       <header className="card-head">
-        <h2>Wishlist / Incaran Beli</h2>
-        <span className="muted small">nabung santai buat beli barang impian tanpa beban target waktu</span>
+        <h2>{translate('wishlist.title', lang)}</h2>
+        <span className="muted small">{translate('wishlist.sub', lang)}</span>
       </header>
 
       <div className="goal-list">
@@ -78,7 +80,7 @@ export function WishlistPanel({ state, derived, update }: Props) {
                 />
                 <div className="goal-head-actions">
                   <button type="button" className="btn btn-ghost btn-sm btn-danger" onClick={() => removeItem(item.id)}>
-                    Hapus
+                    {translate('wishlist.deleteBtn', lang)}
                   </button>
                 </div>
               </header>
@@ -123,7 +125,7 @@ export function WishlistPanel({ state, derived, update }: Props) {
                   disabled={(deposits[item.id] ?? 0) <= 0}
                   onClick={() => setor(item.id)}
                 >
-                  Setor
+                  {translate('wishlist.depositBtn', lang)}
                 </button>
               </div>
             </article>
@@ -132,10 +134,10 @@ export function WishlistPanel({ state, derived, update }: Props) {
       </div>
 
       <button type="button" className="btn btn-ghost" onClick={addItem}>
-        + Tambah incaran baru
+        {translate('wishlist.addBtn', lang)}
       </button>
       {state.wishlist.length === 0 && (
-        <p className="muted small">Belum ada incaran nih. Masukin barang idaman yang lagi kamu kepengen (game, gadget, sepatu, dll).</p>
+        <p className="muted small">{translate('wishlist.empty', lang)}</p>
       )}
     </section>
   )
