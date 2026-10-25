@@ -9,7 +9,7 @@
 
 Aplikasi kalkulator keuangan pribadi yang dirancang cepat, simpel, dan bekerja secara offline (PWA). Membantu membagi anggaran uang saku, memantau pengeluaran, mencatat tagihan rutin, serta memonitor target tabungan.
 
-- **Link Website**: [https://kalkulator-duit.vercel.app](https://kalkulator-duit.vercel.app)
+- **Link Website**: [[https://kalkulator-duit.vercel.app](https://kalkulator-duit.shukohh21.workers.dev/)]([https://kalkulator-duit.vercel.app](https://kalkulator-duit.shukohh21.workers.dev/))
 
 ## Fitur Utama
 
