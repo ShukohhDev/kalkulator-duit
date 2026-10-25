@@ -3,7 +3,7 @@
   <h1>Kalkulator Uang Jajan</h1>
   <p>Aplikasi web manajemen uang saku dan pencatatan keuangan pribadi harian, mingguan, serta bulanan.</p>
   <p>
-    <a href="https://kalkulator-duit.vercel.app/](https://kalkulator-duit.shukohh21.workers.dev/"><strong>Website Resmi: kalkulator-duit.vercel.app</strong></a>
+    <a href="https://kalkulator-duit.vercel.app/](https://kalkulator-duit.shukohh21.workers.dev/"><strong>Website Resmi: kalkulator-duit</strong></a>
   </p>
 </div>
 
