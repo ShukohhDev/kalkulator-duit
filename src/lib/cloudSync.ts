@@ -60,7 +60,7 @@ export async function pullStateFromCloud(username: string): Promise<CloudSyncRes
     const { data, error } = await supabase
       .from('user_data')
       .select('data, updated_at')
-      .ilike('username', cleanName)
+      .ilike('username', cleanName.replace(/([%_\\])/g, '\\$1'))
       .maybeSingle()
 
     if (error) {

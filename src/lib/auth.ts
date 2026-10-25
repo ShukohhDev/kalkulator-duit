@@ -60,6 +60,10 @@ function randomSalt(): string {
   return Array.from(bytes, (byte) => byte.toString(16).padStart(2, '0')).join('')
 }
 
+function escapeIlike(str: string): string {
+  return str.replace(/([%_\\])/g, '\\$1')
+}
+
 async function hashPassword(password: string, salt: string): Promise<string> {
   const text = `${salt}:${password}`
   if (!globalThis.crypto?.subtle) {
@@ -192,6 +196,9 @@ export async function register(username: string, password: string): Promise<stri
   const name = username.trim()
   if (name === '') return 'Nama pengguna belum diisi.'
   if (name.length > 24) return 'Nama pengguna maksimal 24 karakter.'
+  if (!/^[a-zA-Z0-9_\-.# ]+$/.test(name)) {
+    return 'Nama pengguna hanya boleh mengandung huruf, angka, spasi, titik, strip, garis bawah, atau #.'
+  }
   if (password.length < 4) return 'Kata sandi minimal 4 karakter.'
 
   const accounts = readAccounts()
@@ -216,7 +223,7 @@ export async function register(username: string, password: string): Promise<stri
       const { data: existing } = await supabase
         .from('app_users')
         .select('username')
-        .ilike('username', name)
+        .ilike('username', escapeIlike(name))
         .maybeSingle()
 
       if (existing) {
@@ -260,10 +267,14 @@ export async function login(username: string, password: string): Promise<string 
       const { data: remoteUser, error } = await supabase
         .from('app_users')
         .select('username, salt, hash, role')
-        .ilike('username', name)
+        .ilike('username', escapeIlike(name))
         .maybeSingle()
 
       if (!error && remoteUser) {
+        if (remoteUser.username.toLowerCase() !== name.toLowerCase()) {
+          return 'Kata sandi salah.'
+        }
+
         const hash = await hashPassword(password, remoteUser.salt)
         if (hash !== remoteUser.hash) {
           return 'Kata sandi salah.'
@@ -278,7 +289,7 @@ export async function login(username: string, password: string): Promise<string 
         supabase
           .from('app_users')
           .update({ last_login: nowIso })
-          .ilike('username', remoteUser.username)
+          .ilike('username', escapeIlike(remoteUser.username))
           .then()
 
         // Sinkronkan ke local storage
@@ -399,7 +410,7 @@ export async function updateRemoteUserRole(username: string, role: 'admin' | 'us
       const { error } = await supabase
         .from('app_users')
         .update({ role })
-        .ilike('username', username)
+        .ilike('username', escapeIlike(username))
 
       if (error) return error.message
     } catch (err) {
@@ -435,10 +446,14 @@ export async function changePassword(
       const { data: remoteUser, error } = await supabase
         .from('app_users')
         .select('username, salt, hash')
-        .ilike('username', name)
+        .ilike('username', escapeIlike(name))
         .maybeSingle()
 
       if (!error && remoteUser) {
+        if (remoteUser.username.toLowerCase() !== name.toLowerCase()) {
+          return 'Nama pengguna tidak valid.'
+        }
+
         const oldHash = await hashPassword(oldPass, remoteUser.salt)
         if (oldHash !== remoteUser.hash) {
           return 'Kata sandi lama tidak sesuai.'
@@ -450,7 +465,7 @@ export async function changePassword(
         const { error: updateErr } = await supabase
           .from('app_users')
           .update({ salt: newSalt, hash: newHash })
-          .ilike('username', remoteUser.username)
+          .ilike('username', escapeIlike(remoteUser.username))
 
         if (updateErr) {
           return `Gagal memperbarui di server: ${updateErr.message}`

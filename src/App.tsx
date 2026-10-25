@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState, lazy, Suspense } from 'react'
 import { useAppState } from './hooks/useAppState'
 import { derive } from './lib/derive'
 import { buildInsights } from './lib/insights'
@@ -24,10 +24,13 @@ import {
 import { translate, getDeviceLanguage, setDeviceLanguage, I18nContext, type Language } from './lib/i18n'
 import type { Notify, ProfileId, Theme } from './types'
 import { ActivityPanel } from './components/ActivityPanel'
-import { AdminPanel } from './components/AdminPanel'
 import { AllowanceCard } from './components/AllowanceCard'
 import { AuthGate } from './components/AuthGate'
 import { AllocationDonut } from './components/AllocationDonut'
+
+const AdminPanel = lazy(() =>
+  import('./components/AdminPanel').then((m) => ({ default: m.AdminPanel })),
+)
 import { CalendarHeatmap } from './components/CalendarHeatmap'
 import { Calculator } from './components/Calculator'
 import { CashflowChart } from './components/CashflowChart'
@@ -807,7 +810,11 @@ function AppShell({ user, onLogout }: { user: string; onLogout: () => void }) {
       </div>
       {isUserAdmin && (
         <div id="nav-admin" className={sectionClass('nav-admin')}>
-          {openPanel === 'nav-admin' && <AdminPanel currentUser={user} notify={notify} />}
+          {openPanel === 'nav-admin' && (
+            <Suspense fallback={<div className="card admin-panel"><div className="admin-empty">{language === 'en' ? 'Loading panel...' : 'Memuat panel...'}</div></div>}>
+              <AdminPanel currentUser={user} notify={notify} />
+            </Suspense>
+          )}
         </div>
       )}
 
