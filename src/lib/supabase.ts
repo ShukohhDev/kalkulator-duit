@@ -7,6 +7,10 @@ export interface SupabaseConfig {
   anonKey: string
 }
 
+const DEFAULT_SUPABASE_URL = 'https://xnbtiskribahrsvahfuz.supabase.co'
+const DEFAULT_SUPABASE_ANON_KEY =
+  'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InhuYnRpc2tyaWJhaHJzdmFoZnV6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTEzODI3NjIsImV4cCI6MjEwNjk1ODc2Mn0.htxJa9veUiKnlXtUgPPj0y9QIH6WNiXnQhpOBMq0hTk'
+
 export function getSupabaseConfig(): SupabaseConfig {
   if (import.meta.env?.MODE === 'test') {
     return { url: '', anonKey: '' }
@@ -23,7 +27,7 @@ export function getSupabaseConfig(): SupabaseConfig {
     const raw = localStorage.getItem(CONFIG_KEY)
     if (raw) {
       const parsed = JSON.parse(raw) as Partial<SupabaseConfig>
-      if (typeof parsed.url === 'string' && typeof parsed.anonKey === 'string') {
+      if (typeof parsed.url === 'string' && typeof parsed.anonKey === 'string' && parsed.url && parsed.anonKey) {
         return { url: parsed.url.trim(), anonKey: parsed.anonKey.trim() }
       }
     }
@@ -31,7 +35,8 @@ export function getSupabaseConfig(): SupabaseConfig {
     // abaikan kesalahan storage
   }
 
-  return { url: '', anonKey: '' }
+  // Gunakan kredensial cloud default agar sinkronisasi akun antar-deployment otomatis
+  return { url: DEFAULT_SUPABASE_URL, anonKey: DEFAULT_SUPABASE_ANON_KEY }
 }
 
 export function setSupabaseConfig(url: string, anonKey: string): void {
