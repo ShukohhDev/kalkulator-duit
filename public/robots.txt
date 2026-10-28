@@ -3,4 +3,4 @@ User-agent: *
 Allow: /
 
 # Sitemap
-Sitemap: https://kalkulator-duit.vercel.app/sitemap.xml
+Sitemap: https://shukohdev.web.id/sitemap.xml

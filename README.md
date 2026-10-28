@@ -3,13 +3,13 @@
   <h1>Kalkulator Uang Jajan</h1>
   <p>Aplikasi web manajemen uang saku dan pencatatan keuangan pribadi harian, mingguan, serta bulanan.</p>
   <p>
-    <a href="https://kalkulator-duit.vercel.app/](https://kalkulator-duit.shukohh21.workers.dev/"><strong>Website Resmi: kalkulator-duit</strong></a>
+    <a href="https://shukohdev.web.id/"><strong>Website Resmi: shukohdev.web.id</strong></a>
   </p>
 </div>
 
 Aplikasi kalkulator keuangan pribadi yang dirancang cepat, simpel, dan bekerja secara offline (PWA). Membantu membagi anggaran uang saku, memantau pengeluaran, mencatat tagihan rutin, serta memonitor target tabungan.
 
-- **Link Website**: [https://kalkulator-duit.shukohh21.workers.dev/](https://kalkulator-duit.shukohh21.workers.dev/)
+- **Link Website**: [https://shukohdev.web.id/](https://shukohdev.web.id/)
 
 ## Fitur Utama
 
