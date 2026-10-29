@@ -156,7 +156,9 @@ describe('alur aplikasi', () => {
 
   it('menambah tagihan dan utang lewat Kewajiban, lalu membayarnya tercatat sebagai pengeluaran', () => {
     click('.period-option')
-    const soon = Math.min(28, new Date().getDate() + 1)
+    const now = new Date()
+    const maxDays = new Date(now.getFullYear(), now.getMonth() + 1, 0).getDate()
+    const soon = now.getDate() < maxDays ? now.getDate() + 1 : 1
 
     setValue('#bill-name', 'Listrik')
     setValue('#bill-amount', '150000')
