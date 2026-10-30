@@ -13,17 +13,17 @@ export type CloudStatus = 'idle' | 'syncing' | 'synced' | 'error' | 'disabled'
 export function useAppState() {
   const [state, setState] = useState<AppState>(() => loadState())
   const [saved, setSaved] = useState(true)
-  const [cloudStatus, setCloudStatus] = useState<CloudStatus>('idle')
+  const user = currentUser()
+  const [cloudStatus, setCloudStatus] = useState<CloudStatus>(() => {
+    return (!user || !getSupabaseClient()) ? 'disabled' : 'idle'
+  })
   const [lastSyncTime, setLastSyncTime] = useState<string | null>(null)
   const firstRender = useRef(true)
   const cloudDebounceRef = useRef<number | undefined>(undefined)
 
-  const user = currentUser()
-
   // On mount: jika cloud aktif dan ada user, periksa apakah data cloud ada & lebih lengkap (misal login di HP)
   useEffect(() => {
     if (!user || !getSupabaseClient()) {
-      setCloudStatus('disabled')
       return
     }
 

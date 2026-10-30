@@ -67,3 +67,4 @@ describe('pythonApi', () => {
     expect(res.state?.allowance).toBe(750_000)
   })
 })
+

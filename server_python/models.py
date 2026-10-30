@@ -1,15 +1,17 @@
 """
 ==============================================================
-models.py - Struktur Tabel Database (ORM SQLAlchemy)
+models.py - Struktur Tabel Database (ORM SQLAlchemy 2.0)
 ==============================================================
-File ini mendefinisikan tabel-tabel yang akan otomatis dibuat
-di dalam database MySQL atau SQLite.
-Didesain sederhana agar mudah dibaca dan dipahami pemula.
+File ini mendefinisikan tabel-tabel database menggunakan
+tipe data Mapped bawaan SQLAlchemy 2.0 agar terbaca sempurna
+oleh IDE/VS Code tanpa menghasilkan garis merah (type warning).
 ==============================================================
 """
 
 from datetime import datetime
-from sqlalchemy import Column, Integer, String, Text, DateTime
+from typing import Optional
+from sqlalchemy import String, Text, DateTime
+from sqlalchemy.orm import Mapped, mapped_column
 from database import Base
 
 
@@ -19,12 +21,12 @@ class User(Base):
     """
     __tablename__ = "users"
 
-    id = Column(Integer, primary_key=True, index=True, autoincrement=True)
-    username = Column(String(50), unique=True, index=True, nullable=False)
-    password_hash = Column(String(255), nullable=False)
-    role = Column(String(20), default="user", nullable=False)
-    created_at = Column(DateTime, default=datetime.utcnow)
-    last_login = Column(DateTime, nullable=True)
+    id: Mapped[int] = mapped_column(primary_key=True, index=True, autoincrement=True)
+    username: Mapped[str] = mapped_column(String(50), unique=True, index=True, nullable=False)
+    password_hash: Mapped[str] = mapped_column(String(255), nullable=False)
+    role: Mapped[str] = mapped_column(String(20), default="user", nullable=False)
+    created_at: Mapped[Optional[datetime]] = mapped_column(DateTime, default=datetime.utcnow)
+    last_login: Mapped[Optional[datetime]] = mapped_column(DateTime, nullable=True)
 
 
 class UserData(Base):
@@ -35,10 +37,10 @@ class UserData(Base):
     """
     __tablename__ = "user_data"
 
-    id = Column(Integer, primary_key=True, index=True, autoincrement=True)
-    username = Column(String(50), unique=True, index=True, nullable=False)
-    data = Column(Text, nullable=False)
-    updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+    id: Mapped[int] = mapped_column(primary_key=True, index=True, autoincrement=True)
+    username: Mapped[str] = mapped_column(String(50), unique=True, index=True, nullable=False)
+    data: Mapped[str] = mapped_column(Text, nullable=False)
+    updated_at: Mapped[Optional[datetime]] = mapped_column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
 
 
 class ActivityLog(Base):
@@ -48,8 +50,8 @@ class ActivityLog(Base):
     """
     __tablename__ = "activity_logs"
 
-    id = Column(Integer, primary_key=True, index=True, autoincrement=True)
-    username = Column(String(50), index=True, nullable=False)
-    action = Column(String(50), nullable=False)
-    description = Column(String(255), nullable=False)
-    created_at = Column(DateTime, default=datetime.utcnow)
+    id: Mapped[int] = mapped_column(primary_key=True, index=True, autoincrement=True)
+    username: Mapped[str] = mapped_column(String(50), index=True, nullable=False)
+    action: Mapped[str] = mapped_column(String(50), nullable=False)
+    description: Mapped[str] = mapped_column(String(255), nullable=False)
+    created_at: Mapped[Optional[datetime]] = mapped_column(DateTime, default=datetime.utcnow)

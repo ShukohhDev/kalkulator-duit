@@ -19,3 +19,4 @@ python-multipart>=0.0.20
 
 # Manajemen Variabel Lingkungan (.env)
 python-dotenv>=1.0.0
+

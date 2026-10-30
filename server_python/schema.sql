@@ -39,3 +39,4 @@ CREATE TABLE IF NOT EXISTS activity_logs (
   created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
   INDEX idx_activity_username (username)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+

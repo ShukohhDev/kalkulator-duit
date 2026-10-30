@@ -21,7 +21,6 @@ from models import UserData, ActivityLog
 router = APIRouter(prefix="/api/sync", tags=["Sinkronisasi"])
 
 
-# Skema data payload untuk push state keuangan
 class PushSyncRequest(BaseModel):
     username: str
     data: Dict[str, Any]
@@ -39,15 +38,12 @@ def push_user_data(req: PushSyncRequest, db: Session = Depends(get_db)):
     now = datetime.utcnow()
     json_string = json.dumps(req.data, ensure_ascii=False)
 
-    # Cari data yang sudah ada sebelumnya
     user_data = db.query(UserData).filter(UserData.username == clean_username).first()
 
     if user_data:
-        # Perbarui data yang ada
         user_data.data = json_string
         user_data.updated_at = now
     else:
-        # Buat baris baru untuk akun ini
         user_data = UserData(
             username=clean_username,
             data=json_string,
@@ -55,7 +51,6 @@ def push_user_data(req: PushSyncRequest, db: Session = Depends(get_db)):
         )
         db.add(user_data)
 
-    # Catat log aktivitas
     log = ActivityLog(
         username=clean_username,
         action="SYNC_PUSH",
@@ -87,7 +82,7 @@ def pull_user_data(username: str = Query(..., min_length=1), db: Session = Depen
         }
 
     try:
-        parsed_data = json.loads(user_data.data)
+        parsed_data = json.loads(str(user_data.data))
     except Exception:
         parsed_data = None
 
@@ -95,5 +90,5 @@ def pull_user_data(username: str = Query(..., min_length=1), db: Session = Depen
         "success": True,
         "message": "Data berhasil dimuat dari server.",
         "state": parsed_data,
-        "updated_at": user_data.updated_at.isoformat() if user_data.updated_at else None
+        "updated_at": user_data.updated_at.isoformat() if user_data.updated_at is not None else None
     }

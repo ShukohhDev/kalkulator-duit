@@ -71,3 +71,4 @@ Jalankan kembali file `jalankan_server.bat`. Server sekarang sudah resmi tersamb
 3. **Database (MySQL)**:
    * Menyimpan akun pengguna pada tabel `users`.
    * Menyimpan seluruh riwayat dan transaksi pada tabel `user_data`.
+

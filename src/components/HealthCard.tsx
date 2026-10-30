@@ -1,3 +1,4 @@
+import { useMemo } from 'react'
 import type { AppState } from '../types'
 import type { Derived } from '../lib/derive'
 import { healthScore } from '../lib/health'
@@ -12,7 +13,8 @@ function getScoreGrade(score: number, lang: 'id' | 'en') {
 
 export function HealthCard({ state, derived }: { state: AppState; derived: Derived }) {
   const { language } = useI18n()
-  const result = healthScore(state, derived, new Date(), language)
+  const now = useMemo(() => new Date(), [])
+  const result = healthScore(state, derived, now, language)
   const { color } = getScoreGrade(result.score, language)
   const circumference = 2 * Math.PI * 40
   const progress = (result.score / 100) * circumference

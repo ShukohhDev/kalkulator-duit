@@ -58,3 +58,4 @@ def decode_access_token(token: str) -> dict:
         return jwt.decode(token, JWT_SECRET, algorithms=[JWT_ALGORITHM])
     except Exception:
         return {}
+

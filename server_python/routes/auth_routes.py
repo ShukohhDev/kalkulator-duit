@@ -9,6 +9,7 @@ Kode dibuat lugas dan mudah dipelajari oleh pemula.
 
 import re
 from datetime import datetime
+from typing import Optional
 from fastapi import APIRouter, Depends, HTTPException, Header
 from pydantic import BaseModel
 from sqlalchemy.orm import Session
@@ -19,7 +20,7 @@ from auth_helper import hash_password, verify_password, create_access_token, dec
 
 router = APIRouter(prefix="/api/auth", tags=["Autentikasi"])
 
-# Skema data yang dikirim oleh pengguna saat mendaftar/login
+
 class AuthRequest(BaseModel):
     username: str
     password: str
@@ -33,28 +34,24 @@ def register(req: AuthRequest, db: Session = Depends(get_db)):
     """
     clean_username = req.username.strip()
 
-    # Validasi panjang karakter nama pengguna
     if len(clean_username) < 3 or len(clean_username) > 24:
         raise HTTPException(
             status_code=400,
             detail="Nama pengguna harus memiliki panjang 3 sampai 24 karakter."
         )
 
-    # Validasi karakter aman (hanya huruf, angka, spasi, titik, minus, underscore, dan tagar)
     if not re.match(r"^[a-zA-Z0-9_\-.# ]+$", clean_username):
         raise HTTPException(
             status_code=400,
             detail="Nama pengguna hanya boleh mengandung huruf, angka, spasi, titik, minus, underscore, dan tagar (#)."
         )
 
-    # Validasi kata sandi minimal 4 karakter
     if len(req.password) < 4:
         raise HTTPException(
             status_code=400,
             detail="Kata sandi minimal harus 4 karakter."
         )
 
-    # Cek apakah nama pengguna sudah dipakai sebelumnya
     existing = db.query(User).filter(User.username == clean_username).first()
     if existing:
         raise HTTPException(
@@ -62,7 +59,6 @@ def register(req: AuthRequest, db: Session = Depends(get_db)):
             detail="Nama pengguna sudah terdaftar. Silakan pilih nama lain."
         )
 
-    # Buat pengguna baru dengan kata sandi terenkripsi
     new_user = User(
         username=clean_username,
         password_hash=hash_password(req.password),
@@ -71,7 +67,6 @@ def register(req: AuthRequest, db: Session = Depends(get_db)):
     )
     db.add(new_user)
 
-    # Catat ke tabel riwayat aktivitas
     log = ActivityLog(
         username=clean_username,
         action="REGISTER",
@@ -101,26 +96,23 @@ def login(req: AuthRequest, db: Session = Depends(get_db)):
             detail="Nama pengguna atau kata sandi tidak cocok."
         )
 
-    if not verify_password(req.password, user.password_hash):
+    if not verify_password(req.password, str(user.password_hash)):
         raise HTTPException(
             status_code=401,
             detail="Nama pengguna atau kata sandi tidak cocok."
         )
 
-    # Perbarui waktu login terakhir
     user.last_login = datetime.utcnow()
     
-    # Catat log aktivitas masuk
     log = ActivityLog(
-        username=user.username,
+        username=str(user.username),
         action="LOGIN",
         description="Pengguna berhasil masuk ke sistem."
     )
     db.add(log)
     db.commit()
 
-    # Buat token JWT untuk sesi pengguna
-    token = create_access_token(user.username, user.role)
+    token = create_access_token(str(user.username), str(user.role))
 
     return {
         "success": True,
@@ -129,13 +121,13 @@ def login(req: AuthRequest, db: Session = Depends(get_db)):
         "user": {
             "username": user.username,
             "role": user.role,
-            "created_at": user.created_at.isoformat() if user.created_at else None
+            "created_at": user.created_at.isoformat() if user.created_at is not None else None
         }
     }
 
 
 @router.get("/me")
-def get_current_user(authorization: str = Header(None), db: Session = Depends(get_db)):
+def get_current_user(authorization: Optional[str] = Header(None), db: Session = Depends(get_db)):
     """
     Mengecek siapa pengguna yang sedang aktif berdasarkan token Authorization di header.
     """
@@ -158,6 +150,6 @@ def get_current_user(authorization: str = Header(None), db: Session = Depends(ge
         "user": {
             "username": user.username,
             "role": user.role,
-            "created_at": user.created_at.isoformat() if user.created_at else None
+            "created_at": user.created_at.isoformat() if user.created_at is not None else None
         }
     }

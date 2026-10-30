@@ -61,7 +61,8 @@ export function ExpensesPanel({ state, update, notify }: Props) {
       if (timeRange === 'this_month' && monthKey(item.date) !== thisMonth) return false
       if (timeRange === 'last_7_days') {
         const itemDate = new Date(item.date)
-        const diffMs = new Date().getTime() - itemDate.getTime()
+        const nowMs = Date.now()
+        const diffMs = nowMs - itemDate.getTime()
         const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24))
         if (diffDays < 0 || diffDays > 7) return false
       }
@@ -80,7 +81,7 @@ export function ExpensesPanel({ state, update, notify }: Props) {
       if (sortBy === 'date_asc') return a.date.localeCompare(b.date) || a.id.localeCompare(b.id)
       return b.date.localeCompare(a.date) || b.id.localeCompare(a.id)
     })
-  }, [state.expenses, filterCategory, filterMonth, timeRange, query, sortBy, categoryMap])
+  }, [state.expenses, state.wallets, filterCategory, filterMonth, timeRange, query, sortBy, categoryMap])
 
   const totalVisible = visible.reduce((sum, item) => sum + item.amount, 0)
   const hasActiveFilter = query !== '' || filterCategory !== 'all' || filterMonth !== 'all' || timeRange !== 'all'

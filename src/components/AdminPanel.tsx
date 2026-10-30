@@ -1,4 +1,4 @@
-import { useEffect, useState, useTransition } from 'react'
+import { useCallback, useEffect, useState, useTransition } from 'react'
 import {
   fetchRegisteredUsers,
   updateRemoteUserRole,
@@ -53,7 +53,7 @@ export function AdminPanel({ currentUser, notify }: Props) {
   const [showSqlGuide, setShowSqlGuide] = useState(false)
   const [isCloudActive, setIsCloudActive] = useState(() => isSupabaseConfigured())
 
-  const loadUsers = async () => {
+  const loadUsers = useCallback(async () => {
     setLoadingUsers(true)
     try {
       const data = await fetchRegisteredUsers()
@@ -66,9 +66,9 @@ export function AdminPanel({ currentUser, notify }: Props) {
     } finally {
       setLoadingUsers(false)
     }
-  }
+  }, [isEn, notify])
 
-  const loadReports = async () => {
+  const loadReports = useCallback(async () => {
     setLoadingReports(true)
     try {
       const data = await fetchUserReports()
@@ -80,12 +80,12 @@ export function AdminPanel({ currentUser, notify }: Props) {
     } finally {
       setLoadingReports(false)
     }
-  }
+  }, [isEn, notify])
 
   useEffect(() => {
-    loadUsers()
-    loadReports()
-  }, [])
+    void loadUsers()
+    void loadReports()
+  }, [loadUsers, loadReports])
 
   const handleSaveConfig = (e: React.FormEvent) => {
     e.preventDefault()

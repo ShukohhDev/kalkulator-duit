@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useRef, useState, lazy, Suspense } from 'react'
+import { useEffect, useMemo, useRef, useState, lazy, Suspense } from 'react'
 import { useAppState } from './hooks/useAppState'
 import { derive } from './lib/derive'
 import { buildInsights } from './lib/insights'
@@ -190,18 +190,16 @@ function AppShell({ user, onLogout }: { user: string; onLogout: () => void }) {
   const alerts = useMemo(() => buildAlerts(state, derived, language), [state, derived, language])
   const tips = useMemo(() => buildTips(state, derived, language), [state, derived, language])
 
-  const reloadNotifications = useCallback(async () => {
-    try {
-      const items = await buildUserNotifications(user, state, derived, language)
-      setNotifications(items)
-    } catch {
-      // ignore
-    }
-  }, [user, state, derived, language])
 
   useEffect(() => {
-    void reloadNotifications()
-  }, [reloadNotifications])
+    let active = true
+    buildUserNotifications(user, state, derived, language).then((items) => {
+      if (active) setNotifications(items)
+    }).catch(() => {})
+    return () => {
+      active = false
+    }
+  }, [user, state, derived, language])
 
   const unreadCount = useMemo(
     () => notifications.filter((n) => !n.read).length,
