@@ -1,5 +1,6 @@
 import { getSupabaseClient } from './supabase'
 import { sanitize } from './storage'
+import { pushToPythonBackend, pullFromPythonBackend, isPythonServerOnline } from './pythonApi'
 import type { AppState } from '../types'
 
 export interface CloudSyncResult {
@@ -10,50 +11,75 @@ export interface CloudSyncResult {
 }
 
 export async function pushStateToCloud(username: string, state: AppState): Promise<CloudSyncResult> {
-  const supabase = getSupabaseClient()
-  if (!supabase) {
-    return { success: false, error: 'Layanan cloud tidak terhubung' }
-  }
-
   const cleanName = username.trim()
   if (!cleanName) {
     return { success: false, error: 'Nama pengguna tidak valid' }
   }
 
-  try {
-    const nowIso = new Date().toISOString()
-    const { error } = await supabase
-      .from('user_data')
-      .upsert(
-        {
-          username: cleanName,
-          data: state,
-          updated_at: nowIso,
-        },
-        { onConflict: 'username' },
-      )
-
-    if (error) {
-      console.warn('Gagal sinkronisasi data ke cloud:', error.message)
-      return { success: false, error: error.message }
-    }
-
-    return { success: true, updatedAt: nowIso }
-  } catch (err) {
-    const msg = err instanceof Error ? err.message : 'Kesalahan jaringan'
-    return { success: false, error: msg }
+  // 1. Coba simpan ke Backend Python (MySQL / SQLite) jika server aktif
+  const pythonOnline = await isPythonServerOnline()
+  let pythonResult: CloudSyncResult | null = null
+  if (pythonOnline) {
+    pythonResult = await pushToPythonBackend(cleanName, state)
   }
+
+  // 2. Simpan juga ke Supabase jika terhubung (sebagai sinkronisasi cadangan)
+  const supabase = getSupabaseClient()
+  if (supabase) {
+    try {
+      const nowIso = new Date().toISOString()
+      const { error } = await supabase
+        .from('user_data')
+        .upsert(
+          {
+            username: cleanName,
+            data: state,
+            updated_at: nowIso,
+          },
+          { onConflict: 'username' },
+        )
+
+      if (!error) {
+        return { success: true, updatedAt: nowIso }
+      }
+    } catch {
+      // Abaikan jika koneksi Supabase gagal
+    }
+  }
+
+  if (pythonResult && pythonResult.success) {
+    return pythonResult
+  }
+
+  if (!supabase && !pythonOnline) {
+    return { success: false, error: 'Layanan cloud tidak terhubung' }
+  }
+
+  return pythonResult || { success: false, error: 'Gagal sinkronisasi data' }
 }
 
 export async function pullStateFromCloud(username: string): Promise<CloudSyncResult> {
-  const supabase = getSupabaseClient()
-  if (!supabase) {
-    return { success: false, error: 'Layanan cloud tidak terhubung' }
-  }
-
   const cleanName = username.trim()
   if (!cleanName) {
     return { success: false, error: 'Nama pengguna tidak valid' }
+  }
+
+  // 1. Coba ambil dari Backend Python (MySQL / SQLite) jika server aktif
+  if (await isPythonServerOnline()) {
+    const pyRes = await pullFromPythonBackend(cleanName)
+    if (pyRes.success && pyRes.state) {
+      return {
+        success: true,
+        state: sanitize(pyRes.state),
+        updatedAt: pyRes.updatedAt,
+      }
+    }
+  }
+
+  // 2. Ambil dari Supabase jika Python offline atau belum ada data
+  const supabase = getSupabaseClient()
+  if (!supabase) {
+    return { success: false, error: 'Layanan cloud tidak terhubung' }
   }
 
   try {

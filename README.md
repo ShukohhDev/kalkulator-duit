@@ -19,20 +19,19 @@ Aplikasi kalkulator keuangan pribadi yang dirancang cepat, simpel, dan bekerja s
 - **Target Tabungan**: Kelola target simpanan berbunga majemuk, wishlist impian, serta dana musiman.
 - **Analisis & Laporan**: Grafik arus kas visual, evaluasi kesehatan keuangan, dan ekspor laporan ke format PDF atau Excel (.xlsx).
 - **Multi-Akun Lokal**: Pisahkan data tiap pengguna di perangkat yang sama dengan kata sandi terenkripsi.
-- **Sinkronisasi Cloud (Opsional)**: Mendukung sinkronisasi akun Supabase bagi pengguna yang ingin menyinkronkan data antar perangkat.
+- **Sinkronisasi Cloud & Backend Mandiri**: Mendukung sinkronisasi ke backend Python (FastAPI) dengan basis data MySQL/SQLite lokal, serta sinkronisasi cloud Supabase opsional.
 - **PWA & Akses Offline**: Dapat diinstal di Android, iOS, maupun desktop dan tetap berfungsi tanpa koneksi internet.
 
 ## Teknologi
 
-- React 19
-- TypeScript
-- Vite
-- Chart.js
-- Vanilla CSS (Desain bersih dan responsif)
-- IndexedDB & LocalStorage
-- Supabase (Autentikasi & sinkronisasi data opsional)
+- **Frontend**: HTML5, Vanilla CSS3, JavaScript, TypeScript, React 19, Chart.js, Vite
+- **Backend**: Python 3 (FastAPI, Uvicorn, SQLAlchemy ORM)
+- **Basis Data**: MySQL & SQLite (didukung penuh)
+- **Penyimpanan Klien**: LocalStorage, IndexedDB, & PWA Cache API
 
 ## Menjalankan Proyek
+
+### 1. Menjalankan Frontend (Web)
 
 ```bash
 # Pasang dependensi
@@ -48,6 +47,22 @@ npm test
 npm run build
 ```
 
+### 2. Menjalankan Backend Python & MySQL
+
+```bash
+# Buka direktori server Python
+cd server_python
+
+# Pasang dependensi Python
+pip install -r requirements.txt
+
+# Jalankan server FastAPI (port 8000)
+# Pada Windows, Anda juga bisa langsung klik ganda: jalankan_server.bat
+python -m uvicorn main:app --reload
+```
+
+Dokumentasi interaktif API dapat langsung diakses di browser melalui alamat `http://localhost:8000/docs`. Panduan lengkap pemula tersedia di file `server_python/PANDUAN_PEMULA.md`.
+
 ## Privasi Data
 
-Data transaksi dan anggaran tersimpan aman di browser Anda melalui `localStorage` dan `IndexedDB`. Jika Anda mengaktifkan sinkronisasi cloud, data akun Anda disinkronkan ke database Supabase pribadi.
+Data transaksi dan anggaran tersimpan aman di browser Anda melalui `localStorage` dan `IndexedDB`. Jika Anda mengaktifkan sinkronisasi cloud atau server Python pribadi, data akun Anda disinkronkan ke basis data terproteksi.
