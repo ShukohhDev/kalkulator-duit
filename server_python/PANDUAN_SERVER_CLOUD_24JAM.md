@@ -46,3 +46,4 @@ Setelah Anda mendapatkan tautan dari Koyeb (misal: `https://kalkulator-duit-shuk
 2. Masuk ke menu Pengaturan / Database.
 3. Tempelkan (*paste*) URL server cloud Anda ke kolom URL Server Python.
 4. Selesai! Seluruh sinkronisasi data akan langsung terhubung ke server cloud 24 jam Anda.
+
