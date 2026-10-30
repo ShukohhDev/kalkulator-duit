@@ -8,7 +8,7 @@ Kode dibuat lugas dan mudah dipelajari oleh pemula.
 """
 
 import re
-from datetime import datetime
+from datetime import datetime, timezone
 from typing import Optional
 from fastapi import APIRouter, Depends, HTTPException, Header
 from pydantic import BaseModel
@@ -63,7 +63,7 @@ def register(req: AuthRequest, db: Session = Depends(get_db)):
         username=clean_username,
         password_hash=hash_password(req.password),
         role=req.role if req.role in ["admin", "user"] else "user",
-        created_at=datetime.utcnow()
+        created_at=datetime.now(timezone.utc)
     )
     db.add(new_user)
 
@@ -102,7 +102,7 @@ def login(req: AuthRequest, db: Session = Depends(get_db)):
             detail="Nama pengguna atau kata sandi tidak cocok."
         )
 
-    user.last_login = datetime.utcnow()
+    user.last_login = datetime.now(timezone.utc)
     
     log = ActivityLog(
         username=str(user.username),

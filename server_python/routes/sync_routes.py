@@ -9,7 +9,7 @@ antara browser (frontend) dan basis data MySQL / SQLite.
 """
 
 import json
-from datetime import datetime
+from datetime import datetime, timezone
 from typing import Any, Dict
 from fastapi import APIRouter, Depends, HTTPException, Query
 from pydantic import BaseModel
@@ -35,7 +35,7 @@ def push_user_data(req: PushSyncRequest, db: Session = Depends(get_db)):
     if not clean_username:
         raise HTTPException(status_code=400, detail="Nama pengguna wajib diisi.")
 
-    now = datetime.utcnow()
+    now = datetime.now(timezone.utc)
     json_string = json.dumps(req.data, ensure_ascii=False)
 
     user_data = db.query(UserData).filter(UserData.username == clean_username).first()

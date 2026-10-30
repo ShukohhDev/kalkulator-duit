@@ -10,7 +10,7 @@ File ini berisi fungsi-fungsi sederhana untuk:
 """
 
 import os
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 import bcrypt
 import jwt
 from dotenv import load_dotenv
@@ -43,7 +43,7 @@ def verify_password(plain_password: str, hashed_password: str) -> bool:
 
 def create_access_token(username: str, role: str = "user") -> str:
     """Membuat token JWT dengan masa berlaku 24 jam."""
-    expire = datetime.utcnow() + timedelta(hours=TOKEN_EXPIRE_HOURS)
+    expire = datetime.now(timezone.utc) + timedelta(hours=TOKEN_EXPIRE_HOURS)
     payload = {
         "sub": username,
         "role": role,
