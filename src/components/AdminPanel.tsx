@@ -111,11 +111,11 @@ export function AdminPanel({ currentUser, notify }: Props) {
     const nextRole = targetUser.role === 'admin' ? 'user' : 'admin'
     const confirmMsg = isEn
       ? (nextRole === 'admin'
-          ? `Grant Admin access to account "${targetUser.username}"?`
-          : `Revoke Admin access from account "${targetUser.username}"?`)
+        ? `Grant Admin access to account "${targetUser.username}"?`
+        : `Revoke Admin access from account "${targetUser.username}"?`)
       : (nextRole === 'admin'
-          ? `Berikan hak akses Admin kepada akun "${targetUser.username}"?`
-          : `Cabut hak akses Admin dari akun "${targetUser.username}"?`)
+        ? `Berikan hak akses Admin kepada akun "${targetUser.username}"?`
+        : `Cabut hak akses Admin dari akun "${targetUser.username}"?`)
 
     if (!window.confirm(confirmMsg)) return
 
@@ -456,9 +456,8 @@ create policy "Allow manage reports" on public.user_reports for all using (true)
                         </td>
                         <td>
                           <span
-                            className={`role-badge ${
-                              u.role === 'admin' ? 'role-admin' : 'role-user'
-                            }`}
+                            className={`role-badge ${u.role === 'admin' ? 'role-admin' : 'role-user'
+                              }`}
                           >
                             {u.role === 'admin' ? 'Admin' : (isEn ? 'User' : 'Pengguna')}
                           </span>
@@ -570,15 +569,15 @@ create policy "Allow manage reports" on public.user_reports for all using (true)
                   r.type === 'Bug'
                     ? 'report-tag-bug'
                     : r.type === 'Saran'
-                    ? 'report-tag-saran'
-                    : 'report-tag-kritik'
+                      ? 'report-tag-saran'
+                      : 'report-tag-kritik'
 
                 const statusClass =
                   r.status === 'baru'
                     ? 'report-status-baru'
                     : r.status === 'diproses'
-                    ? 'report-status-diproses'
-                    : 'report-status-selesai'
+                      ? 'report-status-diproses'
+                      : 'report-status-selesai'
 
                 return (
                   <article key={r.id} className="report-item card">
@@ -600,8 +599,8 @@ create policy "Allow manage reports" on public.user_reports for all using (true)
                           {r.status === 'baru'
                             ? (isEn ? 'New' : 'Baru')
                             : r.status === 'diproses'
-                            ? (isEn ? 'In Progress' : 'Diproses')
-                            : (isEn ? 'Resolved' : 'Selesai')}
+                              ? (isEn ? 'In Progress' : 'Diproses')
+                              : (isEn ? 'Resolved' : 'Selesai')}
                         </span>
                         <CustomSelect
                           className="input input-sm report-status-select"

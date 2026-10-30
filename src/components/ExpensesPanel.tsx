@@ -153,16 +153,16 @@ export function ExpensesPanel({ state, update, notify }: Props) {
           expenses: s.expenses.map((item) =>
             item.id === editingId
               ? {
-                  ...item,
-                  date,
-                  categoryId,
-                  note,
-                  amount,
-                  goalId,
-                  wishlistId,
-                  receiptId: receiptId ?? undefined,
-                  walletId: walletId || undefined,
-                }
+                ...item,
+                date,
+                categoryId,
+                note,
+                amount,
+                goalId,
+                wishlistId,
+                receiptId: receiptId ?? undefined,
+                walletId: walletId || undefined,
+              }
               : item,
           ),
         }

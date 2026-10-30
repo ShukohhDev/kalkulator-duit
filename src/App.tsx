@@ -195,7 +195,7 @@ function AppShell({ user, onLogout }: { user: string; onLogout: () => void }) {
     let active = true
     buildUserNotifications(user, state, derived, language).then((items) => {
       if (active) setNotifications(items)
-    }).catch(() => {})
+    }).catch(() => { })
     return () => {
       active = false
     }
@@ -452,423 +452,423 @@ function AppShell({ user, onLogout }: { user: string; onLogout: () => void }) {
   return (
     <I18nContext.Provider value={{ language, setLanguage: handleSetLanguage, t: (k, p) => translate(k, language, p) }}>
       <div className="app">
-      <header className="topbar">
-        <div className="topbar-row-primary">
-          <div className="topbar-brand-wrap">
-            <h1 className="brand">
-              <img src="/favicon.png" alt="Logo" className="brand-logo-img" width="28" height="28" />
-              <span>{translate('topbar.brand', language)}</span>
-            </h1>
-          </div>
-          <div className="topbar-user-area">
-            <div className="notif-anchor">
+        <header className="topbar">
+          <div className="topbar-row-primary">
+            <div className="topbar-brand-wrap">
+              <h1 className="brand">
+                <img src="/favicon.png" alt="Logo" className="brand-logo-img" width="28" height="28" />
+                <span>{translate('topbar.brand', language)}</span>
+              </h1>
+            </div>
+            <div className="topbar-user-area">
+              <div className="notif-anchor">
+                <button
+                  type="button"
+                  className={`topbar-bell-btn${unreadCount > 0 ? ' has-unread' : ''}${notifOpen ? ' bell-open' : ''}`}
+                  onClick={() => setNotifOpen((open) => !open)}
+                  aria-label={language === 'en' ? 'Notification Center' : 'Pusat Notifikasi'}
+                  aria-expanded={notifOpen}
+                  title={language === 'en' ? 'Notifications' : 'Notifikasi'}
+                >
+                  {ICON_BELL}
+                  {unreadCount > 0 && (
+                    <span
+                      className="bell-badge"
+                      aria-label={language === 'en' ? `${unreadCount} new notifications` : `${unreadCount} notifikasi baru`}
+                    >
+                      {unreadCount > 9 ? '9+' : unreadCount}
+                    </span>
+                  )}
+                </button>
+                {notifOpen && (
+                  <NotificationCenter
+                    items={notifications}
+                    onClose={() => setNotifOpen(false)}
+                    onMarkAllRead={handleMarkAllRead}
+                    onMarkRead={handleMarkRead}
+                  />
+                )}
+              </div>
               <button
                 type="button"
-                className={`topbar-bell-btn${unreadCount > 0 ? ' has-unread' : ''}${notifOpen ? ' bell-open' : ''}`}
-                onClick={() => setNotifOpen((open) => !open)}
-                aria-label={language === 'en' ? 'Notification Center' : 'Pusat Notifikasi'}
-                aria-expanded={notifOpen}
-                title={language === 'en' ? 'Notifications' : 'Notifikasi'}
+                className="btn-lang-toggle"
+                onClick={() => {
+                  const nextLang: Language = language === 'id' ? 'en' : 'id'
+                  setLanguage(nextLang)
+                  setDeviceLanguage(nextLang)
+                  savePrefs({ language: nextLang })
+                }}
+                aria-label={language === 'id' ? 'Switch to English' : 'Ganti ke Bahasa Indonesia'}
+                title={language === 'id' ? 'Switch to English' : 'Ganti ke Bahasa Indonesia'}
               >
-                {ICON_BELL}
-                {unreadCount > 0 && (
-                  <span
-                    className="bell-badge"
-                    aria-label={language === 'en' ? `${unreadCount} new notifications` : `${unreadCount} notifikasi baru`}
-                  >
-                    {unreadCount > 9 ? '9+' : unreadCount}
-                  </span>
-                )}
+                <span className={`lang-choice${language === 'id' ? ' lang-active' : ''}`}>ID</span>
+                <span className="lang-sep">|</span>
+                <span className={`lang-choice${language === 'en' ? ' lang-active' : ''}`}>EN</span>
               </button>
-              {notifOpen && (
-                <NotificationCenter
-                  items={notifications}
-                  onClose={() => setNotifOpen(false)}
-                  onMarkAllRead={handleMarkAllRead}
-                  onMarkRead={handleMarkRead}
-                />
-              )}
+              <button
+                type="button"
+                className="topbar-icon-btn fab-theme"
+                onClick={() => {
+                  const nextTheme: Theme = state.theme === 'dark' ? 'light' : 'dark'
+                  update((s) => {
+                    const next = { ...s, theme: nextTheme }
+                    saveState(next)
+                    return next
+                  })
+                  setDeviceTheme(nextTheme)
+                }}
+                aria-label={language === 'en' ? 'Toggle theme' : 'Ganti tema'}
+                title={state.theme === 'dark' ? translate('topbar.themeLight', language) : translate('topbar.themeDark', language)}
+              >
+                {state.theme === 'dark' ? SUN_ICON : MOON_ICON}
+              </button>
+              <span
+                className="chip chip-user"
+                title={language === 'en' ? `Logged in as ${user}` : `Masuk sebagai ${user}`}
+              >
+                {user}
+              </span>
+              {isUserAdmin && <span className="chip-admin-badge">{translate('topbar.adminBadge', language)}</span>}
+              <button type="button" className="btn btn-ghost btn-sm btn-logout" onClick={handleLogout}>
+                {translate('topbar.logout', language)}
+              </button>
             </div>
-            <button
-              type="button"
-              className="btn-lang-toggle"
-              onClick={() => {
-                const nextLang: Language = language === 'id' ? 'en' : 'id'
-                setLanguage(nextLang)
-                setDeviceLanguage(nextLang)
-                savePrefs({ language: nextLang })
-              }}
-              aria-label={language === 'id' ? 'Switch to English' : 'Ganti ke Bahasa Indonesia'}
-              title={language === 'id' ? 'Switch to English' : 'Ganti ke Bahasa Indonesia'}
-            >
-              <span className={`lang-choice${language === 'id' ? ' lang-active' : ''}`}>ID</span>
-              <span className="lang-sep">|</span>
-              <span className={`lang-choice${language === 'en' ? ' lang-active' : ''}`}>EN</span>
-            </button>
-            <button
-              type="button"
-              className="topbar-icon-btn fab-theme"
-              onClick={() => {
-                const nextTheme: Theme = state.theme === 'dark' ? 'light' : 'dark'
-                update((s) => {
-                  const next = { ...s, theme: nextTheme }
-                  saveState(next)
-                  return next
-                })
-                setDeviceTheme(nextTheme)
-              }}
-              aria-label={language === 'en' ? 'Toggle theme' : 'Ganti tema'}
-              title={state.theme === 'dark' ? translate('topbar.themeLight', language) : translate('topbar.themeDark', language)}
-            >
-              {state.theme === 'dark' ? SUN_ICON : MOON_ICON}
-            </button>
-            <span
-              className="chip chip-user"
-              title={language === 'en' ? `Logged in as ${user}` : `Masuk sebagai ${user}`}
-            >
-              {user}
-            </span>
-            {isUserAdmin && <span className="chip-admin-badge">{translate('topbar.adminBadge', language)}</span>}
-            <button type="button" className="btn btn-ghost btn-sm btn-logout" onClick={handleLogout}>
-              {translate('topbar.logout', language)}
-            </button>
           </div>
-        </div>
 
-        <div className="topbar-actions">
-          {showQuickInTopbar && (
-            <div className="topbar-quick-wrapper">
-              {renderQuickButtons('topbar-quick')}
-            </div>
-          )}
-          {state.mode && (
-            <button
-              type="button"
-              className="btn btn-ghost btn-sm btn-period-select"
-              onClick={() => setPickerOpen(true)}
-              title={language === 'en' ? 'Change Period' : 'Ganti Periode'}
-            >
-              <span className="period-label-prefix">{translate('topbar.periodPrefix', language)}</span>
-              <span>{state.mode === 'week' ? translate('topbar.periodWeek', language) : translate('topbar.periodMonth', language)}</span>
-            </button>
-          )}
-          <span className={`save-state${saved ? ' save-ok' : ''}`} title={saved ? translate('topbar.saved', language) : translate('topbar.saving', language)}>
-            {saved ? <>{CHECK_ICON} <span className="save-state-text">{translate('topbar.saved', language)}</span></> : <span className="save-state-text">{translate('topbar.saving', language)}</span>}
-          </span>
-          {cloudStatus !== 'disabled' && (
-            <span
-              className={`cloud-sync-chip cloud-sync-${cloudStatus}`}
-              title={
-                cloudStatus === 'synced'
-                  ? (language === 'en' ? 'Data automatically synced to Supabase cloud' : 'Data tersinkron otomatis ke cloud Supabase')
-                  : cloudStatus === 'syncing'
-                  ? (language === 'en' ? 'Syncing data to cloud' : 'Sedang menyinkronkan data ke cloud')
-                  : (language === 'en' ? 'Cloud sync status' : 'Status cloud sync')
-              }
-            >
-              {cloudStatus === 'synced' ? translate('topbar.cloudSynced', language) : cloudStatus === 'syncing' ? translate('topbar.cloudSyncing', language) : translate('topbar.cloudOffline', language)}
+          <div className="topbar-actions">
+            {showQuickInTopbar && (
+              <div className="topbar-quick-wrapper">
+                {renderQuickButtons('topbar-quick')}
+              </div>
+            )}
+            {state.mode && (
+              <button
+                type="button"
+                className="btn btn-ghost btn-sm btn-period-select"
+                onClick={() => setPickerOpen(true)}
+                title={language === 'en' ? 'Change Period' : 'Ganti Periode'}
+              >
+                <span className="period-label-prefix">{translate('topbar.periodPrefix', language)}</span>
+                <span>{state.mode === 'week' ? translate('topbar.periodWeek', language) : translate('topbar.periodMonth', language)}</span>
+              </button>
+            )}
+            <span className={`save-state${saved ? ' save-ok' : ''}`} title={saved ? translate('topbar.saved', language) : translate('topbar.saving', language)}>
+              {saved ? <>{CHECK_ICON} <span className="save-state-text">{translate('topbar.saved', language)}</span></> : <span className="save-state-text">{translate('topbar.saving', language)}</span>}
             </span>
-          )}
-        </div>
-      </header>
+            {cloudStatus !== 'disabled' && (
+              <span
+                className={`cloud-sync-chip cloud-sync-${cloudStatus}`}
+                title={
+                  cloudStatus === 'synced'
+                    ? (language === 'en' ? 'Data automatically synced to Supabase cloud' : 'Data tersinkron otomatis ke cloud Supabase')
+                    : cloudStatus === 'syncing'
+                      ? (language === 'en' ? 'Syncing data to cloud' : 'Sedang menyinkronkan data ke cloud')
+                      : (language === 'en' ? 'Cloud sync status' : 'Status cloud sync')
+                }
+              >
+                {cloudStatus === 'synced' ? translate('topbar.cloudSynced', language) : cloudStatus === 'syncing' ? translate('topbar.cloudSyncing', language) : translate('topbar.cloudOffline', language)}
+              </span>
+            )}
+          </div>
+        </header>
 
-      <SectionNav
-        items={navItems}
-        openId={openPanel ?? 'nav-beranda'}
-        onOpen={togglePanel}
-        isSticky={isScrolled}
-        isStickyDesktop={isDesktop && isScrolled}
-        extraActions={showQuickInNav ? renderQuickButtons('nav-quick') : null}
-      />
+        <SectionNav
+          items={navItems}
+          openId={openPanel ?? 'nav-beranda'}
+          onOpen={togglePanel}
+          isSticky={isScrolled}
+          isStickyDesktop={isDesktop && isScrolled}
+          extraActions={showQuickInNav ? renderQuickButtons('nav-quick') : null}
+        />
 
-      {!openPanel && (
-        <main className="front beranda-front" id="nav-beranda">
+        {!openPanel && (
+          <main className="front beranda-front" id="nav-beranda">
+            <div className="panel-hero-banner">
+              <div className="panel-hero-main">
+                <div className="panel-hero-icon">{NAV_SVG_ICONS['nav-beranda']}</div>
+                <div className="panel-hero-body">
+                  <h2 className="panel-hero-title">{translate('hero.title', language)}</h2>
+                  <p className="panel-hero-desc">{translate('hero.desc', language)}</p>
+                </div>
+              </div>
+              <div className="panel-hero-badge">
+                <span>{state.mode === 'week' ? translate('hero.weekBadge', language) : translate('hero.monthBadge', language)}</span>
+              </div>
+            </div>
+            <AlertsPanel alerts={alerts} />
+            <div className="beranda-grid">
+              <div className="beranda-col-main">
+                <WeekCard state={state} derived={derived} notify={notify} lang={language} />
+                <AllowanceCard state={state} derived={derived} update={update} notify={notify} onChangePeriod={() => setPickerOpen(true)} />
+                <WalletCards state={state} derived={derived} />
+              </div>
+              <aside className="beranda-col-side">
+                <TotalAsetCard state={state} lang={language} />
+                <InsightsPanel insights={insights} />
+                <ChallengeCard state={state} derived={derived} />
+                <TipsPanel tips={tips} />
+              </aside>
+            </div>
+          </main>
+        )}
+
+        <div id="nav-catat" className={sectionClass('nav-catat')}>
           <div className="panel-hero-banner">
             <div className="panel-hero-main">
-              <div className="panel-hero-icon">{NAV_SVG_ICONS['nav-beranda']}</div>
+              <div className="panel-hero-icon">{NAV_SVG_ICONS['nav-catat']}</div>
               <div className="panel-hero-body">
-                <h2 className="panel-hero-title">{translate('hero.title', language)}</h2>
-                <p className="panel-hero-desc">{translate('hero.desc', language)}</p>
+                <h2 className="panel-hero-title">{translate('hero.catat.title', language)}</h2>
+                <p className="panel-hero-desc">{translate('hero.catat.desc', language)}</p>
               </div>
             </div>
             <div className="panel-hero-badge">
-              <span>{state.mode === 'week' ? translate('hero.weekBadge', language) : translate('hero.monthBadge', language)}</span>
+              <span>{translate('hero.catat.badge', language, { expenses: state.expenses.length, incomes: state.incomes.length })}</span>
             </div>
           </div>
-          <AlertsPanel alerts={alerts} />
-          <div className="beranda-grid">
-            <div className="beranda-col-main">
-              <WeekCard state={state} derived={derived} notify={notify} lang={language} />
-              <AllowanceCard state={state} derived={derived} update={update} notify={notify} onChangePeriod={() => setPickerOpen(true)} />
-              <WalletCards state={state} derived={derived} />
-            </div>
-            <aside className="beranda-col-side">
-              <TotalAsetCard state={state} lang={language} />
-              <InsightsPanel insights={insights} />
-              <ChallengeCard state={state} derived={derived} />
-              <TipsPanel tips={tips} />
-            </aside>
-          </div>
-        </main>
-      )}
-
-      <div id="nav-catat" className={sectionClass('nav-catat')}>
-        <div className="panel-hero-banner">
-          <div className="panel-hero-main">
-            <div className="panel-hero-icon">{NAV_SVG_ICONS['nav-catat']}</div>
-            <div className="panel-hero-body">
-              <h2 className="panel-hero-title">{translate('hero.catat.title', language)}</h2>
-              <p className="panel-hero-desc">{translate('hero.catat.desc', language)}</p>
-            </div>
-          </div>
-          <div className="panel-hero-badge">
-            <span>{translate('hero.catat.badge', language, { expenses: state.expenses.length, incomes: state.incomes.length })}</span>
-          </div>
-        </div>
-        <div
-          className="catat-mobile-switch"
-          role="tablist"
-          aria-label={language === 'en' ? 'Record view options' : 'Pilihan tampilan pencatatan'}
-        >
-          <button
-            type="button"
-            role="tab"
-            aria-selected={catatView === 'all'}
-            className={`catat-switch-btn ${catatView === 'all' ? 'active' : ''}`}
-            onClick={() => setCatatView('all')}
+          <div
+            className="catat-mobile-switch"
+            role="tablist"
+            aria-label={language === 'en' ? 'Record view options' : 'Pilihan tampilan pencatatan'}
           >
-            {translate('catat.switchAll', language)}
-          </button>
-          <button
-            type="button"
-            role="tab"
-            aria-selected={catatView === 'expenses'}
-            className={`catat-switch-btn ${catatView === 'expenses' ? 'active' : ''}`}
-            onClick={() => setCatatView('expenses')}
-          >
-            {translate('catat.switchExpenses', language)}
-          </button>
-          <button
-            type="button"
-            role="tab"
-            aria-selected={catatView === 'income'}
-            className={`catat-switch-btn ${catatView === 'income' ? 'active' : ''}`}
-            onClick={() => setCatatView('income')}
-          >
-            {translate('catat.switchIncome', language)}
-          </button>
-        </div>
-
-        <div className={`catat-split-grid show-${catatView}`}>
-          <div className="catat-column catat-col-expenses">
-            <ExpensesPanel state={state} update={update} notify={notify} />
-          </div>
-          <div className="catat-column catat-col-income">
-            <IncomePanel state={state} update={update} notify={notify} />
-          </div>
-        </div>
-        <ShoppingListCard state={state} update={update} notify={notify} />
-      </div>
-      <div id="nav-kewajiban" className={sectionClass('nav-kewajiban')}>
-        <div className="panel-hero-banner">
-          <div className="panel-hero-main">
-            <div className="panel-hero-icon">{NAV_SVG_ICONS['nav-kewajiban']}</div>
-            <div className="panel-hero-body">
-              <h2 className="panel-hero-title">{translate('hero.kewajiban.title', language)}</h2>
-              <p className="panel-hero-desc">{translate('hero.kewajiban.desc', language)}</p>
-            </div>
-          </div>
-          <div className="panel-hero-badge">
-            <span>{translate('hero.kewajiban.badge', language, { bills: state.bills.length, debts: state.debts.length })}</span>
-          </div>
-        </div>
-        <ObligationsPanel state={state} update={update} notify={notify} />
-      </div>
-      <div id="nav-analisis" className={sectionClass('nav-analisis')}>
-        <div className="panel-hero-banner">
-          <div className="panel-hero-main">
-            <div className="panel-hero-icon">{NAV_SVG_ICONS['nav-analisis']}</div>
-            <div className="panel-hero-body">
-              <h2 className="panel-hero-title">{translate('hero.analisis.title', language)}</h2>
-              <p className="panel-hero-desc">{translate('hero.analisis.desc', language)}</p>
-            </div>
-          </div>
-          <div className="panel-hero-badge">
-            <span>{translate('hero.analisis.badge', language)}</span>
-          </div>
-        </div>
-        <HealthCard state={state} derived={derived} />
-        <CashflowChart state={state} derived={derived} />
-        <TrendPanel state={state} />
-        <AllocationDonut state={state} derived={derived} />
-        <CalendarHeatmap state={state} update={update} />
-        <MonthCompare state={state} derived={derived} />
-        <WhatIfPanel state={state} derived={derived} />
-      </div>
-      <div id="nav-tabungan" className={sectionClass('nav-tabungan')}>
-        <div className="panel-hero-banner">
-          <div className="panel-hero-main">
-            <div className="panel-hero-icon">{NAV_SVG_ICONS['nav-tabungan']}</div>
-            <div className="panel-hero-body">
-              <h2 className="panel-hero-title">{translate('hero.tabungan.title', language)}</h2>
-              <p className="panel-hero-desc">{translate('hero.tabungan.desc', language)}</p>
-            </div>
-          </div>
-          <div className="panel-hero-badge">
-            <span>{translate('hero.tabungan.badge', language, { count: state.wallets.length })}</span>
-          </div>
-        </div>
-        {/* Baris 1: Tabungan Akhir Periode (Kiri) & Dompet / E-wallet (Kanan) */}
-        <div className="tabungan-split-grid">
-          <div className="tabungan-col tabungan-col-left">
-            <EndSavingsCard state={state} update={update} notify={notify} lang={language} />
-          </div>
-          <div className="tabungan-col tabungan-col-right">
-            <DompetPanel state={state} update={update} lang={language} />
-          </div>
-        </div>
-
-        {/* Baris 2: Target Tabungan (Kiri) & Wishlist / Incaran Beli (Kanan) */}
-        <div className="tabungan-split-grid">
-          <div className="tabungan-col tabungan-col-left">
-            <SavingsPanel state={state} derived={derived} update={update} lang={language} />
-          </div>
-          <div className="tabungan-col tabungan-col-right">
-            <WishlistPanel state={state} derived={derived} update={update} lang={language} />
-          </div>
-        </div>
-
-        {/* Dana Musiman */}
-        <SeasonalPanel state={state} derived={derived} update={update} notify={notify} />
-      </div>
-      <div id="nav-laporan" className={sectionClass('nav-laporan')}>
-        <div className="panel-hero-banner">
-          <div className="panel-hero-main">
-            <div className="panel-hero-icon">{NAV_SVG_ICONS['nav-laporan']}</div>
-            <div className="panel-hero-body">
-              <h2 className="panel-hero-title">{translate('hero.laporan.title', language)}</h2>
-              <p className="panel-hero-desc">{translate('hero.laporan.desc', language)}</p>
-            </div>
-          </div>
-          <div className="panel-hero-badge">
-            <span>{state.mode === 'week' ? translate('hero.laporan.weekBadge', language) : translate('hero.laporan.monthBadge', language)}</span>
-          </div>
-        </div>
-        <ReportCard state={state} notify={notify} />
-      </div>
-      <div id="nav-data" className={sectionClass('nav-data')}>
-        <div className="panel-hero-banner">
-          <div className="panel-hero-main">
-            <div className="panel-hero-icon">{NAV_SVG_ICONS['nav-data']}</div>
-            <div className="panel-hero-body">
-              <h2 className="panel-hero-title">{translate('hero.data.title', language)}</h2>
-              <p className="panel-hero-desc">{translate('hero.data.desc', language)}</p>
-            </div>
-          </div>
-          <div className="panel-hero-badge">
-            <span>{translate('hero.data.badge', language, { user })}</span>
-          </div>
-        </div>
-        <ThemePickerCard
-          colorTheme={state.colorTheme ?? 'emerald'}
-          themeMode={state.theme}
-          onColorThemeChange={(colorTheme) => {
-            update((s) => {
-              const next = { ...s, colorTheme }
-              saveState(next)
-              return next
-            })
-            setDeviceColorTheme(colorTheme)
-          }}
-          onThemeModeChange={(theme) => {
-            update((s) => {
-              const next = { ...s, theme }
-              saveState(next)
-              return next
-            })
-            setDeviceTheme(theme)
-          }}
-        />
-        <ReportIssueCard notify={notify} />
-        <AccountSecurityCard username={user} notify={notify} />
-        <PwaInstallCard notify={notify} />
-        <DataControls
-          state={state}
-          saved={saved}
-          cloudStatus={cloudStatus}
-          lastSyncTime={lastSyncTime}
-          onSyncNow={syncNow}
-          onPullNow={pullNow}
-          onImport={replace}
-          onReset={resetAll}
-          notify={notify}
-        />
-        <FaqPrivacyCard />
-        <ActivityPanel state={state} />
-      </div>
-      {isUserAdmin && (
-        <div id="nav-admin" className={sectionClass('nav-admin')}>
-          {openPanel === 'nav-admin' && (
-            <Suspense fallback={<div className="card admin-panel"><div className="admin-empty">{language === 'en' ? 'Loading panel...' : 'Memuat panel...'}</div></div>}>
-              <AdminPanel currentUser={user} notify={notify} />
-            </Suspense>
-          )}
-        </div>
-      )}
-
-      <footer className="footer muted small">
-        {translate('footer.text', language)}
-      </footer>
-
-      {toast && (
-        <div className={`toast${toast.error ? ' toast-error' : ''}`} role="status">
-          <span style={{ display: 'inline-flex', alignItems: 'center', gap: '6px' }}>
-            {toast.error ? <strong>!</strong> : CHECK_ICON}
-            <span>{toast.text}</span>
-          </span>
-          {toast.undo && (
             <button
               type="button"
-              className="btn btn-ghost btn-sm toast-undo"
-              onClick={() => {
-                toast.undo?.()
-                setToast(null)
-              }}
+              role="tab"
+              aria-selected={catatView === 'all'}
+              className={`catat-switch-btn ${catatView === 'all' ? 'active' : ''}`}
+              onClick={() => setCatatView('all')}
             >
-              {language === 'en' ? 'Undo' : 'Urungkan'}
+              {translate('catat.switchAll', language)}
             </button>
-          )}
+            <button
+              type="button"
+              role="tab"
+              aria-selected={catatView === 'expenses'}
+              className={`catat-switch-btn ${catatView === 'expenses' ? 'active' : ''}`}
+              onClick={() => setCatatView('expenses')}
+            >
+              {translate('catat.switchExpenses', language)}
+            </button>
+            <button
+              type="button"
+              role="tab"
+              aria-selected={catatView === 'income'}
+              className={`catat-switch-btn ${catatView === 'income' ? 'active' : ''}`}
+              onClick={() => setCatatView('income')}
+            >
+              {translate('catat.switchIncome', language)}
+            </button>
+          </div>
+
+          <div className={`catat-split-grid show-${catatView}`}>
+            <div className="catat-column catat-col-expenses">
+              <ExpensesPanel state={state} update={update} notify={notify} />
+            </div>
+            <div className="catat-column catat-col-income">
+              <IncomePanel state={state} update={update} notify={notify} />
+            </div>
+          </div>
+          <ShoppingListCard state={state} update={update} notify={notify} />
         </div>
-      )}
+        <div id="nav-kewajiban" className={sectionClass('nav-kewajiban')}>
+          <div className="panel-hero-banner">
+            <div className="panel-hero-main">
+              <div className="panel-hero-icon">{NAV_SVG_ICONS['nav-kewajiban']}</div>
+              <div className="panel-hero-body">
+                <h2 className="panel-hero-title">{translate('hero.kewajiban.title', language)}</h2>
+                <p className="panel-hero-desc">{translate('hero.kewajiban.desc', language)}</p>
+              </div>
+            </div>
+            <div className="panel-hero-badge">
+              <span>{translate('hero.kewajiban.badge', language, { bills: state.bills.length, debts: state.debts.length })}</span>
+            </div>
+          </div>
+          <ObligationsPanel state={state} update={update} notify={notify} />
+        </div>
+        <div id="nav-analisis" className={sectionClass('nav-analisis')}>
+          <div className="panel-hero-banner">
+            <div className="panel-hero-main">
+              <div className="panel-hero-icon">{NAV_SVG_ICONS['nav-analisis']}</div>
+              <div className="panel-hero-body">
+                <h2 className="panel-hero-title">{translate('hero.analisis.title', language)}</h2>
+                <p className="panel-hero-desc">{translate('hero.analisis.desc', language)}</p>
+              </div>
+            </div>
+            <div className="panel-hero-badge">
+              <span>{translate('hero.analisis.badge', language)}</span>
+            </div>
+          </div>
+          <HealthCard state={state} derived={derived} />
+          <CashflowChart state={state} derived={derived} />
+          <TrendPanel state={state} />
+          <AllocationDonut state={state} derived={derived} />
+          <CalendarHeatmap state={state} update={update} />
+          <MonthCompare state={state} derived={derived} />
+          <WhatIfPanel state={state} derived={derived} />
+        </div>
+        <div id="nav-tabungan" className={sectionClass('nav-tabungan')}>
+          <div className="panel-hero-banner">
+            <div className="panel-hero-main">
+              <div className="panel-hero-icon">{NAV_SVG_ICONS['nav-tabungan']}</div>
+              <div className="panel-hero-body">
+                <h2 className="panel-hero-title">{translate('hero.tabungan.title', language)}</h2>
+                <p className="panel-hero-desc">{translate('hero.tabungan.desc', language)}</p>
+              </div>
+            </div>
+            <div className="panel-hero-badge">
+              <span>{translate('hero.tabungan.badge', language, { count: state.wallets.length })}</span>
+            </div>
+          </div>
+          {/* Baris 1: Tabungan Akhir Periode (Kiri) & Dompet / E-wallet (Kanan) */}
+          <div className="tabungan-split-grid">
+            <div className="tabungan-col tabungan-col-left">
+              <EndSavingsCard state={state} update={update} notify={notify} lang={language} />
+            </div>
+            <div className="tabungan-col tabungan-col-right">
+              <DompetPanel state={state} update={update} lang={language} />
+            </div>
+          </div>
 
-      {(pickerOpen || (state.mode === null && cloudStatus !== 'syncing')) && (
-        <PeriodPicker
-          current={state.mode}
-          onPick={pickMode}
-          onCancel={state.mode === null ? undefined : () => setPickerOpen(false)}
-          profile={state.profile}
-          onApplyProfile={applyProfile}
-        />
-      )}
+          {/* Baris 2: Target Tabungan (Kiri) & Wishlist / Incaran Beli (Kanan) */}
+          <div className="tabungan-split-grid">
+            <div className="tabungan-col tabungan-col-left">
+              <SavingsPanel state={state} derived={derived} update={update} lang={language} />
+            </div>
+            <div className="tabungan-col tabungan-col-right">
+              <WishlistPanel state={state} derived={derived} update={update} lang={language} />
+            </div>
+          </div>
 
-      {calcOpen && (
-        <div className="calc-pop">
-          <Calculator
-            onUseNumber={(value) => update((s) => ({ ...s, allowance: value }))}
-            onClose={() => setCalcOpen(false)}
+          {/* Dana Musiman */}
+          <SeasonalPanel state={state} derived={derived} update={update} notify={notify} />
+        </div>
+        <div id="nav-laporan" className={sectionClass('nav-laporan')}>
+          <div className="panel-hero-banner">
+            <div className="panel-hero-main">
+              <div className="panel-hero-icon">{NAV_SVG_ICONS['nav-laporan']}</div>
+              <div className="panel-hero-body">
+                <h2 className="panel-hero-title">{translate('hero.laporan.title', language)}</h2>
+                <p className="panel-hero-desc">{translate('hero.laporan.desc', language)}</p>
+              </div>
+            </div>
+            <div className="panel-hero-badge">
+              <span>{state.mode === 'week' ? translate('hero.laporan.weekBadge', language) : translate('hero.laporan.monthBadge', language)}</span>
+            </div>
+          </div>
+          <ReportCard state={state} notify={notify} />
+        </div>
+        <div id="nav-data" className={sectionClass('nav-data')}>
+          <div className="panel-hero-banner">
+            <div className="panel-hero-main">
+              <div className="panel-hero-icon">{NAV_SVG_ICONS['nav-data']}</div>
+              <div className="panel-hero-body">
+                <h2 className="panel-hero-title">{translate('hero.data.title', language)}</h2>
+                <p className="panel-hero-desc">{translate('hero.data.desc', language)}</p>
+              </div>
+            </div>
+            <div className="panel-hero-badge">
+              <span>{translate('hero.data.badge', language, { user })}</span>
+            </div>
+          </div>
+          <ThemePickerCard
+            colorTheme={state.colorTheme ?? 'emerald'}
+            themeMode={state.theme}
+            onColorThemeChange={(colorTheme) => {
+              update((s) => {
+                const next = { ...s, colorTheme }
+                saveState(next)
+                return next
+              })
+              setDeviceColorTheme(colorTheme)
+            }}
+            onThemeModeChange={(theme) => {
+              update((s) => {
+                const next = { ...s, theme }
+                saveState(next)
+                return next
+              })
+              setDeviceTheme(theme)
+            }}
           />
+          <ReportIssueCard notify={notify} />
+          <AccountSecurityCard username={user} notify={notify} />
+          <PwaInstallCard notify={notify} />
+          <DataControls
+            state={state}
+            saved={saved}
+            cloudStatus={cloudStatus}
+            lastSyncTime={lastSyncTime}
+            onSyncNow={syncNow}
+            onPullNow={pullNow}
+            onImport={replace}
+            onReset={resetAll}
+            notify={notify}
+          />
+          <FaqPrivacyCard />
+          <ActivityPanel state={state} />
         </div>
-      )}
-      <button
-        type="button"
-        className={`fab${calcOpen ? ' fab-open' : ''}`}
-        onClick={() => setCalcOpen((open) => !open)}
-        aria-expanded={calcOpen}
-        aria-label={language === 'en' ? 'Calculator' : 'Kalkulator'}
-        title={language === 'en' ? 'Quick calculator' : 'Kalkulator cepat'}
-      >
-        {CALC_ICON}
-      </button>
+        {isUserAdmin && (
+          <div id="nav-admin" className={sectionClass('nav-admin')}>
+            {openPanel === 'nav-admin' && (
+              <Suspense fallback={<div className="card admin-panel"><div className="admin-empty">{language === 'en' ? 'Loading panel...' : 'Memuat panel...'}</div></div>}>
+                <AdminPanel currentUser={user} notify={notify} />
+              </Suspense>
+            )}
+          </div>
+        )}
+
+        <footer className="footer muted small">
+          {translate('footer.text', language)}
+        </footer>
+
+        {toast && (
+          <div className={`toast${toast.error ? ' toast-error' : ''}`} role="status">
+            <span style={{ display: 'inline-flex', alignItems: 'center', gap: '6px' }}>
+              {toast.error ? <strong>!</strong> : CHECK_ICON}
+              <span>{toast.text}</span>
+            </span>
+            {toast.undo && (
+              <button
+                type="button"
+                className="btn btn-ghost btn-sm toast-undo"
+                onClick={() => {
+                  toast.undo?.()
+                  setToast(null)
+                }}
+              >
+                {language === 'en' ? 'Undo' : 'Urungkan'}
+              </button>
+            )}
+          </div>
+        )}
+
+        {(pickerOpen || (state.mode === null && cloudStatus !== 'syncing')) && (
+          <PeriodPicker
+            current={state.mode}
+            onPick={pickMode}
+            onCancel={state.mode === null ? undefined : () => setPickerOpen(false)}
+            profile={state.profile}
+            onApplyProfile={applyProfile}
+          />
+        )}
+
+        {calcOpen && (
+          <div className="calc-pop">
+            <Calculator
+              onUseNumber={(value) => update((s) => ({ ...s, allowance: value }))}
+              onClose={() => setCalcOpen(false)}
+            />
+          </div>
+        )}
+        <button
+          type="button"
+          className={`fab${calcOpen ? ' fab-open' : ''}`}
+          onClick={() => setCalcOpen((open) => !open)}
+          aria-expanded={calcOpen}
+          aria-label={language === 'en' ? 'Calculator' : 'Kalkulator'}
+          title={language === 'en' ? 'Quick calculator' : 'Kalkulator cepat'}
+        >
+          {CALC_ICON}
+        </button>
       </div>
     </I18nContext.Provider>
   )
