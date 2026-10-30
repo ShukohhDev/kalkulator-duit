@@ -1,0 +1,8 @@
+project-includes = [
+    "server_python",
+]
+search-path = [
+    "server_python",
+]
+python-platform = "win32"
+python-version = "3.13.0"
