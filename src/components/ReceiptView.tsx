@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { getReceipt } from '../lib/receipts'
 import { useI18n } from '../lib/i18n'
+import { lockBodyScroll } from '../lib/scrollLock'
 
 interface Props {
   id: string
@@ -16,6 +17,11 @@ export function ReceiptView({ id }: Props) {
     return () => {
       if (url) URL.revokeObjectURL(url)
     }
+  }, [url])
+
+  useEffect(() => {
+    if (!url) return
+    return lockBodyScroll()
   }, [url])
 
   const show = async () => {

@@ -3,6 +3,7 @@ import { createPortal } from 'react-dom'
 import type { NotificationItem } from '../lib/notifications'
 import { ICON_CLOSE } from './icons'
 import { useI18n } from '../lib/i18n'
+import { lockBodyScroll } from '../lib/scrollLock'
 
 interface Props {
   items: NotificationItem[]
@@ -22,6 +23,10 @@ export function NotificationCenter({ items, onClose, onMarkAllRead, onMarkRead }
   })
 
   const unreadCount = items.filter((item) => !item.read).length
+
+  useEffect(() => {
+    return lockBodyScroll()
+  }, [])
 
   useEffect(() => {
     const onKeyDown = (e: KeyboardEvent) => {

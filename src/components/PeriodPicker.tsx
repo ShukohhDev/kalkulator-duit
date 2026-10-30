@@ -1,8 +1,9 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import type { PeriodMode, ProfileId } from '../types'
 import { PROFILES } from '../lib/profiles'
 import { loadPrefs, savePrefs } from '../lib/prefs'
 import { useI18n } from '../lib/i18n'
+import { lockBodyScroll } from '../lib/scrollLock'
 
 interface Props {
   current: PeriodMode | null
@@ -27,6 +28,10 @@ export function PeriodPicker({ current, onPick, onCancel, profile, onApplyProfil
   const { language } = useI18n()
   const onboard = current === null
   const [profilePicked, setProfilePicked] = useState(() => loadPrefs().profilePicked)
+
+  useEffect(() => {
+    return lockBodyScroll()
+  }, [])
 
   const pickProfile = (id: ProfileId, label: string) => {
     if (id === profile) return

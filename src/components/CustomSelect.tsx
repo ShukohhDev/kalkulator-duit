@@ -2,6 +2,7 @@ import React, { useState, useMemo, useRef, useEffect } from 'react'
 import { createPortal } from 'react-dom'
 import { ICON_CLOSE } from './icons'
 import { useI18n } from '../lib/i18n'
+import { lockBodyScroll } from '../lib/scrollLock'
 
 export interface CustomSelectOption {
   value: string
@@ -122,6 +123,7 @@ export function CustomSelect({
 
   useEffect(() => {
     if (!isOpen) return
+    const unlock = lockBodyScroll()
     const onKeyDown = (e: KeyboardEvent) => {
       if (e.key === 'Escape') {
         setIsOpen(false)
@@ -129,7 +131,10 @@ export function CustomSelect({
       }
     }
     window.addEventListener('keydown', onKeyDown)
-    return () => window.removeEventListener('keydown', onKeyDown)
+    return () => {
+      unlock()
+      window.removeEventListener('keydown', onKeyDown)
+    }
   }, [isOpen])
 
   const modalTitle = title || ariaLabel || (isEn ? 'Options' : 'Pilihan')
