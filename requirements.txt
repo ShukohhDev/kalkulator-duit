@@ -1,0 +1,22 @@
+# ==============================================================
+# Dependensi Server Python Kalkulator Uang Jajan
+# ==============================================================
+# Framework API Web Modern dan Cepat
+fastapi>=0.115.0
+uvicorn[standard]>=0.34.0
+
+# Database ORM (Mendukung MySQL dan SQLite)
+sqlalchemy>=2.0.0
+pymysql>=1.1.0
+cryptography>=44.0.0
+
+# Autentikasi dan Keamanan (Token JWT & Hash Kata Sandi)
+pyjwt>=2.8.0
+bcrypt>=4.2.0
+
+# Pengunggahan Berkas Form (Bukti Foto Transaksi)
+python-multipart>=0.0.20
+
+# Manajemen Variabel Lingkungan (.env)
+python-dotenv>=1.0.0
+
