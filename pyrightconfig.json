@@ -1,0 +1,10 @@
+{
+  "include": [
+    "server_python"
+  ],
+  "extraPaths": [
+    "server_python"
+  ],
+  "pythonVersion": "3.13",
+  "pythonPlatform": "Windows"
+}
