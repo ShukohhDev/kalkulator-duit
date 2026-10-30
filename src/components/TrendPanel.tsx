@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { Line } from 'react-chartjs-2'
 import type { AppState, CashflowView } from '../types'
 import { buildCashflow } from '../lib/derive'
@@ -27,7 +27,24 @@ export function TrendPanel({ state }: Props) {
     [isEn],
   )
 
-  const [categoryId, setCategoryId] = useState(state.categories[0]?.id ?? 'makan')
+  const trendCategories = useMemo(() => {
+    const expenseCatIds = new Set(state.expenses.map((e) => e.categoryId))
+    const list = state.categories.filter((c) => (c.ratio > 0 && !c.off) || expenseCatIds.has(c.id))
+    return list.length > 0 ? list : state.categories
+  }, [state.categories, state.expenses])
+
+  const [categoryId, setCategoryId] = useState(() => {
+    const firstAllocated = state.categories.find((c) => c.ratio > 0 && !c.off)
+    return firstAllocated?.id ?? state.categories[0]?.id ?? 'makan'
+  })
+
+  useEffect(() => {
+    if (!trendCategories.some((c) => c.id === categoryId)) {
+      if (trendCategories[0]) {
+        setCategoryId(trendCategories[0].id)
+      }
+    }
+  }, [trendCategories, categoryId])
   const [view, setView] = useState<CashflowView>(() => loadPrefs().trendView)
 
   const now = nowDate()
@@ -104,7 +121,7 @@ export function TrendPanel({ state }: Props) {
           onChange={(e) => setCategoryId(e.target.value)}
           title={isEn ? 'Select Trend Category' : 'Pilih Kategori Tren'}
         >
-          {state.categories.map((category) => (
+          {trendCategories.map((category) => (
             <option key={category.id} value={category.id}>
               {category.name}
             </option>

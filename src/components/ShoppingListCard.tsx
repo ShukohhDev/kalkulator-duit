@@ -1,4 +1,4 @@
-import { useMemo, useState, type FormEvent } from 'react'
+import { useEffect, useMemo, useState, type FormEvent } from 'react'
 import type { AppState, Expense, Notify, ShoppingItem } from '../types'
 import type { Updater } from '../hooks/useAppState'
 import { formatIDR, todayISO } from '../lib/money'
@@ -28,7 +28,24 @@ export function ShoppingListCard({ state, update, notify }: Props) {
   const { language } = useI18n()
   const [name, setName] = useState('')
   const [estimatedPrice, setEstimatedPrice] = useState(0)
-  const [categoryId, setCategoryId] = useState(() => state.categories[0]?.id ?? 'makan')
+
+  const allocatedCategories = useMemo(() => {
+    const list = state.categories.filter((c) => c.ratio > 0 && !c.off)
+    return list.length > 0 ? list : state.categories
+  }, [state.categories])
+
+  const [categoryId, setCategoryId] = useState(() => {
+    const firstAllocated = state.categories.find((c) => c.ratio > 0 && !c.off)
+    return firstAllocated?.id ?? state.categories[0]?.id ?? 'makan'
+  })
+
+  useEffect(() => {
+    if (!allocatedCategories.some((c) => c.id === categoryId)) {
+      if (allocatedCategories[0]) {
+        setCategoryId(allocatedCategories[0].id)
+      }
+    }
+  }, [allocatedCategories, categoryId])
   const [filterTab, setFilterTab] = useState<'all' | 'pending' | 'checked'>('all')
 
   const shoppingList = useMemo(() => state.shoppingList ?? [], [state.shoppingList])
@@ -259,7 +276,7 @@ export function ShoppingListCard({ state, update, notify }: Props) {
               onChange={(e) => setCategoryId(e.target.value)}
               title={language === 'en' ? 'Select Shopping Category' : 'Pilih Kategori Belanja'}
             >
-              {state.categories.map((cat) => (
+              {allocatedCategories.map((cat) => (
                 <option key={cat.id} value={cat.id}>
                   {cat.name}
                 </option>

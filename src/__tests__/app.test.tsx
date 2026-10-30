@@ -154,6 +154,22 @@ describe('alur aplikasi', () => {
     expect(container.textContent).toContain('168.000')
   })
 
+  it('pilihan kategori pada panel pengeluaran hanya menampilkan kategori hasil alokasi aktif', () => {
+    click('.period-option')
+    setValue('#allowance', '700000')
+
+    const options = [...container.querySelectorAll('#exp-cat option')].map((opt) => opt.textContent)
+    expect(options.some((t) => t?.includes('Laundry'))).toBe(false)
+    expect(options.some((t) => t?.includes('Belanja bulanan'))).toBe(false)
+    expect(options.some((t) => t?.includes('Cicilan'))).toBe(false)
+    expect(options.some((t) => t?.includes('Tagihan'))).toBe(false)
+    expect(options.some((t) => t?.includes('Makan & minum'))).toBe(true)
+    expect(options.some((t) => t?.includes('Transportasi/bensin'))).toBe(true)
+    expect(options.some((t) => t?.includes('Nongkrong & ngopi'))).toBe(true)
+    expect(options.some((t) => t?.includes('Dana darurat'))).toBe(true)
+    expect(options.some((t) => t?.includes('Ditabung'))).toBe(true)
+  })
+
   it('menambah tagihan dan utang lewat Kewajiban, lalu membayarnya tercatat sebagai pengeluaran', () => {
     click('.period-option')
     const now = new Date()

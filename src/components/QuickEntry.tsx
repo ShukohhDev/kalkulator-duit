@@ -1,4 +1,4 @@
-import { useLayoutEffect, useRef, useState, type FormEvent } from 'react'
+import { useEffect, useLayoutEffect, useMemo, useRef, useState, type FormEvent } from 'react'
 import type { AppState, Expense, Income, Notify } from '../types'
 import type { Updater } from '../hooks/useAppState'
 import { INCOME_SOURCES, SAVINGS_CATEGORY, primaryGoal, isSavingsOrEmergencyCategory } from '../lib/state'
@@ -26,7 +26,24 @@ const CLOSE_ICON = (
 export function QuickEntry({ mode, state, update, notify, onClose }: Props) {
   const { language } = useI18n()
   const [date, setDate] = useState(todayISO())
-  const [categoryId, setCategoryId] = useState(() => state.categories[0]?.id ?? 'makan')
+
+  const allocatedCategories = useMemo(() => {
+    const list = state.categories.filter((c) => c.ratio > 0 && !c.off)
+    return list.length > 0 ? list : state.categories
+  }, [state.categories])
+
+  const [categoryId, setCategoryId] = useState(() => {
+    const firstAllocated = state.categories.find((c) => c.ratio > 0 && !c.off)
+    return firstAllocated?.id ?? state.categories[0]?.id ?? 'makan'
+  })
+
+  useEffect(() => {
+    if (!allocatedCategories.some((c) => c.id === categoryId)) {
+      if (allocatedCategories[0]) {
+        setCategoryId(allocatedCategories[0].id)
+      }
+    }
+  }, [allocatedCategories, categoryId])
   const [source, setSource] = useState(INCOME_SOURCES[0])
   const [note, setNote] = useState('')
   const [amount, setAmount] = useState(0)
@@ -136,7 +153,7 @@ export function QuickEntry({ mode, state, update, notify, onClose }: Props) {
               onChange={(e) => setCategoryId(e.target.value)}
               title={language === 'en' ? 'Select Category' : 'Pilih Kategori'}
             >
-              {state.categories.map((category) => (
+              {allocatedCategories.map((category) => (
                 <option key={category.id} value={category.id}>
                   {category.name}
                   {category.ratio > 0 ? ` (${Math.round(category.ratio * 100)}%)` : ''}

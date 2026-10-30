@@ -1,4 +1,4 @@
-import { useMemo, useState, type FormEvent } from 'react'
+import { useEffect, useMemo, useState, type FormEvent } from 'react'
 import type { AppState, Category, Expense, Notify } from '../types'
 import type { Updater } from '../hooks/useAppState'
 import { CATEGORY_COLORS, SAVINGS_CATEGORY, primaryGoal, isSavingsOrEmergencyCategory } from '../lib/state'
@@ -22,7 +22,16 @@ const QUICK_ADDS = [5_000, 10_000, 20_000]
 export function ExpensesPanel({ state, update, notify }: Props) {
   const { t, language } = useI18n()
   const [date, setDate] = useState(todayISO())
-  const [categoryId, setCategoryId] = useState(() => state.categories[0]?.id ?? 'makan')
+  const allocatedCategories = useMemo(() => {
+    const list = state.categories.filter((c) => c.ratio > 0 && !c.off)
+    return list.length > 0 ? list : state.categories
+  }, [state.categories])
+
+  const [categoryId, setCategoryId] = useState(() => {
+    const firstAllocated = state.categories.find((c) => c.ratio > 0 && !c.off)
+    return firstAllocated?.id ?? state.categories[0]?.id ?? 'makan'
+  })
+  const [customAddedId, setCustomAddedId] = useState<string | null>(null)
   const [note, setNote] = useState('')
   const [amount, setAmount] = useState(0)
   const [walletId, setWalletId] = useState('')
@@ -39,6 +48,36 @@ export function ExpensesPanel({ state, update, notify }: Props) {
 
   const [showCategoryForm, setShowCategoryForm] = useState(false)
   const [newCategory, setNewCategory] = useState('')
+
+  const formCategories = useMemo(() => {
+    const list = [...allocatedCategories]
+    if (editingId && !list.some((c) => c.id === categoryId)) {
+      const match = state.categories.find((c) => c.id === categoryId)
+      if (match) list.push(match)
+    }
+    if (customAddedId && !list.some((c) => c.id === customAddedId)) {
+      const match = state.categories.find((c) => c.id === customAddedId)
+      if (match) list.push(match)
+    }
+    return list
+  }, [allocatedCategories, editingId, customAddedId, categoryId, state.categories])
+
+  useEffect(() => {
+    if (!editingId) {
+      const isCustomValid = customAddedId && state.categories.some((c) => c.id === customAddedId)
+      const currentCategoryIsValid =
+        allocatedCategories.some((c) => c.id === categoryId) || (isCustomValid && categoryId === customAddedId)
+
+      if (!currentCategoryIsValid && allocatedCategories[0]) {
+        setCategoryId(allocatedCategories[0].id)
+      }
+    }
+  }, [allocatedCategories, editingId, categoryId, customAddedId, state.categories])
+
+  const filterCategories = useMemo(() => {
+    const expenseCatIds = new Set(state.expenses.map((item) => item.categoryId))
+    return state.categories.filter((cat) => (cat.ratio > 0 && !cat.off) || expenseCatIds.has(cat.id))
+  }, [state.categories, state.expenses])
   const months = useMemo(() => {
     const keys = new Set(state.expenses.map((item) => monthKey(item.date)))
     return [...keys].sort().reverse()
@@ -92,6 +131,10 @@ export function ExpensesPanel({ state, update, notify }: Props) {
     setGoalTarget('auto')
     setWalletId('')
     setEditingId(null)
+    setCustomAddedId(null)
+    if (allocatedCategories[0]) {
+      setCategoryId(allocatedCategories[0].id)
+    }
     setReceiptId(null)
     setReceiptError('')
   }
@@ -267,6 +310,7 @@ export function ExpensesPanel({ state, update, notify }: Props) {
       color: CATEGORY_COLORS[state.categories.length % CATEGORY_COLORS.length],
     }
     update((s) => ({ ...s, categories: [...s.categories, category] }))
+    setCustomAddedId(category.id)
     setCategoryId(category.id)
     setNewCategory('')
     setShowCategoryForm(false)
@@ -292,7 +336,7 @@ export function ExpensesPanel({ state, update, notify }: Props) {
         <div className="field">
           <label htmlFor="exp-cat">{t('expenses.category')}</label>
           <CustomSelect id="exp-cat" className="input" value={categoryId} onChange={(e) => setCategoryId(e.target.value)} title={language === 'en' ? 'Select Expense Category' : 'Pilih Kategori Pengeluaran'}>
-            {state.categories.map((category) => (
+            {formCategories.map((category) => (
               <option key={category.id} value={category.id}>
                 {category.name}
                 {category.ratio > 0 ? ` (${Math.round(category.ratio * 100)}%)` : ''}
@@ -476,7 +520,7 @@ export function ExpensesPanel({ state, update, notify }: Props) {
           </div>
           <CustomSelect className="input" value={filterCategory} onChange={(e) => setFilterCategory(e.target.value)} aria-label="Filter kategori" title={language === 'en' ? 'Filter Category' : 'Filter Kategori'}>
             <option value="all">{t('expenses.filterCatAll')}</option>
-            {state.categories.map((category) => (
+            {filterCategories.map((category) => (
               <option key={category.id} value={category.id}>
                 {category.name}
               </option>
