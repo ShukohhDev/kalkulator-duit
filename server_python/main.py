@@ -46,6 +46,7 @@ allowed_origins = [
 app.add_middleware(
     CORSMiddleware,
     allow_origins=allowed_origins,
+    allow_origin_regex=r"^https://([a-zA-Z0-9-]+\.)*shukohdev\.web\.id$",
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -84,6 +85,7 @@ def health_check():
 
 if __name__ == "__main__":
     import uvicorn
-    # Menjalankan server pada port 8000
-    uvicorn.run("main:app", host="127.0.0.1", port=8000, reload=True)
+    # Menjalankan server pada port dinamis (mendukung cloud host seperti Koyeb / Railway / Docker)
+    port = int(os.getenv("PORT", "8000"))
+    uvicorn.run("main:app", host="0.0.0.0", port=port, reload=False)
 
