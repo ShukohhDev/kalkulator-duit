@@ -56,7 +56,7 @@ HTML bertugas menyusun kerangka visual halaman web, mulai dari judul halaman, wa
   <div id="root"></div>
   ```
   ```jsx
-  <!-- src/components/QuickEntry.tsx -->
+  <!-- src/components/QuickEntry.jsx -->
   <button type="submit" className="btn-primary">
     Simpan Catatan
   </button>
@@ -139,7 +139,7 @@ REST API adalah protokol standar komunikasi berbasis HTTP yang menghubungkan ant
 
 - **Lokasi Berkas**:
   - Sisi Server: [server_python/routes/auth_routes.py](file:///c:/projek%20vscode/kalkulator%20duitmu/server_python/routes/auth_routes.py) dan [server_python/routes/sync_routes.py](file:///c:/projek%20vscode/kalkulator%20duitmu/server_python/routes/sync_routes.py).
-  - Sisi Klien Browser: [src/lib/pythonApi.ts](file:///c:/projek%20vscode/kalkulator%20duitmu/src/lib/pythonApi.ts).
+  - Sisi Klien Browser: [src/lib/pythonApi.js](file:///c:/projek%20vscode/kalkulator%20duitmu/src/lib/pythonApi.js).
 
 ---
 
@@ -172,11 +172,11 @@ MySQL bertugas sebagai basis data relasional utama untuk menyimpan informasi pen
 JavaScript adalah bahasa pemrograman yang berjalan di sisi pengguna (klien). Di proyek ini, JavaScript bertugas menjalankan seluruh logika kalkulasi uang jajan, validasi input, state management reaktif, penanganan klik tombol, dan pembaruan tampilan tanpa perlu refresh halaman.
 
 - **Lokasi Berkas**:
-  - [src/lib/derive.ts](file:///c:/projek%20vscode/kalkulator%20duitmu/src/lib/derive.ts): Algoritma inti perhitungan alokasi uang jajan per periode.
-  - [src/lib/money.ts](file:///c:/projek%20vscode/kalkulator%20duitmu/src/lib/money.ts): Fungsi format angka mata uang Rupiah dan pembersihan input angka.
-  - [src/lib/rates.ts](file:///c:/projek%20vscode/kalkulator%20duitmu/src/lib/rates.ts): Logika konversi kurs mata uang asing.
-  - [src/lib/scrollLock.ts](file:///c:/projek%20vscode/kalkulator%20duitmu/src/lib/scrollLock.ts): Logika penguncian scroll layar saat jendela dialog muncul.
-  - [src/lib/tips.ts](file:///c:/projek%20vscode/kalkulator%20duitmu/src/lib/tips.ts): Logika rekomendasi penghematan cerdas berdasarkan pola belanja.
+  - [src/lib/derive.js](file:///c:/projek%20vscode/kalkulator%20duitmu/src/lib/derive.js): Algoritma inti perhitungan alokasi uang jajan per periode.
+  - [src/lib/money.js](file:///c:/projek%20vscode/kalkulator%20duitmu/src/lib/money.js): Fungsi format angka mata uang Rupiah dan pembersihan input angka.
+  - [src/lib/rates.js](file:///c:/projek%20vscode/kalkulator%20duitmu/src/lib/rates.js): Logika konversi kurs mata uang asing.
+  - [src/lib/scrollLock.js](file:///c:/projek%20vscode/kalkulator%20duitmu/src/lib/scrollLock.js): Logika penguncian scroll layar saat jendela dialog muncul.
+  - [src/lib/tips.js](file:///c:/projek%20vscode/kalkulator%20duitmu/src/lib/tips.js): Logika rekomendasi penghematan cerdas berdasarkan pola belanja.
 
 ---
 
@@ -203,11 +203,11 @@ Mari kita ambil contoh alur saat pengguna mencatat transaksi pengeluaran baru:
 2. **Pengisian Form & Validasi (JavaScript)**:
    Pengguna mengetik nominal uang dan memilih kategori. Logika JavaScript memvalidasi bahwa nominal lebih besar dari 0 dan kategori yang tersedia hanya berasal dari alokasi yang aktif.
 3. **Penguncian Latar Belakang (CSS + JavaScript)**:
-   Fungsi di `scrollLock.ts` menambahkan kelas `modal-open` pada elemen `body` agar latar belakang tidak bergeser saat pengguna menggulir pilihan kategori.
+   Fungsi di `scrollLock.js` menambahkan kelas `modal-open` pada elemen `body` agar latar belakang tidak bergeser saat pengguna menggulir pilihan kategori.
 4. **Pembaruan State Lokal (JavaScript)**:
    Data pengeluaran ditambahkan ke state aplikasi. Kalkulasi sisa uang jajan langsung terupdate secara real-time di layar tanpa refresh.
 5. **Pengiriman Data ke Server (REST API via fetch)**:
-   Modul `pythonApi.ts` mengirim HTTP POST Request berformat JSON ke endpoint `/api/sync/push`.
+   Modul `pythonApi.js` mengirim HTTP POST Request berformat JSON ke endpoint `/api/sync/push`.
 6. **Pemrosesan di Sisi Server (Python FastAPI)**:
    Server Python menerima request, memeriksa token keamanan pengguna, dan menyusun data transaksi.
 7. **Penyimpanan Permanen (MySQL)**:
@@ -287,11 +287,11 @@ Hasil pengujian akan menampilkan 259 pengujian lulus dari 33 berkas uji.
 | **Python** | [server_python/main.py](file:///c:/projek%20vscode/kalkulator%20duitmu/server_python/main.py) | Server backend FastAPI lokal |
 | **Python Cloud** | [api/index.py](file:///c:/projek%20vscode/kalkulator%20duitmu/api/index.py) | Serverless Python backend untuk Vercel |
 | **REST API Server** | [server_python/routes/sync_routes.py](file:///c:/projek%20vscode/kalkulator%20duitmu/server_python/routes/sync_routes.py) | Endpoint REST API sinkronisasi data |
-| **REST API Klien** | [src/lib/pythonApi.ts](file:///c:/projek%20vscode/kalkulator%20duitmu/src/lib/pythonApi.ts) | Pemanggil HTTP REST API dari browser |
+| **REST API Klien** | [src/lib/pythonApi.js](file:///c:/projek%20vscode/kalkulator%20duitmu/src/lib/pythonApi.js) | Pemanggil HTTP REST API dari browser |
 | **MySQL Model** | [server_python/models.py](file:///c:/projek%20vscode/kalkulator%20duitmu/server_python/models.py) | Definisi tabel relasional SQLAlchemy ORM |
 | **MySQL Skema** | [server_python/schema.sql](file:///c:/projek%20vscode/kalkulator%20duitmu/server_python/schema.sql) | DDL SQL murni untuk instalasi database |
-| **JavaScript Logika** | [src/lib/derive.ts](file:///c:/projek%20vscode/kalkulator%20duitmu/src/lib/derive.ts) | Algoritma alokasi uang jajan |
-| **JavaScript Format** | [src/lib/money.ts](file:///c:/projek%20vscode/kalkulator%20duitmu/src/lib/money.ts) | Pemformatan mata uang dan parsing angka |
+| **JavaScript Logika** | [src/lib/derive.js](file:///c:/projek%20vscode/kalkulator%20duitmu/src/lib/derive.js) | Algoritma alokasi uang jajan |
+| **JavaScript Format** | [src/lib/money.js](file:///c:/projek%20vscode/kalkulator%20duitmu/src/lib/money.js) | Pemformatan mata uang dan parsing angka |
 | **Node.js Manifes** | [package.json](file:///c:/projek%20vscode/kalkulator%20duitmu/package.json) | Konfigurasi paket dependensi dan npm scripts |
 
 ---

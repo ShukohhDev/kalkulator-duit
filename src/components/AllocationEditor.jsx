@@ -1,0 +1,339 @@
+import { useState } from 'react';
+import { CATEGORY_COLORS, categoryKind } from '../lib/state';
+import { PROFILES, applyProfile, findProfile } from '../lib/profiles';
+import { applyLifestyle } from '../lib/lifestyles';
+import { roundAllocationCategories } from '../lib/allocation';
+import { uid } from '../lib/id';
+import { useI18n } from '../lib/i18n';
+import { CustomSelect } from './CustomSelect';
+const pctOf = (value) => {
+    const parsed = Number(value);
+    return Number.isFinite(parsed) && parsed > 0 ? parsed : 0;
+};
+const fmtPct = (value) => String(Math.round(value * 10) / 10);
+const sumText = (value) => fmtPct(value).replace('.', ',');
+function buildRows(state) {
+    const defOptional = new Map();
+    for (const profile of PROFILES) {
+        for (const entry of profile.ratios)
+            defOptional.set(entry.id, Boolean(entry.optional));
+    }
+    const rows = state.categories.map((category) => ({
+        id: category.id,
+        name: category.name,
+        color: category.color,
+        optional: Boolean(category.optional) || Boolean(defOptional.get(category.id)),
+        builtin: category.builtin,
+        kind: categoryKind(category),
+    }));
+    const ids = new Set(rows.map((row) => row.id));
+    const names = new Set(rows.map((row) => row.name.trim().toLowerCase()));
+    PROFILES.forEach((profile) => {
+        profile.ratios.forEach((entry, index) => {
+            if (ids.has(entry.id) || names.has(entry.name.toLowerCase()))
+                return;
+            rows.push({
+                id: entry.id,
+                name: entry.name,
+                color: CATEGORY_COLORS[index % CATEGORY_COLORS.length],
+                optional: Boolean(entry.optional),
+                builtin: true,
+                kind: categoryKind({ id: entry.id }),
+            });
+            ids.add(entry.id);
+            names.add(entry.name.toLowerCase());
+        });
+    });
+    return rows;
+}
+export function AllocationEditor({ state, update, onDone }) {
+    const { language } = useI18n();
+    const isEn = language === 'en';
+    const [rows, setRows] = useState(() => buildRows(state));
+    const [draft, setDraft] = useState(() => {
+        const byId = new Map(state.categories.map((category) => [category.id, category]));
+        return Object.fromEntries(buildRows(state).map((row) => {
+            const category = byId.get(row.id);
+            const pct = category ? (category.off ? (category.baseRatio ?? 0) * 100 : category.ratio * 100) : 0;
+            return [row.id, fmtPct(pct)];
+        }));
+    });
+    const [off, setOff] = useState(() => Object.fromEntries(state.categories.filter((category) => category.off).map((category) => [category.id, true])));
+    const [newName, setNewName] = useState('');
+    const activeProfile = findProfile(state.profile);
+    const otherProfile = PROFILES.find((profile) => profile.id !== state.profile) ?? PROFILES[0];
+    const otherMap = new Map(otherProfile.ratios.map((entry) => [entry.id, entry.ratio * 100]));
+    const pct = (id) => pctOf(draft[id] ?? '0');
+    const activeSum = rows.reduce((total, row) => (off[row.id] ? total : total + pct(row.id)), 0);
+    const otherSum = otherProfile.ratios.reduce((total, entry) => total + entry.ratio, 0) * 100;
+    const sumOk = Math.abs(activeSum - 100) <= 0.1;
+    const scaleOthers = (exceptId, factor) => {
+        setDraft((prev) => {
+            const next = { ...prev };
+            for (const row of rows) {
+                if (row.id === exceptId || off[row.id])
+                    continue;
+                next[row.id] = fmtPct(pctOf(prev[row.id] ?? '0') * factor);
+            }
+            return next;
+        });
+    };
+    const toggleOff = (row) => {
+        const value = pct(row.id);
+        if (off[row.id]) {
+            const factor = (100 - value) / 100;
+            if (factor > 0)
+                scaleOthers(row.id, factor);
+            setOff((prev) => {
+                const next = { ...prev };
+                delete next[row.id];
+                return next;
+            });
+        }
+        else {
+            if (value < 100)
+                scaleOthers(row.id, 100 / (100 - value));
+            setOff((prev) => ({ ...prev, [row.id]: true }));
+        }
+    };
+    const save = () => {
+        if (!sumOk || activeSum <= 0)
+            return;
+        update((s) => {
+            const byId = new Map(s.categories.map((category) => [category.id, category]));
+            const categories = rows.map((row) => {
+                const isOff = Boolean(off[row.id]);
+                const raw = pct(row.id);
+                const previous = byId.get(row.id);
+                return {
+                    id: row.id,
+                    name: row.name,
+                    ratio: isOff ? 0 : raw / activeSum,
+                    builtin: row.builtin,
+                    color: previous?.color ?? row.color,
+                    kind: row.kind,
+                    ...(row.optional ? { optional: true } : {}),
+                    ...(isOff ? { off: true, baseRatio: raw / 100 } : {}),
+                };
+            });
+            const rounded = s.allowance > 0 ? roundAllocationCategories(categories, s.allowance) : categories;
+            return { ...s, categories: rounded };
+        });
+        onDone();
+    };
+    const reset = () => {
+        const refreshed = applyLifestyle(applyProfile(state.categories, findProfile(state.profile)), state.lifestyle);
+        const byId = new Map(refreshed.map((category) => [category.id, category]));
+        setDraft((prev) => Object.fromEntries(rows.map((row) => {
+            const category = byId.get(row.id);
+            return [row.id, category ? fmtPct(category.ratio * 100) : prev[row.id]];
+        })));
+        setOff({});
+    };
+    const remaining = Math.round((100 - activeSum) * 10) / 10;
+    const autoBalance = () => {
+        const activeRows = rows.filter((r) => !off[r.id]);
+        if (activeRows.length === 0)
+            return;
+        const currentTotal = activeRows.reduce((sum, r) => sum + pct(r.id), 0);
+        if (currentTotal <= 0) {
+            const equalShare = Math.floor((100 / activeRows.length) * 10) / 10;
+            const remainder = Math.round((100 - equalShare * activeRows.length) * 10) / 10;
+            setDraft((prev) => {
+                const next = { ...prev };
+                activeRows.forEach((r, idx) => {
+                    next[r.id] = fmtPct(equalShare + (idx === 0 ? remainder : 0));
+                });
+                return next;
+            });
+            return;
+        }
+        const factor = 100 / currentTotal;
+        let distributed = 0;
+        const calculated = [];
+        activeRows.forEach((r) => {
+            const scaled = Math.round(pct(r.id) * factor * 10) / 10;
+            calculated.push({ id: r.id, val: scaled });
+            distributed += scaled;
+        });
+        const delta = Math.round((100 - distributed) * 10) / 10;
+        if (Math.abs(delta) > 0.01 && calculated.length > 0) {
+            let maxIdx = 0;
+            calculated.forEach((c, idx) => {
+                if (c.val > calculated[maxIdx].val)
+                    maxIdx = idx;
+            });
+            calculated[maxIdx].val = Math.round((calculated[maxIdx].val + delta) * 10) / 10;
+        }
+        setDraft((prev) => {
+            const next = { ...prev };
+            calculated.forEach((c) => {
+                next[c.id] = fmtPct(c.val);
+            });
+            return next;
+        });
+    };
+    const addRow = () => {
+        const name = newName.trim();
+        if (name === '' || rows.some((row) => row.name.trim().toLowerCase() === name.toLowerCase()))
+            return;
+        const row = {
+            id: uid('cat'),
+            name,
+            color: CATEGORY_COLORS[rows.length % CATEGORY_COLORS.length],
+            optional: false,
+            builtin: false,
+            kind: 'harian',
+        };
+        setRows((prev) => [...prev, row]);
+        setDraft((prev) => ({ ...prev, [row.id]: '0' }));
+        setNewName('');
+    };
+    return (<div className="alloc-edit">
+      {/* Live Allocation & Auto-balance Banner */}
+      <div className={`alloc-status-banner ${sumOk ? 'status-ok' : remaining > 0 ? 'status-under' : 'status-over'}`}>
+        <div className="alloc-status-info">
+          <span className="alloc-status-label">
+            {isEn ? 'Running Allocation Total:' : 'Total Alokasi Berjalan:'}
+          </span>
+          <strong className="alloc-status-pct">{sumText(activeSum)}%</strong>
+          <span className="alloc-status-badge">
+            {sumOk
+            ? isEn
+                ? 'Exact 100%'
+                : 'Pas 100%'
+            : remaining > 0
+                ? isEn
+                    ? `Remaining ${sumText(remaining)}% unallocated`
+                    : `Sisa ${sumText(remaining)}% belum dialokasikan`
+                : isEn
+                    ? `Excess ${sumText(Math.abs(remaining))}% over 100%`
+                    : `Kelebihan ${sumText(Math.abs(remaining))}% dari 100%`}
+          </span>
+        </div>
+        {!sumOk && (<button type="button" className="btn btn-sm btn-ghost alloc-autobalance-btn" onClick={autoBalance} title={isEn
+                ? 'Balance all percentages proportionally to exact 100%'
+                : 'Seimbangkan semua persen secara proporsional agar tepat 100%'}>
+            {isEn ? 'Auto Balance' : 'Seimbangkan Otomatis'}
+          </button>)}
+      </div>
+
+      <div className="alloc-table-wrap">
+        <table className="alloc-table">
+          <thead>
+            <tr>
+              <th>{isEn ? 'Category' : 'Kategori'}</th>
+              <th className="alloc-col-active">{activeProfile.label}</th>
+              <th>{otherProfile.label}</th>
+              <th>{isEn ? 'Optional?' : 'Opsional?'}</th>
+              <th>{isEn ? 'Type' : 'Jenis'}</th>
+              <th>{isEn ? 'Action' : 'Aksi'}</th>
+            </tr>
+          </thead>
+          <tbody>
+            {rows.map((row) => {
+            const isOff = Boolean(off[row.id]);
+            const other = otherMap.get(row.id);
+            return (<tr key={row.id} className={isOff ? 'alloc-off' : undefined}>
+                  <td>
+                    <span className="alloc-cat">
+                      <span className="alloc-dot" style={{ background: row.color }}/>
+                      {row.name}
+                    </span>
+                  </td>
+                  <td>
+                    <input className="input alloc-pct-input" type="number" min={0} max={100} step={0.1} inputMode="decimal" value={draft[row.id] ?? '0'} disabled={isOff} aria-label={`Persen ${row.name}`} onChange={(event) => setDraft((prev) => ({ ...prev, [row.id]: event.target.value }))}/>
+                  </td>
+                  <td className="alloc-pct-static">{other === undefined ? '-' : `${fmtPct(other)}%`}</td>
+                  <td className="alloc-toggle-cell">
+                    {row.optional ? (<input type="checkbox" checked={!isOff} aria-label={`Opsional ${row.name}`} onChange={() => toggleOff(row)}/>) : (<span className="alloc-pct-static">{isEn ? 'No' : 'Tidak'}</span>)}
+                  </td>
+                  <td>
+                    <CustomSelect className="input alloc-kind" aria-label={`Jenis ${row.name}`} value={row.kind} onChange={(event) => setRows((prev) => prev.map((item) => item.id === row.id
+                    ? { ...item, kind: event.target.value }
+                    : item))} title={`Pilih Jenis Kategori ${row.name}`}>
+                      <option value="harian">{isEn ? 'Daily' : 'Harian'}</option>
+                      <option value="keinginan">{isEn ? 'Wants' : 'Keinginan'}</option>
+                      <option value="tabungan">{isEn ? 'Savings' : 'Tabungan'}</option>
+                    </CustomSelect>
+                  </td>
+                  <td className="alloc-action-cell">
+                    <button type="button" className="btn btn-ghost btn-sm" disabled={isOff || pct(row.id) === 0} onClick={() => setDraft((prev) => ({ ...prev, [row.id]: '0' }))}>
+                      {isEn ? 'Reduce' : 'Kurangi'}
+                    </button>
+                  </td>
+                </tr>);
+        })}
+            <tr className="alloc-total">
+              <td>Total</td>
+              <td>{sumText(activeSum)}%</td>
+              <td>{sumText(otherSum)}%</td>
+              <td />
+              <td />
+              <td />
+            </tr>
+            <tr className="alloc-total">
+              <td>{isEn ? '100% Check' : 'Cek 100%'}</td>
+              <td>
+                <span className={sumOk ? 'alloc-check alloc-check-ok' : 'alloc-check text-danger'}>
+                  {sumOk ? 'OK' : isEn ? 'NOT YET' : 'BELUM'}
+                </span>
+              </td>
+              <td className="alloc-check alloc-check-ok">
+                {Math.abs(otherSum - 100) <= 0.1 ? 'OK' : isEn ? 'NOT YET' : 'BELUM'}
+              </td>
+              <td />
+              <td />
+              <td />
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div className="alloc-add">
+        <input className="input" type="text" placeholder={isEn ? 'New category name' : 'Nama kategori baru'} value={newName} aria-label={isEn ? 'New category name' : 'Nama kategori baru'} onChange={(event) => setNewName(event.target.value)}/>
+        <button type="button" className="btn btn-ghost btn-sm" onClick={addRow} disabled={newName.trim() === ''}>
+          {isEn ? '+ Add category' : '+ Tambah kategori'}
+        </button>
+      </div>
+
+      <div className="alloc-legend muted small">
+        <span>
+          {isEn
+            ? 'The percentage figures above can be customized freely. The total percentage will be calculated automatically.'
+            : 'Kolom angka di atas bisa kamu atur sesukamu. Total persen bakal kehitung otomatis.'}
+        </span>
+        <span>
+          {isEn
+            ? 'Disabled optional categories will be automatically divided evenly across other categories to stay at 100%.'
+            : 'Kategori opsional yang dimatikan bakal otomatis dibagi rata ke kategori lain biar pas 100%.'}
+        </span>
+        <span>
+          {isEn
+            ? 'The reduce button sets the percent to 0, but your past transaction history remains safe.'
+            : 'Tombol kurangi bakal ngeset persen jadi 0, tapi riwayat transaksi lamamu tetap aman kok.'}
+        </span>
+        <span>
+          {isEn ? (<>
+              Type determines leftover handling: <strong>Daily</strong> is carried forward,{' '}
+              <strong>Wants</strong> is offered to savings, <strong>Savings</strong> grows naturally.
+            </>) : (<>
+              Jenis menentukan sisa uang periode lalu: <strong>Harian</strong> dibawa ke periode depan,{' '}
+              <strong>Keinginan</strong> ditawarkan masuk tabungan, <strong>Tabungan</strong> nambah terus secara natural.
+            </>)}
+        </span>
+      </div>
+
+      <div className="btn-row">
+        <button type="button" className="btn btn-sm" disabled={!sumOk} onClick={save}>
+          {isEn ? 'Save allocation' : 'Simpan alokasi'}
+        </button>
+        <button type="button" className="btn btn-ghost btn-sm" onClick={reset}>
+          {isEn ? 'Reset to default' : 'Reset ke default'}
+        </button>
+        <button type="button" className="btn btn-ghost btn-sm" onClick={onDone}>
+          {isEn ? 'Cancel' : 'Batal'}
+        </button>
+      </div>
+    </div>);
+}
