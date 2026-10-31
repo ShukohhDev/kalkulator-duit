@@ -68,7 +68,7 @@ HTML bertugas menyusun kerangka visual halaman web, mulai dari judul halaman, wa
 Tailwind CSS adalah framework utilitas yang memungkinkan penataan tata letak, warna, ukuran, dan animasi secara cepat langsung pada kelas elemen HTML tanpa perlu menulis aturan CSS manual yang panjang.
 
 - **Lokasi Berkas**:
-  - [vite.config.ts](file:///c:/projek%20vscode/kalkulator%20duitmu/vite.config.ts): Mengaktifkan plugin `@tailwindcss/vite` (Tailwind versi 4).
+  - [vite.config.js](file:///c:/projek%20vscode/kalkulator%20duitmu/vite.config.js): Mengaktifkan plugin `@tailwindcss/vite` (Tailwind versi 4).
   - [src/index.css](file:///c:/projek%20vscode/kalkulator%20duitmu/src/index.css): Memuat utilitas Tailwind melalui `@import "tailwindcss" utilities;`.
   - [package.json](file:///c:/projek%20vscode/kalkulator%20duitmu/package.json): Memuat dependensi `tailwindcss` dan `@tailwindcss/vite`.
 
@@ -185,7 +185,7 @@ Node.js berfungsi sebagai lingkungan eksekusi (runtime) pada komputer pengembang
 
 - **Lokasi Berkas**:
   - [package.json](file:///c:/projek%20vscode/kalkulator%20duitmu/package.json): Berkas manifes proyek yang mendefinisikan skrip perintah (`dev`, `build`, `test`, `preview`) dan daftar paket dependensi.
-  - [vite.config.ts](file:///c:/projek%20vscode/kalkulator%20duitmu/vite.config.ts): Konfigurasi alat bundler modern berbasis Node.js yang mengompilasi kode sumber menjadi paket produksi yang optimal.
+  - [vite.config.js](file:///c:/projek%20vscode/kalkulator%20duitmu/vite.config.js): Konfigurasi alat bundler modern berbasis Node.js yang mengompilasi kode sumber menjadi paket produksi yang optimal.
 
 - **Perintah Penting Berbasis Node.js**:
   - `npm run dev`: Menjalankan server lokal pengembangan dengan fitur pembaruan instan (Hot Module Replacement).
@@ -282,7 +282,7 @@ Hasil pengujian akan menampilkan 259 pengujian lulus dari 33 berkas uji.
 | Kategori | Jalur Berkas Kunci | Peran Utama |
 | :--- | :--- | :--- |
 | **HTML** | [index.html](file:///c:/projek%20vscode/kalkulator%20duitmu/index.html) | Struktur DOM induk dan wadah aplikasi |
-| **Tailwind CSS** | [vite.config.ts](file:///c:/projek%20vscode/kalkulator%20duitmu/vite.config.ts) | Kompiler utilitas Tailwind v4 |
+| **Tailwind CSS** | [vite.config.js](file:///c:/projek%20vscode/kalkulator%20duitmu/vite.config.js) | Kompiler utilitas Tailwind v4 |
 | **CSS** | [src/index.css](file:///c:/projek%20vscode/kalkulator%20duitmu/src/index.css) | Variabel tema, glassmorphism, responsive styles |
 | **Python** | [server_python/main.py](file:///c:/projek%20vscode/kalkulator%20duitmu/server_python/main.py) | Server backend FastAPI lokal |
 | **Python Cloud** | [api/index.py](file:///c:/projek%20vscode/kalkulator%20duitmu/api/index.py) | Serverless Python backend untuk Vercel |
