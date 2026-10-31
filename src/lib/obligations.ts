@@ -62,7 +62,7 @@ export function markBillPaid(
   now: Date = nowDate(),
   walletId?: string,
 ): AppState {
-  const date = todayISO()
+  const date = toISO(now)
   const currentPaid = billPaidThisMonth(bill, now)
   const remaining = Math.max(0, bill.amount - currentPaid)
   const payAmount =
