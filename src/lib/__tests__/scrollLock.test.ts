@@ -39,3 +39,4 @@ describe('lockBodyScroll helper', () => {
     expect(document.body.style.overflow).toBe('')
   })
 })
+
