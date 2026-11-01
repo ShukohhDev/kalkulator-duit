@@ -5,7 +5,6 @@ import { INCOME_SOURCES, SAVINGS_CATEGORY, primaryGoal, isSavingsOrEmergencyCate
 import { formatIDR, todayISO } from '../lib/money.js';
 import { uid } from '../lib/id.js';
 import { deleteReceipt, saveReceipt } from '../lib/receipts.js';
-import { translate } from '../lib/i18n.js';
 import { escapeHtml } from '../lib/dom.js';
 import { bindMoneyInput } from './MoneyInput.js';
 

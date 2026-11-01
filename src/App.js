@@ -2,7 +2,6 @@
  * Kalkulator Uang Jajan - Main Application Shell (Pure Vanilla JS)
  */
 import { createStore } from './store.js';
-import { derive } from './lib/derive.js';
 import { buildInsights } from './lib/insights.js';
 import { buildAlerts, notifyAlerts } from './lib/alerts.js';
 import { buildTips } from './lib/tips.js';
@@ -11,7 +10,7 @@ import { applyProfile as applyProfileToCategories, findProfile } from './lib/pro
 import { applyLifestyle } from './lib/lifestyles.js';
 import { roundAllocationCategories } from './lib/allocation.js';
 import { initialState } from './lib/state.js';
-import { clearState, saveState, loadState } from './lib/storage.js';
+import { clearState, saveState } from './lib/storage.js';
 import { currentUser, isAdmin, logout as endSession, touchSession } from './lib/auth.js';
 import { appendActivity } from './lib/activity.js';
 import { sweepTransition } from './lib/sweep.js';
@@ -665,6 +664,7 @@ function mountAppShell(container, { user, onLogout }) {
       onOpen: togglePanel,
       extraActionsHtml: isScrolled ? renderQuickButtonsHtml('nav-quick') : '',
       isSticky: isScrolled,
+      isStickyDesktop: isDesktop,
       lang: language,
     });
     if (isScrolled) {
@@ -1160,8 +1160,8 @@ function mountAppShell(container, { user, onLogout }) {
 
   // Initial period sweep transition check (equivalent to React's useEffect on mount)
   const initialDerived = store.getDerived();
-  const initialState = store.getState();
-  if (initialDerived.period && initialState.periodKey !== initialDerived.period.startISO) {
+  const currentSt = store.getState();
+  if (initialDerived.period && currentSt.periodKey !== initialDerived.period.startISO) {
     store.update((s) => sweepTransition(s, initialDerived.period));
   } else {
     renderFull();

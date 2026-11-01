@@ -328,7 +328,6 @@ export function renderDompetPanel(container, { state, getState, update, lang = '
   }
 
   function bindEvents() {
-    const s = getCurrentState();
     const root = container.querySelector('.dompet-panel');
     if (!root) return;
 

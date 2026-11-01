@@ -14,7 +14,7 @@ const KEYS = [
   ['0', ',', '='],
 ];
 
-export function renderCalculator(container, { onUseNumber, onClose, lang = 'id' }) {
+export function renderCalculator(container, { onUseNumber, onClose: _onClose, lang = 'id' }) {
   if (!container) return;
   const isEn = lang === 'en';
 

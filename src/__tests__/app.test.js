@@ -16,10 +16,6 @@ vi.mock('../lib/receipts.js', () => ({
 let container;
 let unmount;
 
-const act = async (fn) => {
-  return await fn();
-};
-
 const setValue = (selector, value) => {
   const input = container.querySelector(selector);
   if (!input) throw new Error(`elemen ${selector} tidak ditemukan`);
@@ -791,10 +787,7 @@ describe('akun & catatan aktivitas', () => {
     setValue('#auth-pass', 'kata123');
     const card = container.querySelector('.auth-card');
     card.dispatchEvent(new Event('submit', { bubbles: true, cancelable: true }));
-    for (let i = 0; i < 20; i++) {
-      if (!container.querySelector('.auth-gate')) break;
-      await new Promise((resolve) => setTimeout(resolve, 50));
-    }
+    await new Promise((resolve) => setTimeout(resolve, 150));
 
     expect(container.querySelector('.auth-gate')).toBeNull();
     expect(container.querySelector('.chip-user')?.textContent).toBe('tester');
@@ -835,10 +828,7 @@ describe('akun & catatan aktivitas', () => {
     setValue('#auth-pass', 'kata123');
     const card = container.querySelector('.auth-card');
     card.dispatchEvent(new Event('submit', { bubbles: true, cancelable: true }));
-    for (let i = 0; i < 20; i++) {
-      if (!container.querySelector('.auth-gate')) break;
-      await new Promise((resolve) => setTimeout(resolve, 50));
-    }
+    await new Promise((resolve) => setTimeout(resolve, 150));
 
     expect(container.querySelector('.auth-gate')).toBeNull();
     expect(document.documentElement.dataset.colorTheme).toBe('sage');

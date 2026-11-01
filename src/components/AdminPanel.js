@@ -14,14 +14,13 @@ import {
   replyUserReport,
   deleteUserReport,
 } from '../lib/reports.js';
-import { useI18n } from '../lib/i18n.js';
+import { getDeviceLanguage } from '../lib/i18n.js';
 import { escapeHtml } from '../lib/dom.js';
 
 export function renderAdminPanel(container, { currentUser, notify, lang }) {
   if (!container) return;
 
-  const { language } = useI18n();
-  const currentLang = lang || language || 'id';
+  const currentLang = lang || getDeviceLanguage() || 'id';
   const isEn = currentLang === 'en';
 
   let activeTab = 'users'; // 'users' | 'reports'
