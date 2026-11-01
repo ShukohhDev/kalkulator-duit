@@ -24,7 +24,7 @@ Aplikasi kalkulator keuangan pribadi yang dirancang cepat, simpel, dan bekerja s
 
 ## Teknologi
 
-- **Frontend**: HTML5, Vanilla CSS3, JavaScript, TypeScript, React 19, Chart.js, Vite
+- **Frontend**: HTML5, Vanilla CSS3, Pure JavaScript (Vanilla JS, no framework), Chart.js, Vite
 - **Backend**: Python 3 (FastAPI, Uvicorn, SQLAlchemy ORM)
 - **Basis Data**: MySQL & SQLite (didukung penuh)
 - **Penyimpanan Klien**: LocalStorage, IndexedDB, & PWA Cache API

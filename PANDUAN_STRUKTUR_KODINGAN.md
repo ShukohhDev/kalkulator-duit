@@ -22,7 +22,7 @@ Hubungan kerja kedelapan teknologi dalam aplikasi ini digambarkan melalui alur b
 [ Pengguna di Browser ]
         |
         v
-[ HTML + Tailwind CSS + CSS ] <--> [ JavaScript (React Engine) ]
+[ HTML + Tailwind CSS + CSS ] <--> [ JavaScript (Vanilla DOM & Reactive Store) ]
         |                                       |
         | (Tampilan Visual Interaktif)          | (Panggilan REST API via fetch)
         +---------------------------------------+
@@ -48,16 +48,16 @@ HTML bertugas menyusun kerangka visual halaman web, mulai dari judul halaman, wa
 
 - **Lokasi Berkas**:
   - [index.html](file:///c:/projek%20vscode/kalkulator%20duitmu/index.html): Berkas kerangka induk web. Di dalamnya terdapat tag `<head>` untuk informasi SEO, tautan font, konfigurasi viewport mobile, serta elemen `<div id="root"></div>` tempat seluruh komponen dirender ke layar.
-  - Komponen antarmuka di dalam folder [src/components](file:///c:/projek%20vscode/kalkulator%20duitmu/src/components): Menggunakan sintaks JSX (JavaScript XML) yang merender tag HTML standar seperti `<header>`, `<main>`, `<section>`, `<button>`, `<input>`, `<form>`, `<select>`, `<dialog>`, dan `<span>`.
+  - Komponen antarmuka di dalam folder [src/components](file:///c:/projek%20vscode/kalkulator%20duitmu/src/components): Menggunakan Vanilla JS murni dengan template literal dan standard DOM API yang merender tag HTML standar seperti `<header>`, `<main>`, `<section>`, `<button>`, `<input>`, `<form>`, `<select>`, `<dialog>`, dan `<span>`.
 
 - **Contoh Kodingan HTML**:
   ```html
   <!-- index.html -->
   <div id="root"></div>
   ```
-  ```jsx
-  <!-- src/components/QuickEntry.jsx -->
-  <button type="submit" className="btn-primary">
+  ```javascript
+  // src/components/QuickEntry.js
+  <button type="submit" class="btn btn-primary">
     Simpan Catatan
   </button>
   ```

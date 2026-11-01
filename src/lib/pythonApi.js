@@ -1,7 +1,7 @@
 /**
- * pythonApi.ts - Modul Klien untuk Komunikasi ke Backend Python & MySQL
+ * pythonApi.js - Modul Klien untuk Komunikasi ke Backend Python & MySQL
  *
- * Modul ini menghubungkan antarmuka web (TypeScript/React) ke server Python (FastAPI).
+ * Modul ini menghubungkan antarmuka web (Vanilla JavaScript) ke server Python (FastAPI).
  * Didesain sederhana agar mudah dibaca dan dipelajari oleh pemula.
  */
 const PYTHON_API_KEY = 'kalkulator-duitmu:python_api_url';

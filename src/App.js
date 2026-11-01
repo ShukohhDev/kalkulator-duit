@@ -1158,7 +1158,7 @@ function mountAppShell(container, { user, onLogout }) {
   document.addEventListener('visibilitychange', onVisibilityChange);
   window.addEventListener('focus', checkSessionExpiry);
 
-  // Initial period sweep transition check (equivalent to React's useEffect on mount)
+  // Initial period sweep transition check on initialization
   const initialDerived = store.getDerived();
   const currentSt = store.getState();
   if (initialDerived.period && currentSt.periodKey !== initialDerived.period.startISO) {

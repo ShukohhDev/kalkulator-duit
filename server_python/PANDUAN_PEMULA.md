@@ -62,9 +62,9 @@ Jalankan kembali file `jalankan_server.bat`. Server sekarang sudah resmi tersamb
 
 ## 4. Alur Komunikasi Frontend dan Backend
 
-1. **Frontend (HTML, CSS, JavaScript, TypeScript)**:
+1. **Frontend (HTML, CSS, Pure JavaScript)**:
    * Saat pengguna mencatat pengeluaran atau mengubah anggaran, data langsung diperbarui di antarmuka dan disimpan ke `localStorage` browser agar website tetap bekerja saat offline.
-   * Modul `src/lib/cloudSync.ts` dan `src/lib/pythonApi.ts` secara otomatis mengirim data ke endpoint Python `POST http://localhost:8000/api/sync/push`.
+   * Modul `src/lib/cloudSync.js` dan `src/lib/pythonApi.js` secara otomatis mengirim data ke endpoint Python `POST http://localhost:8000/api/sync/push`.
 2. **Backend (Python FastAPI)**:
    * Menerima kiriman data dari browser.
    * Memvalidasi identitas pengguna.
