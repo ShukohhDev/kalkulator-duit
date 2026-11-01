@@ -17,5 +17,6 @@ export function bindMoneyInput(inputEl, onValueChange, options) {
   });
   if (options?.onBlur) {
     inputEl.addEventListener('blur', options.onBlur);
+    inputEl.addEventListener('focusout', options.onBlur);
   }
 }
