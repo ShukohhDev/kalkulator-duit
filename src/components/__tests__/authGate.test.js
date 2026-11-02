@@ -44,3 +44,4 @@ describe('AuthGate component', () => {
     expect(getDeviceTheme()).toBe('light');
   });
 });
+
