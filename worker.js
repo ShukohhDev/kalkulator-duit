@@ -13,6 +13,8 @@ export default {
     const url = new URL(request.url);
     if (url.pathname.startsWith('/assets/')) {
       newHeaders.set('Cache-Control', 'public, max-age=31536000, immutable');
+    } else if (url.pathname === '/' || url.pathname.endsWith('.html') || url.pathname.endsWith('sw.js') || url.pathname.endsWith('.webmanifest')) {
+      newHeaders.set('Cache-Control', 'no-cache, no-store, must-revalidate');
     }
 
     return new Response(response.body, {
