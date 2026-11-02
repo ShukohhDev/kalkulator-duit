@@ -6290,3 +6290,36 @@ select.input {
 
 
 
+
+.auth-top-actions {
+  align-items: center;
+  gap: 8px;
+}
+
+.btn-auth-theme {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 28px;
+  min-height: 28px;
+  padding: 0;
+  border-radius: var(--radius-sm, 6px);
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  color: var(--text);
+  cursor: pointer;
+  transition: all var(--t-fast, 0.15s ease);
+}
+
+.btn-auth-theme:hover {
+  background: var(--surface-3, var(--surface));
+  border-color: var(--accent);
+  color: var(--accent);
+  transform: translateY(-1px);
+}
+
+.btn-auth-theme svg {
+  width: 16px;
+  height: 16px;
+}

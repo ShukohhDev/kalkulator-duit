@@ -6,15 +6,16 @@ import { loadState, saveState } from '../lib/storage.js';
 import { appendActivity } from '../lib/activity.js';
 import { getSupabaseClient } from '../lib/supabase.js';
 import { pullStateFromCloud } from '../lib/cloudSync.js';
-import { loadPrefs, savePrefs } from '../lib/prefs.js';
+import { loadPrefs, savePrefs, getDeviceTheme, setDeviceTheme } from '../lib/prefs.js';
 import { translate, getDeviceLanguage, setDeviceLanguage } from '../lib/i18n.js';
-import { EYE_OFF, EYE_OPEN } from './icons.js';
+import { EYE_OFF, EYE_OPEN, SUN_ICON, MOON_ICON } from './icons.js';
 import { escapeHtml } from '../lib/dom.js';
 
 export function renderAuthGate(container, { onAuthed }) {
   if (!container) return;
 
   let lang = loadPrefs().language ?? getDeviceLanguage();
+  let currentTheme = getDeviceTheme();
   let mode = hasAccounts() ? 'masuk' : 'daftar';
   let username = '';
   let password = '';
@@ -31,6 +32,15 @@ export function renderAuthGate(container, { onAuthed }) {
       <div class="auth-gate">
         <form class="card auth-card">
           <div class="auth-top-actions">
+            <button
+              type="button"
+              class="btn-auth-theme"
+              id="btn-auth-theme"
+              aria-label="${isEn ? 'Toggle theme' : 'Ganti tema'}"
+              title="${currentTheme === 'dark' ? (isEn ? 'Switch to light mode' : 'Ganti ke mode terang') : (isEn ? 'Switch to dark mode' : 'Ganti ke mode gelap')}"
+            >
+              ${currentTheme === 'dark' ? SUN_ICON : MOON_ICON}
+            </button>
             <button
               type="button"
               class="btn-lang-toggle"
@@ -150,6 +160,13 @@ export function renderAuthGate(container, { onAuthed }) {
 
     eyeBtn?.addEventListener('click', () => {
       showPass = !showPass;
+      render();
+    });
+
+    container.querySelector('#btn-auth-theme')?.addEventListener('click', () => {
+      currentTheme = currentTheme === 'dark' ? 'light' : 'dark';
+      setDeviceTheme(currentTheme);
+      document.documentElement.dataset.theme = currentTheme;
       render();
     });
 
