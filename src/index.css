@@ -6277,23 +6277,10 @@ select.input {
 .auth-top-actions {
   display: flex;
   justify-content: flex-end;
-  margin-bottom: 8px;
-  width: 100%;
-}
-
-
-
-
-
-
-
-
-
-
-
-.auth-top-actions {
   align-items: center;
   gap: 8px;
+  margin-bottom: 8px;
+  width: 100%;
 }
 
 .btn-auth-theme {
