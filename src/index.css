@@ -890,7 +890,7 @@ button, input, select, textarea {
   border: 1px solid var(--border-2);
   border-bottom: 2px solid var(--border-2);
   border-radius: var(--radius-sm);
-  background: var(--surface);
+  background-color: var(--surface);
   color: var(--text);
   outline: none;
   transition: all var(--t-fast);
@@ -906,10 +906,11 @@ button, input, select, textarea {
 .input:focus {
   border-color: var(--border-2);
   border-bottom-color: var(--accent);
-  background: var(--surface);
+  background-color: var(--surface);
   box-shadow: none;
 }
 
+select,
 select.input {
   appearance: none;
   -webkit-appearance: none;
@@ -917,15 +918,41 @@ select.input {
   padding-right: 36px;
   min-height: 44px;
   font-size: 16px;
+  background-color: var(--surface);
   background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%230F766E' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
-  background-repeat: no-repeat;
-  background-position: right 12px center;
-  background-size: 14px 14px;
+  background-repeat: no-repeat !important;
+  background-position: right 12px center !important;
+  background-size: 16px 16px !important;
   cursor: pointer;
 }
 
+[data-theme='dark'] select,
 [data-theme='dark'] select.input {
   background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%2314B8A6' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+  background-repeat: no-repeat !important;
+  background-position: right 12px center !important;
+  background-size: 16px 16px !important;
+}
+
+select:focus,
+select.input:focus {
+  background-color: var(--surface) !important;
+  background-repeat: no-repeat !important;
+  background-position: right 12px center !important;
+  background-size: 16px 16px !important;
+}
+
+[data-theme='dark'] select:focus,
+[data-theme='dark'] select.input:focus {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%2314B8A6' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+  background-repeat: no-repeat !important;
+  background-position: right 12px center !important;
+  background-size: 16px 16px !important;
+}
+
+select option {
+  background-color: var(--surface);
+  color: var(--text);
 }
 
 /* =========================================================
@@ -6193,7 +6220,7 @@ select.input {
 }
 
 .end-savings-target-box select.input {
-  background: var(--surface);
+  background-color: var(--surface);
   color: var(--text);
   border-color: var(--border);
 }
