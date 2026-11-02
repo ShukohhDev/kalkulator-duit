@@ -31,7 +31,6 @@ export function renderAllowanceCard(container, { state, derived, getState, updat
 
   let editing = Boolean(container._allocEditing);
   let zeroPending = container._allocZeroPending || null;
-  let lifestyleChoice = container._allocLifestyleChoice || '';
   let isLifestyleOpen = Boolean(container._lifestyleModalOpen);
   let selectedLifestyle = container._selectedLifestyle || (getCurrentState().lifestyle || 'seimbang');
 
@@ -43,6 +42,8 @@ export function renderAllowanceCard(container, { state, derived, getState, updat
 
   function render() {
     const s = getCurrentState();
+    const activeLifestyle = container._allocLifestyleChoice || s.lifestyle || 'seimbang';
+    const isUnsavedLifestyle = activeLifestyle !== s.lifestyle;
     const varOn = Boolean(s.incomeVar);
     const bonus = Math.max(0, s.allowanceMax - s.allowance);
     const bonusSplit = s.bonusSplit || { savings: 50, buffer: 30, fun: 20 };
@@ -168,14 +169,13 @@ export function renderAllowanceCard(container, { state, derived, getState, updat
         <div class="lifestyle-row" style="margin-top: 14px; display: flex; gap: 8px; align-items: center; flex-wrap: wrap;">
           <label for="lifestyle-choice" class="small" style="font-weight: 500;">${translate('allowance.lifestyle', lang)}</label>
           <select id="lifestyle-choice" class="input" style="max-width: 260px;" aria-label="${translate('allowance.lifestyle', lang)}">
-            <option value="">${translate('allowance.lifestyleChoose', lang)}</option>
             ${LIFESTYLES.map((item) => `
-              <option value="${item.id}"${lifestyleChoice === item.id ? ' selected' : ''}>
-                ${item.name} - ${item.blurb}
+              <option value="${item.id}" title="${escapeHtml(item.blurb)}"${activeLifestyle === item.id ? ' selected' : ''}>
+                ${item.name}
               </option>
             `).join('')}
           </select>
-          <button type="button" class="btn btn-sm btn-apply-lifestyle" ${!lifestyleChoice ? 'disabled' : ''}>
+          <button type="button" class="btn btn-sm btn-apply-lifestyle" ${!isUnsavedLifestyle ? 'disabled' : ''}>
             ${translate('allowance.apply', lang)}
           </button>
         </div>
@@ -355,24 +355,30 @@ export function renderAllowanceCard(container, { state, derived, getState, updat
     // Lifestyle dropdown
     const lsSelect = container.querySelector('#lifestyle-choice');
     lsSelect?.addEventListener('change', (e) => {
-      lifestyleChoice = e.target.value;
-      container._allocLifestyleChoice = lifestyleChoice;
+      const chosen = e.target.value;
+      container._allocLifestyleChoice = chosen;
+      selectedLifestyle = chosen;
+      container._selectedLifestyle = chosen;
+      const s = getCurrentState();
       const applyBtn = container.querySelector('.btn-apply-lifestyle');
-      if (applyBtn) applyBtn.disabled = !lifestyleChoice;
+      if (applyBtn) {
+        applyBtn.disabled = chosen === s.lifestyle;
+      }
     });
 
     container.querySelector('.btn-apply-lifestyle')?.addEventListener('click', () => {
-      if (!lifestyleChoice) return;
+      const chosen = container._allocLifestyleChoice || getCurrentState().lifestyle || 'seimbang';
       update((s) => {
-        const styled = applyLifestyle(s.categories, lifestyleChoice);
+        const styled = applyLifestyle(s.categories, chosen);
         return {
           ...s,
-          lifestyle: lifestyleChoice,
+          lifestyle: chosen,
           categories: s.allowance > 0 ? roundAllocationCategories(styled, s.allowance) : styled,
         };
       });
-      lifestyleChoice = '';
-      container._allocLifestyleChoice = '';
+      container._allocLifestyleChoice = chosen;
+      selectedLifestyle = chosen;
+      container._selectedLifestyle = chosen;
       render();
     });
 
@@ -380,7 +386,7 @@ export function renderAllowanceCard(container, { state, derived, getState, updat
     container.querySelector('.btn-open-lifestyle')?.addEventListener('click', () => {
       isLifestyleOpen = true;
       container._lifestyleModalOpen = true;
-      selectedLifestyle = getCurrentState().lifestyle || 'seimbang';
+      selectedLifestyle = container._allocLifestyleChoice || getCurrentState().lifestyle || 'seimbang';
       container._selectedLifestyle = selectedLifestyle;
       render();
     });
@@ -408,6 +414,7 @@ export function renderAllowanceCard(container, { state, derived, getState, updat
           categories: s.allowance > 0 ? roundAllocationCategories(styled, s.allowance) : styled,
         };
       });
+      container._allocLifestyleChoice = selectedLifestyle;
       isLifestyleOpen = false;
       container._lifestyleModalOpen = false;
       render();

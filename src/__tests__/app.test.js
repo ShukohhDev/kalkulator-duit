@@ -1011,6 +1011,25 @@ describe('peringatan, tips & gaya hidup', () => {
     const stacked = formatIDR(29_000);
     expect(container.textContent).toContain(stacked);
   });
+
+  it('memilih gaya hidup langsung dari dropdown mengubah opsi terpilih dan tombol terapkan', () => {
+    click('.period-option');
+    setValue('#allowance', '700000');
+
+    const select = container.querySelector('#lifestyle-choice');
+    expect(select).toBeTruthy();
+    expect(select.value).toBe('seimbang');
+
+    select.value = 'hemat';
+    select.dispatchEvent(new window.Event('change', { bubbles: true }));
+
+    const applyBtn = container.querySelector('.btn-apply-lifestyle');
+    expect(applyBtn.disabled).toBe(false);
+    click('.btn-apply-lifestyle');
+
+    expect(container.querySelector('#lifestyle-choice').value).toBe('hemat');
+    expect(container.textContent).toContain('Gaya hidup aktif: Hemat');
+  });
 });
 
 describe('fase 5: dana darurat, dana musiman, terbalik, bagaimana kalau', () => {
