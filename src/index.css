@@ -415,7 +415,7 @@ button, input, select, textarea {
 .brand {
   font-family: inherit;
   font-size: 15px;
-  font-weight: 600;
+  font-weight: 700;
   margin: 0;
   letter-spacing: -0.01em;
   color: var(--text);
@@ -423,14 +423,13 @@ button, input, select, textarea {
   align-items: center;
   gap: 7px;
   white-space: nowrap;
-  flex-shrink: 1;
+  flex-shrink: 0;
   min-width: 0;
 }
 
 .brand span {
-  overflow: hidden;
-  text-overflow: ellipsis;
   white-space: nowrap;
+  font-weight: 700;
 }
 
 .brand-logo-img {
@@ -1513,42 +1512,79 @@ select.input {
   }
 
   .topbar-brand-wrap {
-    min-width: 0;
-    flex-shrink: 1;
+    min-width: max-content;
+    flex-shrink: 0;
   }
 
   .brand {
     font-size: 14px;
+    font-weight: 700;
     gap: 6px;
+    white-space: nowrap;
+    display: flex;
+    align-items: center;
   }
 
   .brand span {
-    overflow: hidden;
-    text-overflow: ellipsis;
+    overflow: visible;
+    text-overflow: clip;
     white-space: nowrap;
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--text);
   }
 
   .topbar-user-area {
     display: flex;
     align-items: center;
-    gap: 4px;
-    flex-shrink: 0;
+    gap: 3px;
+    flex-shrink: 1;
+    min-width: 0;
+    justify-content: flex-end;
+  }
+
+  .topbar-user-area .btn-lang-toggle {
+    padding: 2px 5px;
+    font-size: 10.5px;
   }
 
   .topbar-user-area .chip-user {
-    max-width: 85px;
+    max-width: 65px;
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
-    padding: 2px 6px;
-    font-size: 11px;
+    padding: 2px 5px;
+    font-size: 10.5px;
+  }
+
+  .topbar-user-area .chip-admin-badge {
+    padding: 1px 4px;
+    font-size: 9.5px;
   }
 
   .topbar-user-area .btn-logout {
-    padding: 2px 7px;
-    font-size: 11px;
-    height: 26px;
-    min-height: 26px;
+    padding: 2px 6px;
+    font-size: 10.5px;
+    height: 24px;
+    min-height: 24px;
+  }
+
+  @media (max-width: 520px) {
+    .topbar-user-area .chip-admin-badge {
+      display: none;
+    }
+    .topbar-user-area .chip-user {
+      max-width: 45px;
+    }
+  }
+
+  @media (max-width: 420px) {
+    .topbar-user-area .chip-user {
+      display: none;
+    }
+    .brand span {
+      font-size: 13.5px;
+    }
   }
 
   .topbar-actions {
