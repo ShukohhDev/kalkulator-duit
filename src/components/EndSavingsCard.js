@@ -22,10 +22,11 @@ export function renderEndSavingsCard(container, { state, getState, update, notif
   let transferAmount = container._tfAmt || 0;
 
   function render() {
-    const s = getCurrentState();
+    const s = getCurrentState() || {};
     const currentTargetId = s.endSavingsTargetWalletId ?? END_SAVINGS_WALLET_ID;
-    const userWallets = s.wallets.filter((w) => w.id !== END_SAVINGS_WALLET_ID);
-    const targetWallet = s.wallets.find((w) => w.id === currentTargetId);
+    const wallets = Array.isArray(s.wallets) ? s.wallets : [];
+    const userWallets = wallets.filter((w) => w && w.id !== END_SAVINGS_WALLET_ID);
+    const targetWallet = wallets.find((w) => w && w.id === currentTargetId);
 
     let section = container.querySelector('.end-savings-card');
     if (!section) {
@@ -159,8 +160,9 @@ export function renderEndSavingsCard(container, { state, getState, update, notif
 
   function bindEvents(root) {
     if (!root) return;
-    const s = getCurrentState();
-    const userWallets = s.wallets.filter((w) => w.id !== END_SAVINGS_WALLET_ID);
+    const s = getCurrentState() || {};
+    const wallets = Array.isArray(s.wallets) ? s.wallets : [];
+    const userWallets = wallets.filter((w) => w && w.id !== END_SAVINGS_WALLET_ID);
 
     root.querySelector('#end-savings-target-select')?.addEventListener('change', (e) => {
       const nextTargetId = e.target.value;

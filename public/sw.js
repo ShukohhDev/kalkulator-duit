@@ -1,5 +1,5 @@
 // honey: ganti CACHE hanya jika strategi cache berubah; entri lama dibersihkan saat activate.
-const CACHE = 'kalkulator-duitmu-v4'
+const CACHE = 'kalkulator-duitmu-v5'
 const ROOT = '/'
 
 self.addEventListener('install', (event) => {

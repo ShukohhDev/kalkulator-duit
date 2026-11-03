@@ -105,8 +105,9 @@ export function renderDompetPanel(container, { state, getState, update, lang = '
   }
 
   function render() {
-    const s = getCurrentState();
-    const total = s.wallets.reduce((sum, wallet) => sum + wallet.balance, 0);
+    const s = getCurrentState() || {};
+    const wallets = Array.isArray(s.wallets) ? s.wallets : [];
+    const total = wallets.reduce((sum, wallet) => sum + (wallet ? wallet.balance : 0), 0);
     const inUsd = currency === 'usd' && rateInfo.rate > 0;
 
     const existingPanel = container.querySelector('.dompet-panel');
@@ -138,13 +139,13 @@ export function renderDompetPanel(container, { state, getState, update, lang = '
       // 3. Remove deleted rows
       existingGoalList.querySelectorAll('.ob-row').forEach((row) => {
         const rowId = row.getAttribute('data-id');
-        if (!s.wallets.some((w) => w.id === rowId)) {
+        if (!wallets.some((w) => w.id === rowId)) {
           row.remove();
         }
       });
 
       // 4. Update existing rows or append new ones
-      s.wallets.forEach((wallet) => {
+      wallets.forEach((wallet) => {
         const isEnd = wallet.id === END_SAVINGS_WALLET_ID;
         const isTarget = (s.endSavingsTargetWalletId ?? END_SAVINGS_WALLET_ID) === wallet.id;
         let row = existingGoalList.querySelector(`.ob-row[data-id="${wallet.id}"]`);
@@ -242,7 +243,7 @@ export function renderDompetPanel(container, { state, getState, update, lang = '
       return;
     }
 
-    const walletsHtml = s.wallets.map((wallet) => {
+    const walletsHtml = wallets.map((wallet) => {
       const isEnd = wallet.id === END_SAVINGS_WALLET_ID;
       const isTarget = (s.endSavingsTargetWalletId ?? END_SAVINGS_WALLET_ID) === wallet.id;
 

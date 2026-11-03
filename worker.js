@@ -17,7 +17,9 @@ export default {
       newHeaders.set('Cache-Control', 'no-cache, no-store, must-revalidate');
     }
 
-    return new Response(response.body, {
+    const hasNoBody = response.status === 101 || response.status === 204 || response.status === 205 || response.status === 304;
+
+    return new Response(hasNoBody ? null : response.body, {
       status: response.status,
       statusText: response.statusText,
       headers: newHeaders,

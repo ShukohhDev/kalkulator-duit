@@ -244,6 +244,12 @@ function mountAppShell(container, { user, onLogout }) {
       openPanel = id;
     }
     updateNavSections();
+    if (openPanel) {
+      const targetSec = container.querySelector('#' + openPanel);
+      if (targetSec && !targetSec.querySelector('section, article, .card, .dompet-panel, .seasonal-panel, .report-card, .data-controls-card')) {
+        renderFull();
+      }
+    }
     try {
       window.scrollTo({ top: 0, behavior: 'smooth' });
     } catch {}
@@ -922,16 +928,20 @@ function mountAppShell(container, { user, onLogout }) {
     renderQuickAnchors();
     renderSectionNavSlot();
 
+    function safeSlot(id, fn) {
+      try {
+        const slot = container.querySelector(id);
+        if (slot) fn(slot);
+      } catch (err) {
+        console.error(`[App] Error rendering ${id}:`, err);
+      }
+    }
+
     // Beranda main
-    const slotAlerts = container.querySelector('#slot-alerts');
-    if (slotAlerts) renderAlertsPanel(slotAlerts, { alerts: buildAlerts(state, derived, language), lang: language });
-
-    const slotWeek = container.querySelector('#slot-week-card');
-    if (slotWeek) renderWeekCard(slotWeek, { state, derived, notify, lang: language });
-
-    const slotAllowance = container.querySelector('#slot-allowance-card');
-    if (slotAllowance) {
-      renderAllowanceCard(slotAllowance, {
+    safeSlot('#slot-alerts', (slot) => renderAlertsPanel(slot, { alerts: buildAlerts(state, derived, language), lang: language }));
+    safeSlot('#slot-week-card', (slot) => renderWeekCard(slot, { state, derived, notify, lang: language }));
+    safeSlot('#slot-allowance-card', (slot) => {
+      renderAllowanceCard(slot, {
         state,
         derived,
         getState: store.getState,
@@ -943,83 +953,43 @@ function mountAppShell(container, { user, onLogout }) {
         },
         lang: language,
       });
-    }
-
-    const slotWallets = container.querySelector('#slot-wallet-cards');
-    if (slotWallets) renderWalletCards(slotWallets, { state, derived, lang: language });
-
-    const slotAset = container.querySelector('#slot-total-aset');
-    if (slotAset) renderTotalAsetCard(slotAset, { state, lang: language });
-
-    const slotInsights = container.querySelector('#slot-insights');
-    if (slotInsights) renderInsightsPanel(slotInsights, { insights: buildInsights(state, derived, language), lang: language });
-
-    const slotChallenge = container.querySelector('#slot-challenge');
-    if (slotChallenge) renderChallengeCard(slotChallenge, { state, derived, lang: language });
-
-    const slotTips = container.querySelector('#slot-tips');
-    if (slotTips) renderTipsPanel(slotTips, { tips: buildTips(state, derived, language), lang: language });
+    });
+    safeSlot('#slot-wallet-cards', (slot) => renderWalletCards(slot, { state, derived, lang: language }));
+    safeSlot('#slot-total-aset', (slot) => renderTotalAsetCard(slot, { state, lang: language }));
+    safeSlot('#slot-insights', (slot) => renderInsightsPanel(slot, { insights: buildInsights(state, derived, language), lang: language }));
+    safeSlot('#slot-challenge', (slot) => renderChallengeCard(slot, { state, derived, lang: language }));
+    safeSlot('#slot-tips', (slot) => renderTipsPanel(slot, { tips: buildTips(state, derived, language), lang: language }));
 
     // Catat
-    const slotExpenses = container.querySelector('#slot-expenses');
-    if (slotExpenses) renderExpensesPanel(slotExpenses, { state, getState: store.getState, update: store.update, notify, lang: language });
-
-    const slotIncome = container.querySelector('#slot-income');
-    if (slotIncome) renderIncomePanel(slotIncome, { state, getState: store.getState, update: store.update, notify, lang: language });
-
-    const slotShopping = container.querySelector('#slot-shopping-list');
-    if (slotShopping) renderShoppingListCard(slotShopping, { state, getState: store.getState, update: store.update, notify, lang: language });
+    safeSlot('#slot-expenses', (slot) => renderExpensesPanel(slot, { state, getState: store.getState, update: store.update, notify, lang: language }));
+    safeSlot('#slot-income', (slot) => renderIncomePanel(slot, { state, getState: store.getState, update: store.update, notify, lang: language }));
+    safeSlot('#slot-shopping-list', (slot) => renderShoppingListCard(slot, { state, getState: store.getState, update: store.update, notify, lang: language }));
 
     // Kewajiban
-    const slotObligations = container.querySelector('#slot-obligations');
-    if (slotObligations) renderObligationsPanel(slotObligations, { state, getState: store.getState, update: store.update, notify, lang: language });
+    safeSlot('#slot-obligations', (slot) => renderObligationsPanel(slot, { state, getState: store.getState, update: store.update, notify, lang: language }));
 
     // Analisis
-    const slotHealth = container.querySelector('#slot-health');
-    if (slotHealth) renderHealthCard(slotHealth, { state, derived, lang: language });
-
-    const slotCashflow = container.querySelector('#slot-cashflow');
-    if (slotCashflow) renderCashflowChart(slotCashflow, { state, derived, lang: language });
-
-    const slotTrend = container.querySelector('#slot-trend');
-    if (slotTrend) renderTrendPanel(slotTrend, { state, lang: language });
-
-    const slotDonut = container.querySelector('#slot-donut');
-    if (slotDonut) renderAllocationDonut(slotDonut, { state, derived, lang: language });
-
-    const slotHeatmap = container.querySelector('#slot-heatmap');
-    if (slotHeatmap) renderCalendarHeatmap(slotHeatmap, { state, getState: store.getState, update: store.update, lang: language });
-
-    const slotMonthCompare = container.querySelector('#slot-monthcompare');
-    if (slotMonthCompare) renderMonthCompare(slotMonthCompare, { state, derived, lang: language });
-
-    const slotWhatIf = container.querySelector('#slot-whatif');
-    if (slotWhatIf) renderWhatIfPanel(slotWhatIf, { state, derived, lang: language });
+    safeSlot('#slot-health', (slot) => renderHealthCard(slot, { state, derived, lang: language }));
+    safeSlot('#slot-cashflow', (slot) => renderCashflowChart(slot, { state, derived, lang: language }));
+    safeSlot('#slot-trend', (slot) => renderTrendPanel(slot, { state, lang: language }));
+    safeSlot('#slot-donut', (slot) => renderAllocationDonut(slot, { state, derived, lang: language }));
+    safeSlot('#slot-heatmap', (slot) => renderCalendarHeatmap(slot, { state, getState: store.getState, update: store.update, lang: language }));
+    safeSlot('#slot-monthcompare', (slot) => renderMonthCompare(slot, { state, derived, lang: language }));
+    safeSlot('#slot-whatif', (slot) => renderWhatIfPanel(slot, { state, derived, lang: language }));
 
     // Tabungan
-    const slotEndSavings = container.querySelector('#slot-endsavings');
-    if (slotEndSavings) renderEndSavingsCard(slotEndSavings, { state, getState: store.getState, update: store.update, notify, lang: language });
-
-    const slotDompet = container.querySelector('#slot-dompet');
-    if (slotDompet) renderDompetPanel(slotDompet, { state, getState: store.getState, update: store.update, lang: language });
-
-    const slotSavings = container.querySelector('#slot-savings');
-    if (slotSavings) renderSavingsPanel(slotSavings, { state, derived, getState: store.getState, update: store.update, lang: language });
-
-    const slotWishlist = container.querySelector('#slot-wishlist');
-    if (slotWishlist) renderWishlistPanel(slotWishlist, { state, derived, getState: store.getState, update: store.update, lang: language });
-
-    const slotSeasonal = container.querySelector('#slot-seasonal');
-    if (slotSeasonal) renderSeasonalPanel(slotSeasonal, { state, derived, getState: store.getState, update: store.update, notify, lang: language });
+    safeSlot('#slot-endsavings', (slot) => renderEndSavingsCard(slot, { state, getState: store.getState, update: store.update, notify, lang: language }));
+    safeSlot('#slot-dompet', (slot) => renderDompetPanel(slot, { state, getState: store.getState, update: store.update, lang: language }));
+    safeSlot('#slot-savings', (slot) => renderSavingsPanel(slot, { state, derived, getState: store.getState, update: store.update, lang: language }));
+    safeSlot('#slot-wishlist', (slot) => renderWishlistPanel(slot, { state, derived, getState: store.getState, update: store.update, lang: language }));
+    safeSlot('#slot-seasonal', (slot) => renderSeasonalPanel(slot, { state, derived, getState: store.getState, update: store.update, notify, lang: language }));
 
     // Laporan
-    const slotReport = container.querySelector('#slot-report');
-    if (slotReport) renderReportCard(slotReport, { state, notify, lang: language });
+    safeSlot('#slot-report', (slot) => renderReportCard(slot, { state, notify, lang: language }));
 
     // Data
-    const slotThemePicker = container.querySelector('#slot-theme-picker');
-    if (slotThemePicker) {
-      renderThemePickerCard(slotThemePicker, {
+    safeSlot('#slot-theme-picker', (slot) => {
+      renderThemePickerCard(slot, {
         colorTheme: state.colorTheme ?? 'emerald',
         themeMode: state.theme,
         onColorThemeChange: (c) => {
@@ -1032,20 +1002,12 @@ function mountAppShell(container, { user, onLogout }) {
         },
         lang: language,
       });
-    }
-
-    const slotReportIssue = container.querySelector('#slot-report-issue');
-    if (slotReportIssue) renderReportIssueCard(slotReportIssue, { notify, lang: language });
-
-    const slotAccountSecurity = container.querySelector('#slot-account-security');
-    if (slotAccountSecurity) renderAccountSecurityCard(slotAccountSecurity, { username: user, notify, lang: language });
-
-    const slotPwa = container.querySelector('#slot-pwa');
-    if (slotPwa) renderPwaInstallCard(slotPwa, { notify, lang: language });
-
-    const slotDataControls = container.querySelector('#slot-data-controls');
-    if (slotDataControls) {
-      renderDataControls(slotDataControls, {
+    });
+    safeSlot('#slot-report-issue', (slot) => renderReportIssueCard(slot, { notify, lang: language }));
+    safeSlot('#slot-account-security', (slot) => renderAccountSecurityCard(slot, { username: user, notify, lang: language }));
+    safeSlot('#slot-pwa', (slot) => renderPwaInstallCard(slot, { notify, lang: language }));
+    safeSlot('#slot-data-controls', (slot) => {
+      renderDataControls(slot, {
         state,
         saved: store.getSaved(),
         cloudStatus: store.getCloudStatus(),
@@ -1057,20 +1019,17 @@ function mountAppShell(container, { user, onLogout }) {
         notify,
         lang: language,
       });
-    }
-
-    const slotFaq = container.querySelector('#slot-faq');
-    if (slotFaq) renderFaqPrivacyCard(slotFaq, { lang: language });
-
-    const slotActivity = container.querySelector('#slot-activity');
-    if (slotActivity) renderActivityPanel(slotActivity, { state, lang: language });
+    });
+    safeSlot('#slot-faq', (slot) => renderFaqPrivacyCard(slot, { lang: language }));
+    safeSlot('#slot-activity', (slot) => renderActivityPanel(slot, { state, lang: language }));
 
     // Admin
     if (isAdmin()) {
-      const slotAdmin = container.querySelector('#slot-admin');
-      if (slotAdmin && openPanel === 'nav-admin') {
-        renderAdminPanel(slotAdmin, { currentUser: user, notify, lang: language });
-      }
+      safeSlot('#slot-admin', (slot) => {
+        if (openPanel === 'nav-admin') {
+          renderAdminPanel(slot, { currentUser: user, notify, lang: language });
+        }
+      });
     }
 
     renderModals();

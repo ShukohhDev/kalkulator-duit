@@ -103,24 +103,26 @@ export function renderSeasonalPanel(container, { state, derived, getState, updat
   }
 
   function render() {
-    const s = getCurrentState();
+    const s = getCurrentState() || {};
+    const seasonal = Array.isArray(s.seasonal) ? s.seasonal : [];
+    const seasonalSavings = (derived && derived.seasonalSavings) ? derived.seasonalSavings : {};
     const existingRoot = container.querySelector('.seasonal-panel');
     const existingGoals = container.querySelectorAll('.seasonal-panel .goal');
 
-    if (existingRoot && existingGoals.length === s.seasonal.length) {
+    if (existingRoot && existingGoals.length === seasonal.length) {
       let canUpdateInPlace = true;
-      for (let i = 0; i < s.seasonal.length; i++) {
-        if (existingGoals[i].dataset.id !== s.seasonal[i].id) {
+      for (let i = 0; i < seasonal.length; i++) {
+        if (existingGoals[i].dataset.id !== seasonal[i].id) {
           canUpdateInPlace = false;
           break;
         }
       }
 
       if (canUpdateInPlace) {
-        s.seasonal.forEach((item) => {
+        seasonal.forEach((item) => {
           const goalEl = container.querySelector(`.goal[data-id="${item.id}"]`);
           if (!goalEl) return;
-          const logged = derived.seasonalSavings[item.id] ?? 0;
+          const logged = seasonalSavings[item.id] ?? 0;
           const effective = item.saved + logged;
           const percent = item.target > 0 ? Math.min(100, Math.round((effective / item.target) * 100)) : 0;
           const remaining = Math.max(0, item.target - effective);
@@ -162,8 +164,8 @@ export function renderSeasonalPanel(container, { state, derived, getState, updat
       }
     }
 
-    const itemsHtml = s.seasonal.map((item) => {
-      const logged = derived.seasonalSavings[item.id] ?? 0;
+    const itemsHtml = seasonal.map((item) => {
+      const logged = seasonalSavings[item.id] ?? 0;
       const effective = item.saved + logged;
       const percent = item.target > 0 ? Math.min(100, Math.round((effective / item.target) * 100)) : 0;
       const remaining = Math.max(0, item.target - effective);

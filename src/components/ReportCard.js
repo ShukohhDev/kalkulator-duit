@@ -12,13 +12,16 @@ export function renderReportCard(container, { state, notify, lang = 'id' }) {
   let month = monthKey(todayISO());
 
   function render() {
-    const keys = new Set(state.expenses.map((item) => monthKey(item.date)));
-    for (const income of state.incomes) keys.add(monthKey(income.date));
+    const expenses = Array.isArray(state?.expenses) ? state.expenses : [];
+    const incomes = Array.isArray(state?.incomes) ? state.incomes : [];
+    const categories = Array.isArray(state?.categories) ? state.categories : [];
+    const keys = new Set(expenses.map((item) => monthKey(item.date)));
+    for (const income of incomes) keys.add(monthKey(income.date));
     keys.add(monthKey(todayISO()));
     const months = [...keys].sort().reverse();
 
     const report = buildReport(state, month);
-    const categoryMap = new Map(state.categories.map((category) => [category.id, category]));
+    const categoryMap = new Map(categories.map((category) => [category.id, category]));
     const empty = report.noteCount === 0 && report.byGoal.every((item) => item.logged === 0);
 
     const byCatHtml = report.byCategory.map(({ category, amount, share }) => `

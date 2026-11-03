@@ -71,7 +71,7 @@ export function createStore() {
       ...next,
       profileCategories,
     };
-    const syncedWallets = syncEndSavingsWallet(withProfileCats.wallets, withProfileCats.endSavings);
+    const syncedWallets = syncEndSavingsWallet(withProfileCats.wallets, withProfileCats.endSavings, withProfileCats.endSavingsTargetWalletId);
     const withWallets = syncedWallets !== withProfileCats.wallets ? { ...withProfileCats, wallets: syncedWallets } : withProfileCats;
     const added = diffActivity(prev, withWallets);
     if (added.length === 0) {
@@ -95,7 +95,7 @@ export function createStore() {
       ...newState,
       profileCategories,
     };
-    const syncedWallets = syncEndSavingsWallet(withCats.wallets, withCats.endSavings);
+    const syncedWallets = syncEndSavingsWallet(withCats.wallets, withCats.endSavings, withCats.endSavingsTargetWalletId);
     state = syncedWallets !== withCats.wallets ? { ...withCats, wallets: syncedWallets } : withCats;
     scheduleSave();
   }

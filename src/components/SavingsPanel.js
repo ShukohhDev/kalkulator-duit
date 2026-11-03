@@ -56,14 +56,17 @@ export function renderSavingsPanel(container, { state, derived, update, lang = '
   }
 
   function render() {
-    const recommendations = activeGoals(state.goals)
-      .map((goal) => ({ goal, calc: projection(goal, state.currentAge, derived.savingsByGoal) }))
+    const goals = Array.isArray(state?.goals) ? state.goals : [];
+    const savingsByGoal = (derived && derived.savingsByGoal) ? derived.savingsByGoal : {};
+    const age = state?.currentAge || 0;
+    const recommendations = activeGoals(goals)
+      .map((goal) => ({ goal, calc: projection(goal, age, savingsByGoal) }))
       .filter((item) => item.calc !== null);
 
-    const goalsHtml = state.goals.map((goal) => {
-      const months = monthsLeft(goal, state.currentAge);
-      const logged = derived.savingsByGoal[goal.id] ?? 0;
-      const savedNow = effectiveSaved(goal, derived.savingsByGoal);
+    const goalsHtml = goals.map((goal) => {
+      const months = monthsLeft(goal, age);
+      const logged = savingsByGoal[goal.id] ?? 0;
+      const savedNow = effectiveSaved(goal, savingsByGoal);
       const percent = goal.target > 0 ? Math.round((savedNow / goal.target) * 100) : 0;
 
       return `
