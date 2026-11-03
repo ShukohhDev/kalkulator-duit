@@ -29,6 +29,7 @@ import {
   markNotificationAsRead,
 } from './lib/notifications.js';
 import { translate, getDeviceLanguage, setDeviceLanguage } from './lib/i18n.js';
+import { escapeHtml } from './lib/dom.js';
 
 // Component Renders
 import { renderAccountSecurityCard } from './components/AccountSecurityCard.js';
@@ -148,6 +149,7 @@ function mountAppShell(container, { user, onLogout }) {
 
   let pickerOpen = false;
   let calcOpen = false;
+  let logoutConfirmOpen = false;
   let openPanel = null;
   let quick = null; // 'expense' | 'income' | null
   let toast = null;
@@ -495,6 +497,7 @@ function mountAppShell(container, { user, onLogout }) {
       <div id="slot-toast"></div>
       <div id="slot-period-picker"></div>
       <div id="slot-calculator"></div>
+      <div id="slot-logout-confirm"></div>
       <button
         type="button"
         class="fab"
@@ -801,6 +804,62 @@ function mountAppShell(container, { user, onLogout }) {
   }
 
   function renderModals() {
+    const logoutSlot = container.querySelector('#slot-logout-confirm');
+    if (logoutSlot) {
+      if (logoutConfirmOpen) {
+        const isCurrentEn = language === 'en';
+        logoutSlot.innerHTML = `
+          <div class="overlay" id="modal-logout-confirm" role="dialog" aria-modal="true" aria-labelledby="logout-confirm-title">
+            <div class="overlay-card" style="max-width: 400px; padding: 28px 24px; text-align: center;">
+              <div style="width: 52px; height: 52px; margin: 0 auto 16px; border-radius: 50%; background: var(--danger-soft, rgba(239, 68, 68, 0.14)); color: var(--danger, #ef4444); display: flex; align-items: center; justify-content: center;">
+                <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                  <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
+                  <polyline points="16 17 21 12 16 7"></polyline>
+                  <line x1="21" y1="12" x2="9" y2="12"></line>
+                </svg>
+              </div>
+              <h2 class="overlay-title" id="logout-confirm-title" style="font-size: 1.25rem; margin-bottom: 8px;">
+                ${translate('topbar.logoutConfirmTitle', language)}
+              </h2>
+              <p class="overlay-sub" style="margin-bottom: 24px; font-size: 0.95rem; line-height: 1.5;">
+                ${isCurrentEn
+                  ? `Are you sure you want to sign out of <strong>${escapeHtml(user)}</strong>?`
+                  : `Apakah Anda yakin ingin keluar dari akun <strong>${escapeHtml(user)}</strong>?`}
+              </p>
+              <div style="display: flex; gap: 12px; justify-content: center;">
+                <button type="button" class="btn btn-ghost" id="btn-cancel-logout" style="flex: 1;">
+                  ${translate('topbar.logoutCancelBtn', language)}
+                </button>
+                <button type="button" class="btn btn-danger" id="btn-confirm-logout" style="flex: 1;">
+                  ${translate('topbar.logoutConfirmBtn', language)}
+                </button>
+              </div>
+            </div>
+          </div>
+        `;
+
+        const overlayEl = logoutSlot.querySelector('#modal-logout-confirm');
+        overlayEl?.addEventListener('click', (e) => {
+          if (e.target === overlayEl) {
+            logoutConfirmOpen = false;
+            renderModals();
+          }
+        });
+
+        logoutSlot.querySelector('#btn-cancel-logout')?.addEventListener('click', () => {
+          logoutConfirmOpen = false;
+          renderModals();
+        });
+
+        logoutSlot.querySelector('#btn-confirm-logout')?.addEventListener('click', () => {
+          logoutConfirmOpen = false;
+          renderModals();
+          handleLogout();
+        });
+      } else {
+        logoutSlot.innerHTML = '';
+      }
+    }
     const state = store.getState();
     const pickerSlot = container.querySelector('#slot-period-picker');
     if (pickerSlot) {
@@ -1047,7 +1106,7 @@ function mountAppShell(container, { user, onLogout }) {
     store.update((s) => ({ ...s, theme: nextTheme }));
   });
 
-  container.querySelector('#btn-logout')?.addEventListener('click', handleLogout);
+  container.querySelector('#btn-logout')?.addEventListener('click', () => { logoutConfirmOpen = true; renderModals(); });
 
   container.querySelector('#fab-calc')?.addEventListener('click', () => {
     calcOpen = !calcOpen;

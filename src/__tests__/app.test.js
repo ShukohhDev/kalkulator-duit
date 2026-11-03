@@ -806,8 +806,24 @@ describe('alur aplikasi', () => {
 });
 
 describe('akun & catatan aktivitas', () => {
+  it('konfirmasi keluar: tombol batal membatalkan logout dan tetap berada di dalam aplikasi', () => {
+    clickText('button', 'Keluar');
+    const modal = container.querySelector('#modal-logout-confirm');
+    expect(modal).not.toBeNull();
+    expect(modal.textContent).toContain('Konfirmasi Keluar');
+    expect(modal.textContent).toContain('tester');
+
+    // Klik tombol Batal
+    clickText('button', 'Batal');
+    expect(container.querySelector('#modal-logout-confirm')).toBeNull();
+    expect(container.querySelector('.auth-gate')).toBeNull();
+    expect(container.querySelector('.chip-user')?.textContent).toBe('tester');
+  });
+
   it('keluar membuka layar masuk, masuk lagi kembali ke aplikasi', async () => {
     clickText('button', 'Keluar');
+    expect(container.querySelector('#modal-logout-confirm')).not.toBeNull();
+    clickText('button', 'Ya, Keluar');
     expect(container.querySelector('.auth-gate')).not.toBeNull();
     expect(container.textContent).toContain('Akun di perangkat ini');
     expect(container.querySelector('.auth-names')?.textContent).toBe('tester');
@@ -852,6 +868,8 @@ describe('akun & catatan aktivitas', () => {
     expect(stateAfterSelect.colorTheme).toBe('sage');
 
     clickText('button', 'Keluar');
+    expect(container.querySelector('#modal-logout-confirm')).not.toBeNull();
+    clickText('button', 'Ya, Keluar');
     expect(container.querySelector('.auth-gate')).not.toBeNull();
     expect(document.documentElement.dataset.colorTheme).toBe('sage');
 

@@ -3440,7 +3440,7 @@ select option {
   display: grid;
   place-items: center;
   padding: 20px;
-  z-index: 65;
+  z-index: 1000;
   backdrop-filter: blur(8px);
   -webkit-backdrop-filter: blur(8px);
   animation: fade-in 0.2s ease both;
