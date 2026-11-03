@@ -18,7 +18,7 @@ describe('Keamanan & Pengerasan Otentikasi (Security & Hardening)', () => {
         expect(valid).toBeNull();
         expect(currentUser()).toBe('User.A-1 #Dev');
     });
-    it('sesi otomatis kedaluwarsa setelah 30 menit inaktivitas dan tidak dapat diakses lagi', async () => {
+    it('sesi otomatis kedaluwarsa setelah batas inaktivitas terlampaui dan tidak dapat diakses lagi', async () => {
         await register('penggunaSesi', 'password123');
         expect(currentUser()).toBe('penggunaSesi');
         // Waktu mundur lebih dari 30 menit

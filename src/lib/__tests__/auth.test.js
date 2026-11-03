@@ -49,7 +49,7 @@ describe('akun & sesi', () => {
         logout();
         expect(currentUser()).toBeNull();
     });
-    it('sesi bertahan saat browser ditutup sebentar (sessionStorage kosong tapi di bawah 30 menit)', async () => {
+    it('sesi bertahan saat browser ditutup (sessionStorage kosong tapi sesi masih berlaku)', async () => {
         await register('adi', 'kata123');
         expect(currentUser()).toBe('adi');
         // Simulasi tutup tab/browser: sessionStorage dibersihkan
@@ -59,7 +59,7 @@ describe('akun & sesi', () => {
         window.localStorage.setItem(SESSION_TIME_KEY, String(fiveMinutesAgo));
         expect(currentUser()).toBe('adi');
     });
-    it('sesi otomatis hangus jika pengguna keluar lebih dari 30 menit', async () => {
+    it('sesi otomatis hangus jika pengguna keluar lebih dari batas waktu sesi', async () => {
         await register('adi', 'kata123');
         expect(currentUser()).toBe('adi');
         // Simulasi waktu berlalu lebih dari 30 menit

@@ -3,7 +3,7 @@ const ACCOUNTS_KEY = 'kalkulator-duitmu:accounts';
 const SESSION_KEY = 'kalkulator-duitmu:session';
 const SESSION_ROLE_KEY = 'kalkulator-duitmu:session_role';
 export const SESSION_TIME_KEY = 'kalkulator-duitmu:session_time';
-export const SESSION_TIMEOUT_MS = 30 * 60 * 1000; // 30 menit
+export const SESSION_TIMEOUT_MS = 30 * 24 * 60 * 60 * 1000; // 30 hari (persistent session)
 function readAccounts() {
     try {
         const raw = localStorage.getItem(ACCOUNTS_KEY);
