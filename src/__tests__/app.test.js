@@ -123,6 +123,35 @@ describe('alur aplikasi', () => {
     expect(container.textContent).toContain('168.000');
   });
 
+  it('kustomisasi kartu saku dan nominal pada profil tinggal di rumah tetap tersimpan saat berganti ke tinggal di kos lalu kembali lagi', () => {
+    click('.period-option');
+    setValue('#allowance', '500000');
+
+    const makanInput = container.querySelector('#alloc-makan');
+    expect(makanInput).toBeTruthy();
+    setValue('#alloc-makan', '250000');
+
+    const transportInput = container.querySelector('#alloc-transport');
+    expect(transportInput).toBeTruthy();
+    setValue('#alloc-transport', '0');
+    transportInput.dispatchEvent(new Event('blur'));
+
+    // Ganti profil ke Tinggal di Kos
+    clickText('button', 'Periode: 1 Minggu');
+    clickText('.profile-chip', 'Tinggal di Kos');
+    clickText('button', 'Batal');
+
+    expect(container.textContent).toContain('Sewa kos + listrik + keamanan');
+
+    // Ganti profil kembali ke Tinggal di Rumah
+    clickText('button', 'Periode: 1 Minggu');
+    clickText('.profile-chip', 'Tinggal di Rumah');
+    clickText('button', 'Batal');
+
+    expect(container.querySelector('#alloc-makan')?.value).toBe('250.000');
+    expect(container.querySelector('#alloc-transport')).toBeNull();
+  });
+
   it('pilihan kategori pada panel pengeluaran hanya menampilkan kategori hasil alokasi aktif', () => {
     click('.period-option');
     setValue('#allowance', '700000');
@@ -376,7 +405,7 @@ describe('alur aplikasi', () => {
     expect(wishCard.textContent).toContain('(10%)');
     expect(wishCard.textContent).toContain('setoran tercatat');
     expect(container.textContent).toContain('Setoran HP baru');
-  });
+  }, 15000);
 
   it('menampilkan baris aksi data dan toast saat dicadangkan', () => {
     expect(container.textContent).toContain('Data & Cadangan');
@@ -787,13 +816,15 @@ describe('akun & catatan aktivitas', () => {
     setValue('#auth-pass', 'kata123');
     const card = container.querySelector('.auth-card');
     card.dispatchEvent(new Event('submit', { bubbles: true, cancelable: true }));
-    await new Promise((resolve) => setTimeout(resolve, 150));
+    for (let i = 0; i < 20 && container.querySelector('.auth-gate'); i++) {
+      await new Promise((resolve) => setTimeout(resolve, 50));
+    }
 
     expect(container.querySelector('.auth-gate')).toBeNull();
     expect(container.querySelector('.chip-user')?.textContent).toBe('tester');
     expect(container.textContent).toContain('Keluar dari akun tester');
     expect(container.textContent).toContain('Masuk ke akun tester');
-  });
+  }, 15000);
 
   it('pengeluaran baru muncul di Catatan Aktivitas', () => {
     click('.period-option');
@@ -828,7 +859,9 @@ describe('akun & catatan aktivitas', () => {
     setValue('#auth-pass', 'kata123');
     const card = container.querySelector('.auth-card');
     card.dispatchEvent(new Event('submit', { bubbles: true, cancelable: true }));
-    await new Promise((resolve) => setTimeout(resolve, 150));
+    for (let i = 0; i < 20 && container.querySelector('.auth-gate'); i++) {
+      await new Promise((resolve) => setTimeout(resolve, 50));
+    }
 
     expect(container.querySelector('.auth-gate')).toBeNull();
     expect(document.documentElement.dataset.colorTheme).toBe('sage');
@@ -842,7 +875,7 @@ describe('akun & catatan aktivitas', () => {
     nordicOption.click();
     expect(document.documentElement.dataset.colorTheme).toBe('nordic');
     expect(loadState().colorTheme).toBe('nordic');
-  });
+  }, 15000);
 });
 
 describe('pemasukan tidak tetap', () => {

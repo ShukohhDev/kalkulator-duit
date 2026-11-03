@@ -96,6 +96,7 @@ export function activeGoals(goals) {
     return goals.filter((goal) => goal.active && goal.target > 0).sort((a, b) => a.targetAge - b.targetAge);
 }
 export function initialState() {
+    const defaultCats = defaultCategories();
     return {
         version: 1,
         mode: null,
@@ -105,7 +106,10 @@ export function initialState() {
         bonusSplit: { ...DEFAULT_BONUS_SPLIT },
         profile: 'tinggal-rumah',
         lifestyle: 'seimbang',
-        categories: defaultCategories(),
+        categories: defaultCats,
+        profileCategories: {
+            'tinggal-rumah': defaultCats,
+        },
         expenses: [],
         incomes: [],
         goals: [],

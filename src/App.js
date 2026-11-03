@@ -203,12 +203,29 @@ function mountAppShell(container, { user, onLogout }) {
   function applyProfile(profileId) {
     const profile = findProfile(profileId);
     store.update((s) => {
-      const base = applyProfileToCategories(s.categories, profile);
-      const styled = applyLifestyle(base, s.lifestyle);
+      const currentProfile = s.profile || 'tinggal-rumah';
+      const savedProfileCategories = {
+        ...(s.profileCategories || {}),
+        [currentProfile]: s.categories,
+      };
+
+      let nextCategories;
+      if (savedProfileCategories[profileId] && Array.isArray(savedProfileCategories[profileId]) && savedProfileCategories[profileId].length > 0) {
+        nextCategories = savedProfileCategories[profileId];
+      } else {
+        const base = applyProfileToCategories(s.categories, profile);
+        const styled = applyLifestyle(base, s.lifestyle);
+        nextCategories = s.allowance > 0 ? roundAllocationCategories(styled, s.allowance) : styled;
+      }
+
       return {
         ...s,
         profile: profileId,
-        categories: s.allowance > 0 ? roundAllocationCategories(styled, s.allowance) : styled,
+        categories: nextCategories,
+        profileCategories: {
+          ...savedProfileCategories,
+          [profileId]: nextCategories,
+        },
       };
     });
   }

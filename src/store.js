@@ -62,8 +62,17 @@ export function createStore() {
   function update(recipe) {
     const prev = state;
     const next = recipe(prev);
-    const syncedWallets = syncEndSavingsWallet(next.wallets, next.endSavings);
-    const withWallets = syncedWallets !== next.wallets ? { ...next, wallets: syncedWallets } : next;
+    const activeProfile = next.profile || 'tinggal-rumah';
+    const profileCategories = {
+      ...(next.profileCategories || prev.profileCategories || {}),
+      [activeProfile]: next.categories,
+    };
+    const withProfileCats = {
+      ...next,
+      profileCategories,
+    };
+    const syncedWallets = syncEndSavingsWallet(withProfileCats.wallets, withProfileCats.endSavings);
+    const withWallets = syncedWallets !== withProfileCats.wallets ? { ...withProfileCats, wallets: syncedWallets } : withProfileCats;
     const added = diffActivity(prev, withWallets);
     if (added.length === 0) {
       state = withWallets;
@@ -77,8 +86,17 @@ export function createStore() {
   }
 
   function replace(newState) {
-    const syncedWallets = syncEndSavingsWallet(newState.wallets, newState.endSavings);
-    state = syncedWallets !== newState.wallets ? { ...newState, wallets: syncedWallets } : newState;
+    const activeProfile = newState.profile || 'tinggal-rumah';
+    const profileCategories = {
+      ...(newState.profileCategories || {}),
+      [activeProfile]: newState.categories,
+    };
+    const withCats = {
+      ...newState,
+      profileCategories,
+    };
+    const syncedWallets = syncEndSavingsWallet(withCats.wallets, withCats.endSavings);
+    state = syncedWallets !== withCats.wallets ? { ...withCats, wallets: syncedWallets } : withCats;
     scheduleSave();
   }
 

@@ -1,5 +1,5 @@
 import { initialState, defaultCategories, defaultWallets, syncEndSavingsWallet, END_SAVINGS_WALLET_ID, PULSA_CATEGORY, CICILAN_CATEGORY, TAGIHAN_CATEGORY } from './state';
-import { migrateProfileId } from './profiles';
+import { migrateProfileId, isProfileId } from './profiles';
 import { currentUser } from './auth';
 import { MAX_ACTIVITY } from './activity';
 import { sanitizeBonusSplit } from './bonus';
@@ -276,6 +276,20 @@ function legacyEndSavings(data) {
     }
     return sum;
 }
+function sanitizeProfileCategories(raw, currentProfile, currentCategories) {
+    const out = {};
+    if (raw && typeof raw === 'object') {
+        for (const [key, list] of Object.entries(raw)) {
+            if (isProfileId(key) && Array.isArray(list) && list.length > 0) {
+                out[key] = migrateCategories(sanitizeCategories(list));
+            }
+        }
+    }
+    if (currentProfile && currentCategories) {
+        out[currentProfile] = currentCategories;
+    }
+    return out;
+}
 export function sanitize(raw) {
     const base = initialState();
     if (!raw || typeof raw !== 'object')
@@ -289,6 +303,8 @@ export function sanitize(raw) {
         : END_SAVINGS_WALLET_ID;
     const rawWallets = Array.isArray(data.wallets) ? sanitizeWallets(data.wallets) : defaultWallets();
     const wallets = syncEndSavingsWallet(rawWallets, endSavings, endSavingsTargetWalletId);
+    const profile = migrateProfileId(data.profile);
+    const profileCategories = sanitizeProfileCategories(data.profileCategories, profile, categories);
     const state = {
         version: 1,
         mode: isPeriodMode(data.mode) ? data.mode : null,
@@ -296,9 +312,10 @@ export function sanitize(raw) {
         incomeVar: data.incomeVar === true,
         allowanceMax: Math.max(0, num(data.allowanceMax)),
         bonusSplit: sanitizeBonusSplit(data.bonusSplit),
-        profile: migrateProfileId(data.profile),
+        profile,
         lifestyle: isLifestyleId(data.lifestyle) ? data.lifestyle : 'seimbang',
         categories,
+        profileCategories,
         expenses: sanitizeExpenses(data.expenses),
         incomes: sanitizeIncomes(data.incomes),
         goals: sanitizeGoals(data.goals),
