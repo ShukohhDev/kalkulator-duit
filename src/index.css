@@ -257,7 +257,7 @@
   box-sizing: border-box;
 }
 
-html, body {
+html {
   max-width: 100vw;
   overflow-x: clip;
   position: relative;
@@ -265,6 +265,10 @@ html, body {
 }
 
 body {
+  max-width: 100vw;
+  overflow-x: visible;
+  position: relative;
+  width: 100%;
   margin: 0;
   background: var(--bg);
   color: var(--text);
@@ -1260,21 +1264,35 @@ select option {
    SECTION NAV & DESKTOP STICKY NAVIGATION (Window Switcher)
    ========================================================= */
 
+#slot-section-nav {
+  position: -webkit-sticky;
+  position: sticky;
+  top: 0;
+  z-index: 85;
+  width: 100%;
+  background: var(--bg);
+  padding: calc(6px + env(safe-area-inset-top, 0px)) 0 8px 0;
+  margin-bottom: 12px;
+  overflow: visible !important;
+  transition: padding var(--t-fast);
+}
+
+[data-theme='dark'] #slot-section-nav {
+  background: var(--bg);
+}
+
 .section-nav {
   display: flex;
   align-items: center;
   justify-content: flex-start;
   gap: 6px;
   padding: 6px 8px;
-  margin-bottom: 20px;
+  margin-bottom: 0;
   background: var(--surface);
   border: 1px solid var(--border-2);
   border-radius: var(--radius);
   box-shadow: var(--shadow-sm);
-  position: -webkit-sticky;
-  position: sticky;
-  top: 8px;
-  z-index: 60;
+  width: 100%;
   min-height: 44px;
   height: 44px;
   overflow: visible !important;
@@ -1292,7 +1310,7 @@ select option {
 }
 
 .section-nav.section-nav-sticky {
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.10);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
   border-color: var(--accent);
   background: var(--surface) !important;
   overflow: visible !important;
@@ -1638,17 +1656,25 @@ select option {
   }
 
   /* Navigasi Pemilihan Halaman: TETAP MENEMPEL DI ATAS saat scroll di Mobile (seperti laptop/komputer) */
-  .section-nav {
+  #slot-section-nav {
     position: -webkit-sticky;
     position: sticky;
     top: 0;
     z-index: 85;
+    width: 100%;
+    background: var(--bg);
+    padding: calc(4px + env(safe-area-inset-top, 0px)) 0 6px 0;
+    margin-bottom: 10px;
+    overflow: visible !important;
+  }
+
+  .section-nav {
     background: var(--surface);
     border: 1px solid var(--border-2);
     border-radius: var(--radius);
     box-shadow: var(--shadow-sm);
     padding: 6px 8px;
-    margin: 0 0 14px 0;
+    margin: 0;
     display: flex;
     align-items: center;
     justify-content: flex-start;
@@ -1656,6 +1682,7 @@ select option {
     backdrop-filter: blur(16px);
     -webkit-backdrop-filter: blur(16px);
     overflow: visible !important;
+    width: 100%;
   }
 
   [data-theme='dark'] .section-nav {

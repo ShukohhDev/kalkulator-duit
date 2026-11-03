@@ -25,6 +25,9 @@ export function renderSectionNav(container, { items, openId, onOpen, extraAction
     `;
   }).join('');
 
+  const itemsEl = container.querySelector('.section-nav-items');
+  const prevScrollLeft = itemsEl ? itemsEl.scrollLeft : 0;
+
   container.innerHTML = `
     <nav class="section-nav${isSticky ? ' section-nav-sticky' : ''}" aria-label="${isEn ? 'Panel navigation' : 'Navigasi panel'}">
       <div class="section-nav-items">
@@ -33,6 +36,11 @@ export function renderSectionNav(container, { items, openId, onOpen, extraAction
       ${extraActionsHtml ? `<div class="section-nav-actions">${extraActionsHtml}</div>` : ''}
     </nav>
   `;
+
+  const newItemsEl = container.querySelector('.section-nav-items');
+  if (newItemsEl && prevScrollLeft > 0) {
+    newItemsEl.scrollLeft = prevScrollLeft;
+  }
 
   container.querySelectorAll('.nav-chip').forEach((btn) => {
     btn.addEventListener('click', () => {

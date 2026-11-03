@@ -1063,8 +1063,8 @@ function mountAppShell(container, { user, onLogout }) {
   // Keyboard and scroll listeners
   let rafId = null;
   const onScroll = () => {
-    const y = window.scrollY || 0;
-    const nextScrolled = y >= 75 ? true : y <= 55 ? false : isScrolled;
+    const y = window.scrollY || window.pageYOffset || document.documentElement.scrollTop || 0;
+    const nextScrolled = y >= 45 ? true : y <= 20 ? false : isScrolled;
     if (nextScrolled !== isScrolled) {
       isScrolled = nextScrolled;
       renderSectionNavSlot();
